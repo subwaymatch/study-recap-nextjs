@@ -1,0 +1,343 @@
+:root {
+  --bg-primary: #0a0a0f;
+  --bg-card: #13131a;
+  --bg-card-hover: #1a1a24;
+  --bg-correct: #052e16;
+  --bg-option: #1a1a2e;
+  --text-primary: #f0f0f5;
+  --text-secondary: #a0a0b0;
+  --text-correct: #22c55e;
+  --text-muted: #606070;
+  --accent: #6060f0;
+  --accent-hover: #7070ff;
+  --border: #2a2a3a;
+  --font-xl: clamp(2.8rem, 4.5vw, 5rem);
+  --font-lg: clamp(2rem, 3vw, 3.2rem);
+  --font-md: clamp(1.4rem, 2vw, 2rem);
+  --font-sm: clamp(1rem, 1.5vw, 1.4rem);
+  --font-xs: clamp(0.85rem, 1.2vw, 1.1rem);
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html,
+body {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+body {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+    Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Module Select Page */
+.module-select {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: clamp(1.5rem, 3vw, 3rem);
+  overflow-y: auto;
+}
+
+.module-select h1 {
+  font-size: var(--font-lg);
+  margin-bottom: clamp(1rem, 2vw, 2rem);
+  color: var(--text-primary);
+}
+
+.module-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 400px), 1fr));
+  gap: clamp(1rem, 1.5vw, 1.5rem);
+}
+
+/* Module Card */
+.module-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: clamp(1.2rem, 2vw, 2rem);
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, transform 0.15s;
+}
+
+.module-card:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+
+.module-card .section-title {
+  font-size: var(--font-xs);
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.3em;
+}
+
+.module-card .unit-title {
+  font-size: var(--font-xs);
+  color: var(--text-secondary);
+  margin-bottom: 0.5em;
+}
+
+.module-card .module-title {
+  font-size: var(--font-md);
+  color: var(--text-primary);
+  font-weight: 600;
+  margin-bottom: 0.8em;
+}
+
+.module-card .counts {
+  font-size: var(--font-xs);
+  color: var(--text-muted);
+  display: flex;
+  gap: 1.2em;
+}
+
+/* Study Page */
+.study-page {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.study-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: clamp(0.8rem, 1.5vw, 1.5rem) clamp(1.5rem, 3vw, 3rem);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.study-header .card-counter {
+  font-size: var(--font-sm);
+  color: var(--text-secondary);
+}
+
+.study-header .card-type-badge {
+  font-size: var(--font-xs);
+  padding: 0.3em 0.8em;
+  border-radius: 6px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.card-type-badge.flashcard {
+  background: #1a1a3a;
+  color: #8080ff;
+}
+
+.card-type-badge.mcq {
+  background: #1a2a1a;
+  color: #60c060;
+}
+
+/* Card Content Area */
+.card-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: clamp(2rem, 4vw, 4rem) clamp(2rem, 5vw, 6rem);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* Flashcard Display */
+.flashcard-display .flashcard-body {
+  font-size: var(--font-xl);
+  line-height: 1.4;
+  margin-bottom: 1.5em;
+  font-weight: 500;
+}
+
+.flashcard-display .flashcard-explanation {
+  font-size: var(--font-md);
+  color: var(--text-secondary);
+  line-height: 1.5;
+  border-top: 1px solid var(--border);
+  padding-top: 1.5em;
+}
+
+/* MCQ Display */
+.mcq-display .mcq-body {
+  font-size: var(--font-lg);
+  line-height: 1.4;
+  margin-bottom: 1.5em;
+  font-weight: 500;
+}
+
+.mcq-options {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.6rem, 1vw, 1rem);
+  margin-bottom: 1.5em;
+}
+
+.mcq-option {
+  padding: clamp(0.8rem, 1.5vw, 1.5rem) clamp(1rem, 2vw, 2rem);
+  border-radius: 10px;
+  font-size: var(--font-md);
+  line-height: 1.4;
+  background: var(--bg-option);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: baseline;
+  gap: 0.8em;
+}
+
+.mcq-option .option-label {
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.mcq-option.correct {
+  background: var(--bg-correct);
+  border-color: var(--text-correct);
+  color: var(--text-correct);
+}
+
+.mcq-explanation {
+  font-size: var(--font-sm);
+  color: var(--text-secondary);
+  line-height: 1.5;
+  border-top: 1px solid var(--border);
+  padding-top: 1.2em;
+}
+
+.mcq-explanation strong {
+  color: var(--text-correct);
+}
+
+/* Progress Bar */
+.progress-bar-container {
+  flex-shrink: 0;
+  height: 6px;
+  background: var(--bg-card);
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: var(--accent);
+  transition: width 1s linear;
+}
+
+.progress-bar-fill.reset {
+  transition: none;
+}
+
+.progress-bar-fill.paused {
+  opacity: 0.4;
+}
+
+/* Nav Buttons */
+.nav-buttons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(0.8rem, 1.5vw, 1.5rem);
+  padding: clamp(0.8rem, 1.5vw, 1.5rem) clamp(1.5rem, 3vw, 3rem);
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.nav-btn {
+  background: var(--bg-card);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: clamp(0.6rem, 1vw, 1rem) clamp(1.2rem, 2vw, 2.5rem);
+  font-size: var(--font-sm);
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+  font-weight: 500;
+}
+
+.nav-btn:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--accent);
+}
+
+.nav-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.nav-btn.pause-btn {
+  min-width: clamp(100px, 10vw, 140px);
+}
+
+.nav-btn.home-btn {
+  color: var(--text-muted);
+  font-size: var(--font-xs);
+}
+
+/* Timer display */
+.timer-display {
+  font-size: var(--font-xs);
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Loading and Error states */
+.loading-screen,
+.error-screen {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-md);
+}
+
+.error-screen {
+  color: #ef4444;
+}
+
+/* Timer config on module select */
+.timer-config {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: clamp(1rem, 2vw, 2rem);
+  font-size: var(--font-xs);
+  color: var(--text-secondary);
+}
+
+.timer-config label {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+}
+
+.timer-config input[type="number"] {
+  width: 80px;
+  background: var(--bg-card);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.4em 0.6em;
+  font-size: inherit;
+}
+
+.timer-config input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--accent);
+}
