@@ -1,36 +1,125 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Study Recap
 
-## Getting Started
+A Next.js flashcard and multiple-choice question (MCQ) study app backed by Supabase.
 
-First, run the development server:
+## Prerequisites
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- Node.js 18+
+- A [Supabase](https://supabase.com) project
+
+## Supabase Setup
+
+### 1. Create the database tables
+
+Run the following SQL in your Supabase project's SQL editor:
+
+```sql
+-- Modules table
+create table b_modules (
+  module_id bigint primary key generated always as identity,
+  section_title text not null,
+  unit_title text not null,
+  module_title text not null,
+  flashcard_count integer not null default 0,
+  homework_mcq_count integer not null default 0
+);
+
+-- Flashcards table
+create table b_flashcards (
+  id bigint primary key generated always as identity,
+  flashcard_number integer not null,
+  module_id bigint not null references b_modules(module_id),
+  body text not null,
+  explanation text
+);
+
+-- MCQs table
+create table b_mcqs (
+  id bigint primary key generated always as identity,
+  question_number integer not null,
+  module_id bigint not null references b_modules(module_id),
+  body text not null,
+  correct_option_number integer not null,
+  option_text1 text not null,
+  option_text2 text not null,
+  option_text3 text not null,
+  option_text4 text not null,
+  explanation1 text,
+  explanation2 text,
+  explanation3 text,
+  explanation4 text,
+  skill_level text
+);
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Get your API credentials
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+In your Supabase project dashboard, go to **Project Settings > API** and copy:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **Project URL** — looks like `https://<project-ref>.supabase.co`
+- **anon public key** — the `anon` key under "Project API keys"
 
-## Learn More
+### 3. Configure environment variables
 
-To learn more about Next.js, take a look at the following resources:
+Create a `.env.local` file in the project root:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+NEXT_PUBLIC_SUPABASE_URL=https://<your-project-ref>.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=<your-anon-key>
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+> `.env.local` is git-ignored and will not be committed.
 
-## Deploy on Vercel
+## Local Development
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Install dependencies and start the dev server:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+npm install
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+### Available scripts
+
+| Command | Description |
+|---|---|
+| `npm run dev` | Start development server with hot reload |
+| `npm run build` | Build for production |
+| `npm run start` | Run the production build locally |
+| `npm run lint` | Run ESLint |
+
+## Project Structure
+
+```
+src/
+├── app/
+│   ├── page.tsx                  # Module selection landing page
+│   ├── layout.tsx                # Root layout
+│   └── study/[moduleId]/
+│       └── page.tsx              # Study session page
+├── components/
+│   ├── FlashcardDisplay.tsx
+│   ├── MCQDisplay.tsx
+│   ├── ModuleCard.tsx
+│   ├── NavButtons.tsx
+│   └── ProgressBar.tsx
+├── hooks/
+│   ├── useModules.ts             # Fetches modules from Supabase
+│   ├── useCards.ts               # Fetches flashcards & MCQs for a module
+│   └── useAutoAdvance.ts         # Auto-advance timer logic
+├── lib/
+│   └── supabaseClient.ts         # Supabase client singleton
+└── types/
+    └── index.ts                  # TypeScript interfaces
+```
+
+## Features
+
+- Browse study modules on the landing page
+- Configurable auto-advance timer (5–120 seconds, default 15 s)
+- Keyboard shortcuts during a study session:
+  - `→` / `←` — next / previous card
+  - `Space` — pause / resume auto-advance
+  - `Escape` — return to module selection
