@@ -17,6 +17,7 @@ export default function StudyPage() {
   const moduleId = Number(params.moduleId);
   const timerEnabled = searchParams.get("timer") === "true";
   const intervalSeconds = Number(searchParams.get("interval")) || 15;
+  const randomizeMcq = searchParams.get("randomize") === "true";
 
   const { cards, loading, error } = useCards(moduleId);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -114,7 +115,7 @@ export default function StudyPage() {
         {currentCard.type === "flashcard" ? (
           <FlashcardDisplay flashcard={currentCard.data} />
         ) : (
-          <MCQDisplay mcq={currentCard.data} />
+          <MCQDisplay mcq={currentCard.data} randomize={randomizeMcq} />
         )}
       </div>
 

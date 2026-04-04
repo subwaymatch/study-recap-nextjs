@@ -1,29 +1,113 @@
 "use client";
 
+import { useMemo } from "react";
 import type { MCQ } from "@/types";
 import { stripHtml, sanitizeHtml } from "@/lib/html";
 
 interface MCQDisplayProps {
   mcq: MCQ;
+  randomize?: boolean;
 }
 
 const OPTION_LABELS = ["A", "B", "C", "D"];
 
-export function MCQDisplay({ mcq }: MCQDisplayProps) {
-  const options = [
+function shuffleWithSeed<T>(arr: T[], seed: number): T[] {
+  const result = [...arr];
+  let s = seed;
+  for (let i = result.length - 1; i > 0; i--) {
+    s = (s * 16807 + 0) % 2147483647;
+    const j = s % (i + 1);
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+  return result;
+}
+
+/**
+ * Replace placeholder values like "#1#", "#2#" in explanation HTML
+ * with the actual option labels based on the current display order.
+ * originalIndexToLabel maps original 0-based index to the display label (e.g., "A", "B").
+ */
+function replaceExplanationPlaceholders(
+  html: string,
+  originalIndexToLabel: Map<number, string>
+): string {
+  return html.replace(/"#(\d+)#"/g, (_, num) => {
+    const originalIndex = parseInt(num, 10) - 1;
+    const label = originalIndexToLabel.get(originalIndex);
+    return label ?? `"#${num}#"`;
+  });
+}
+
+export function MCQDisplay({ mcq, randomize = false }: MCQDisplayProps) {
+  const originalOptions = [
     mcq.option_text1,
     mcq.option_text2,
     mcq.option_text3,
     mcq.option_text4,
   ];
-  const explanations = [
+  const originalExplanations = [
     mcq.explanation1,
     mcq.explanation2,
     mcq.explanation3,
     mcq.explanation4,
   ];
-  const correctIndex = mcq.correct_option_number - 1;
-  const correctExplanation = explanations[correctIndex];
+  const correctOriginalIndex = mcq.correct_option_number - 1;
+
+  // Each entry is the original index (0-3), potentially shuffled
+  const displayOrder = useMemo(() => {
+    const indices = [0, 1, 2, 3];
+    if (!randomize) return indices;
+    // Use mcq.id as seed for stable randomization per question
+    return shuffleWithSeed(indices, mcq.id);
+  }, [randomize, mcq.id]);
+
+  // Map from original index to displayed label
+  const originalIndexToLabel = useMemo(() => {
+    const map = new Map<number, string>();
+    displayOrder.forEach((origIdx, displayIdx) => {
+      map.set(origIdx, OPTION_LABELS[displayIdx]);
+    });
+    return map;
+  }, [displayOrder]);
+
+  // Build correct answer's display index
+  const correctDisplayIndex = displayOrder.indexOf(correctOriginalIndex);
+
+  // Order explanations: correct first, then incorrect in display order
+  const orderedExplanations = useMemo(() => {
+    const result: { explanation: string; label: string; isCorrect: boolean }[] =
+      [];
+
+    // Correct explanation first
+    const correctExpl = originalExplanations[correctOriginalIndex];
+    if (correctExpl) {
+      result.push({
+        explanation: correctExpl,
+        label: OPTION_LABELS[correctDisplayIndex],
+        isCorrect: true,
+      });
+    }
+
+    // Incorrect explanations in display order
+    displayOrder.forEach((origIdx, displayIdx) => {
+      if (origIdx === correctOriginalIndex) return;
+      const expl = originalExplanations[origIdx];
+      if (expl) {
+        result.push({
+          explanation: expl,
+          label: OPTION_LABELS[displayIdx],
+          isCorrect: false,
+        });
+      }
+    });
+
+    return result;
+  }, [
+    displayOrder,
+    correctOriginalIndex,
+    correctDisplayIndex,
+    originalExplanations,
+  ]);
 
   return (
     <div className="mcq-display">
@@ -32,25 +116,40 @@ export function MCQDisplay({ mcq }: MCQDisplayProps) {
         dangerouslySetInnerHTML={{ __html: sanitizeHtml(mcq.body) }}
       />
       <div className="mcq-options">
-        {options.map((text, i) => (
+        {displayOrder.map((origIdx, displayIdx) => (
           <div
-            key={i}
-            className={`mcq-option${i === correctIndex ? " correct" : ""}`}
+            key={origIdx}
+            className={`mcq-option${origIdx === correctOriginalIndex ? " correct" : ""}`}
           >
-            <span className="option-label">{OPTION_LABELS[i]}.</span>
-            <span>{stripHtml(text)}</span>
+            <span className="option-label">
+              {OPTION_LABELS[displayIdx]}.
+            </span>
+            <span>{stripHtml(originalOptions[origIdx])}</span>
           </div>
         ))}
       </div>
-      {correctExplanation && (
+      {orderedExplanations.length > 0 && (
         <div className="mcq-explanation">
-          <strong>Explanation:</strong>
-          <div
-            className="html-content"
-            dangerouslySetInnerHTML={{
-              __html: sanitizeHtml(correctExplanation),
-            }}
-          />
+          {orderedExplanations.map(({ explanation, label, isCorrect }) => (
+            <div key={label} className="mcq-explanation-item">
+              <strong>
+                {isCorrect
+                  ? `Explanation (${label} — Correct):`
+                  : `Explanation (${label}):`}
+              </strong>
+              <div
+                className="html-content"
+                dangerouslySetInnerHTML={{
+                  __html: sanitizeHtml(
+                    replaceExplanationPlaceholders(
+                      explanation,
+                      originalIndexToLabel
+                    )
+                  ),
+                }}
+              />
+            </div>
+          ))}
         </div>
       )}
     </div>
