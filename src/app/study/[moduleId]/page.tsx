@@ -16,7 +16,7 @@ export default function StudyPage() {
 
   const moduleId = Number(params.moduleId);
   const timerEnabled = searchParams.get("timer") === "true";
-  const intervalSeconds = Number(searchParams.get("interval")) || 15;
+  const intervalSeconds = Number(searchParams.get("interval")) || 20;
   const randomizeMcq = searchParams.get("randomize") === "true";
 
   const { cards, moduleInfo, loading, error } = useCards(moduleId);

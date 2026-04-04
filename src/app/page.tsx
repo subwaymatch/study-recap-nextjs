@@ -10,7 +10,7 @@ const SECTIONS = ["FAR", "AUD", "REG", "ISC"] as const;
 export default function ModuleSelectPage() {
   const { modules, loading, error } = useModules();
   const [timerEnabled, setTimerEnabled] = useState(true);
-  const [intervalSeconds, setIntervalSeconds] = useState(15);
+  const [intervalSeconds, setIntervalSeconds] = useState(20);
   const [randomizeMcq, setRandomizeMcq] = useState(false);
   const [hideEmpty, setHideEmpty] = useState(false);
   const [selectedSections, setSelectedSections] = useState<Set<string>>(
@@ -77,52 +77,54 @@ export default function ModuleSelectPage() {
     <div className="module-select">
       <h1>Study Recap</h1>
 
-      <div className="timer-config">
-        <label>
-          <input
-            type="checkbox"
-            checked={timerEnabled}
-            onChange={(e) => setTimerEnabled(e.target.checked)}
-          />
-          Auto-advance
-        </label>
-        {timerEnabled && (
+      <div className="options-bar">
+        <div className="timer-config">
           <label>
-            every
             <input
-              type="number"
-              min={5}
-              max={120}
-              value={intervalSeconds}
-              onChange={(e) =>
-                setIntervalSeconds(Math.max(5, Number(e.target.value)))
-              }
+              type="checkbox"
+              checked={timerEnabled}
+              onChange={(e) => setTimerEnabled(e.target.checked)}
             />
-            seconds
+            Auto-advance
           </label>
-        )}
-      </div>
+          {timerEnabled && (
+            <label>
+              every
+              <input
+                type="number"
+                min={5}
+                max={120}
+                value={intervalSeconds}
+                onChange={(e) =>
+                  setIntervalSeconds(Math.max(5, Number(e.target.value)))
+                }
+              />
+              seconds
+            </label>
+          )}
+        </div>
 
-      <div className="timer-config">
-        <label>
-          <input
-            type="checkbox"
-            checked={randomizeMcq}
-            onChange={(e) => setRandomizeMcq(e.target.checked)}
-          />
-          Randomize MCQ options
-        </label>
-      </div>
+        <div className="timer-config">
+          <label>
+            <input
+              type="checkbox"
+              checked={randomizeMcq}
+              onChange={(e) => setRandomizeMcq(e.target.checked)}
+            />
+            Randomize MCQ options
+          </label>
+        </div>
 
-      <div className="timer-config">
-        <label>
-          <input
-            type="checkbox"
-            checked={hideEmpty}
-            onChange={(e) => setHideEmpty(e.target.checked)}
-          />
-          Hide empty modules
-        </label>
+        <div className="timer-config">
+          <label>
+            <input
+              type="checkbox"
+              checked={hideEmpty}
+              onChange={(e) => setHideEmpty(e.target.checked)}
+            />
+            Hide empty modules
+          </label>
+        </div>
       </div>
 
       <div className="section-filter">
