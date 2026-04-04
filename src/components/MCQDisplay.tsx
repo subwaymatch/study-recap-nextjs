@@ -23,7 +23,7 @@ function shuffleWithSeed<T>(arr: T[], seed: number): T[] {
 }
 
 /**
- * Replace placeholder values like "#1#", "#2#" in explanation HTML
+ * Replace placeholder values like #1#, "#2#", or &quot;#3#&quot; in explanation HTML
  * with the actual option labels based on the current display order.
  * originalIndexToLabel maps original 0-based index to the display label (e.g., "A", "B").
  */
@@ -31,7 +31,7 @@ function replaceExplanationPlaceholders(
   html: string,
   originalIndexToLabel: Map<number, string>
 ): string {
-  return html.replace(/"#(\d+)#"/g, (_, num) => {
+  return html.replace(/(?:&quot;|")?#(\d+)#(?:&quot;|")?/g, (_, num) => {
     const originalIndex = parseInt(num, 10) - 1;
     const label = originalIndexToLabel.get(originalIndex);
     return label ?? `"#${num}#"`;

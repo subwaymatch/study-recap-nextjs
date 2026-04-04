@@ -30,9 +30,9 @@ export function ModuleCard({
 
   const content = (
     <>
-      <div className="section-title">{module.section_title}</div>
-      <div className="unit-title">{module.unit_title}</div>
-      <div className="module-title">{module.module_title}</div>
+      <div className="section-title">{module.section}</div>
+      <div className="unit-title">{module.unit} {module.unit_title}</div>
+      <div className="module-title">{module.module} {module.module_title}</div>
       <div className="counts">
         <span>{module.flashcard_count} flashcards</span>
         <span>{module.mcq_count} MCQs</span>
