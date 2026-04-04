@@ -231,6 +231,16 @@ a {
   color: var(--text-correct);
 }
 
+.mcq-explanation-item + .mcq-explanation-item {
+  margin-top: 1em;
+  padding-top: 1em;
+  border-top: 1px dashed var(--border);
+}
+
+.mcq-explanation-item + .mcq-explanation-item strong {
+  color: var(--text-secondary);
+}
+
 /* HTML content rendered from database */
 .html-content p {
   margin-bottom: 0.5em;

@@ -8,6 +8,7 @@ export default function ModuleSelectPage() {
   const { modules, loading, error } = useModules();
   const [timerEnabled, setTimerEnabled] = useState(true);
   const [intervalSeconds, setIntervalSeconds] = useState(15);
+  const [randomizeMcq, setRandomizeMcq] = useState(false);
 
   if (loading) {
     return <div className="loading-screen">Loading modules...</div>;
@@ -47,6 +48,17 @@ export default function ModuleSelectPage() {
         )}
       </div>
 
+      <div className="timer-config">
+        <label>
+          <input
+            type="checkbox"
+            checked={randomizeMcq}
+            onChange={(e) => setRandomizeMcq(e.target.checked)}
+          />
+          Randomize MCQ options
+        </label>
+      </div>
+
       <div className="module-grid">
         {modules.map((m) => (
           <ModuleCard
@@ -54,6 +66,7 @@ export default function ModuleSelectPage() {
             module={m}
             timerEnabled={timerEnabled}
             intervalSeconds={intervalSeconds}
+            randomizeMcq={randomizeMcq}
           />
         ))}
       </div>

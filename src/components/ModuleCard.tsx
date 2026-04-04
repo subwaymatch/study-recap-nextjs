@@ -7,17 +7,22 @@ interface ModuleCardProps {
   module: Module;
   timerEnabled: boolean;
   intervalSeconds: number;
+  randomizeMcq: boolean;
 }
 
 export function ModuleCard({
   module,
   timerEnabled,
   intervalSeconds,
+  randomizeMcq,
 }: ModuleCardProps) {
   const params = new URLSearchParams();
   if (timerEnabled) {
     params.set("timer", "true");
     params.set("interval", String(intervalSeconds));
+  }
+  if (randomizeMcq) {
+    params.set("randomize", "true");
   }
   const query = params.toString();
   const href = `/study/${module.module_id}${query ? `?${query}` : ""}`;
