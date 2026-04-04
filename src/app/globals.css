@@ -231,6 +231,65 @@ a {
   color: var(--text-correct);
 }
 
+/* HTML content rendered from database */
+.html-content p {
+  margin-bottom: 0.5em;
+}
+
+.html-content p:last-child {
+  margin-bottom: 0;
+}
+
+.html-content ul,
+.html-content ol {
+  margin: 0.5em 0;
+  padding-left: 1.5em;
+}
+
+.html-content li {
+  margin-bottom: 0.3em;
+}
+
+.html-content table {
+  border-collapse: collapse;
+  margin: 0.5em 0;
+}
+
+.html-content td,
+.html-content th {
+  padding: 0.3em 0.6em;
+  border: 1px solid var(--border);
+  vertical-align: top;
+}
+
+.html-content i,
+.html-content em {
+  font-style: italic;
+}
+
+.html-content u {
+  text-decoration: underline;
+}
+
+.html-content br {
+  display: block;
+  content: "";
+  margin-top: 0.3em;
+}
+
+.html-content .nowrap {
+  white-space: nowrap;
+}
+
+.html-content figure.table {
+  display: table;
+  margin: 0.3em 0;
+}
+
+.html-content .repo_indent_level1 {
+  margin-left: 1.5em;
+}
+
 /* Progress Bar */
 .progress-bar-container {
   flex-shrink: 0;
