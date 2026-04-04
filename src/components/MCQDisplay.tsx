@@ -1,6 +1,7 @@
 "use client";
 
 import type { MCQ } from "@/types";
+import { stripHtml, sanitizeHtml } from "@/lib/html";
 
 interface MCQDisplayProps {
   mcq: MCQ;
@@ -26,7 +27,10 @@ export function MCQDisplay({ mcq }: MCQDisplayProps) {
 
   return (
     <div className="mcq-display">
-      <div className="mcq-body">{mcq.body}</div>
+      <div
+        className="mcq-body html-content"
+        dangerouslySetInnerHTML={{ __html: sanitizeHtml(mcq.body) }}
+      />
       <div className="mcq-options">
         {options.map((text, i) => (
           <div
@@ -34,13 +38,19 @@ export function MCQDisplay({ mcq }: MCQDisplayProps) {
             className={`mcq-option${i === correctIndex ? " correct" : ""}`}
           >
             <span className="option-label">{OPTION_LABELS[i]}.</span>
-            <span>{text}</span>
+            <span>{stripHtml(text)}</span>
           </div>
         ))}
       </div>
       {correctExplanation && (
         <div className="mcq-explanation">
-          <strong>Explanation:</strong> {correctExplanation}
+          <strong>Explanation:</strong>
+          <div
+            className="html-content"
+            dangerouslySetInnerHTML={{
+              __html: sanitizeHtml(correctExplanation),
+            }}
+          />
         </div>
       )}
     </div>
