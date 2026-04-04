@@ -11,16 +11,42 @@ export function useModules() {
 
   useEffect(() => {
     async function fetchModules() {
-      const { data, error: err } = await getSupabase()
-        .from("b_modules")
-        .select("module_id, section_title, unit_title, module_title, flashcard_count, homework_mcq_count")
-        .order("module_id", { ascending: true });
+      const supabase = getSupabase();
 
-      if (err) {
-        setError(err.message);
-      } else {
-        setModules(data ?? []);
+      const [modulesRes, flashcardsRes, mcqsRes] = await Promise.all([
+        supabase
+          .from("b_modules")
+          .select("module_id, section_title, unit_title, module_title")
+          .order("module_id", { ascending: true }),
+        supabase.from("b_flashcards").select("module_id"),
+        supabase.from("b_mcqs").select("module_id"),
+      ]);
+
+      if (modulesRes.error) {
+        setError(modulesRes.error.message);
+        setLoading(false);
+        return;
       }
+
+      // Count flashcards per module
+      const flashcardCounts = new Map<number, number>();
+      for (const row of flashcardsRes.data ?? []) {
+        flashcardCounts.set(row.module_id, (flashcardCounts.get(row.module_id) ?? 0) + 1);
+      }
+
+      // Count MCQs per module
+      const mcqCounts = new Map<number, number>();
+      for (const row of mcqsRes.data ?? []) {
+        mcqCounts.set(row.module_id, (mcqCounts.get(row.module_id) ?? 0) + 1);
+      }
+
+      const modules = (modulesRes.data ?? []).map((m) => ({
+        ...m,
+        flashcard_count: flashcardCounts.get(m.module_id) ?? 0,
+        mcq_count: mcqCounts.get(m.module_id) ?? 0,
+      }));
+
+      setModules(modules);
       setLoading(false);
     }
 

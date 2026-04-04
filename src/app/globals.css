@@ -76,10 +76,15 @@ a {
   transition: background 0.2s, border-color 0.2s, transform 0.15s;
 }
 
-.module-card:hover {
+.module-card:hover:not(.module-card-disabled) {
   background: var(--bg-card-hover);
   border-color: var(--accent);
   transform: translateY(-2px);
+}
+
+.module-card-disabled {
+  opacity: 0.45;
+  cursor: default;
 }
 
 .module-card .section-title {

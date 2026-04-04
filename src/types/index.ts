@@ -4,7 +4,7 @@ export interface Module {
   unit_title: string;
   module_title: string;
   flashcard_count: number;
-  homework_mcq_count: number;
+  mcq_count: number;
 }
 
 export interface Flashcard {
