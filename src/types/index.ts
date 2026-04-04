@@ -5,6 +5,7 @@ export interface Module {
   section_title: string;
   unit_title: string;
   module_title: string;
+  module_order: number | null;
   flashcard_count: number;
   mcq_count: number;
 }
