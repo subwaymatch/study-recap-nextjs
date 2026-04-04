@@ -461,3 +461,16 @@ a {
   border-color: var(--accent);
   color: #fff;
 }
+
+.view-all-btn {
+  margin-left: 0.5rem;
+  background: var(--bg-correct);
+  border-color: var(--text-correct);
+  color: var(--text-correct);
+}
+
+.view-all-btn:hover {
+  background: #073d1e;
+  border-color: var(--text-correct);
+  color: #fff;
+}

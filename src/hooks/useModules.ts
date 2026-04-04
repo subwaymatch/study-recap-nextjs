@@ -16,7 +16,7 @@ export function useModules() {
       const [modulesRes, flashcardsRes, mcqsRes] = await Promise.all([
         supabase
           .from("b_modules")
-          .select("module_id, section, module, section_title, unit_title, module_title")
+          .select("module_id, section, module, section_title, unit_title, module_title, module_order")
           .order("module_id", { ascending: true }),
         supabase.from("b_flashcards").select("module_id"),
         supabase.from("b_mcqs").select("module_id"),
@@ -40,11 +40,20 @@ export function useModules() {
         mcqCounts.set(row.module_id, (mcqCounts.get(row.module_id) ?? 0) + 1);
       }
 
+      const SECTION_ORDER: Record<string, number> = { FAR: 0, AUD: 1, REG: 2, ISC: 3 };
+
       const modules = (modulesRes.data ?? []).map((m) => ({
         ...m,
+        module_order: m.module_order ?? null,
         flashcard_count: flashcardCounts.get(m.module_id) ?? 0,
         mcq_count: mcqCounts.get(m.module_id) ?? 0,
       }));
+
+      modules.sort((a, b) => {
+        const sectionDiff = (SECTION_ORDER[a.section] ?? 99) - (SECTION_ORDER[b.section] ?? 99);
+        if (sectionDiff !== 0) return sectionDiff;
+        return (a.module_order ?? Infinity) - (b.module_order ?? Infinity);
+      });
 
       setModules(modules);
       setLoading(false);
