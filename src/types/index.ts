@@ -1,5 +1,7 @@
 export interface Module {
   module_id: number;
+  section: string;
+  module: string;
   section_title: string;
   unit_title: string;
   module_title: string;
