@@ -57,3 +57,14 @@ export function stripHtml(html: string): string {
 export function sanitizeHtml(html: string): string {
   return DOMPurify.sanitize(html);
 }
+
+/**
+ * Extract inner HTML from <td class='optionText'> wrapper (if present),
+ * then sanitize for safe rendering. Preserves <br> and other inline tags.
+ */
+export function extractOptionHtml(html: string): string {
+  const match = html.match(
+    /<td[^>]*class=['"]optionText['"][^>]*>([\s\S]*?)<\/td>/i
+  );
+  return DOMPurify.sanitize(match ? match[1] : html);
+}
