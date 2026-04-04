@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import type { MCQ } from "@/types";
-import { stripHtml, sanitizeHtml } from "@/lib/html";
+import { sanitizeHtml, extractOptionHtml } from "@/lib/html";
 
 interface MCQDisplayProps {
   mcq: MCQ;
@@ -124,7 +124,11 @@ export function MCQDisplay({ mcq, randomize = false }: MCQDisplayProps) {
             <span className="option-label">
               {OPTION_LABELS[displayIdx]}.
             </span>
-            <span>{stripHtml(originalOptions[origIdx])}</span>
+            <span
+              dangerouslySetInnerHTML={{
+                __html: extractOptionHtml(originalOptions[origIdx]),
+              }}
+            />
           </div>
         ))}
       </div>
