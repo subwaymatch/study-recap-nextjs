@@ -1,14 +1,36 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useModules } from "@/hooks/useModules";
 import { ModuleCard } from "@/components/ModuleCard";
+
+const SECTIONS = ["FAR", "AUD", "REG", "ISC"] as const;
 
 export default function ModuleSelectPage() {
   const { modules, loading, error } = useModules();
   const [timerEnabled, setTimerEnabled] = useState(true);
   const [intervalSeconds, setIntervalSeconds] = useState(15);
   const [randomizeMcq, setRandomizeMcq] = useState(false);
+  const [selectedSections, setSelectedSections] = useState<Set<string>>(
+    new Set()
+  );
+
+  const toggleSection = (section: string) => {
+    setSelectedSections((prev) => {
+      const next = new Set(prev);
+      if (next.has(section)) {
+        next.delete(section);
+      } else {
+        next.add(section);
+      }
+      return next;
+    });
+  };
+
+  const filteredModules = useMemo(() => {
+    if (selectedSections.size === 0) return modules;
+    return modules.filter((m) => selectedSections.has(m.section));
+  }, [modules, selectedSections]);
 
   if (loading) {
     return <div className="loading-screen">Loading modules...</div>;
@@ -59,8 +81,20 @@ export default function ModuleSelectPage() {
         </label>
       </div>
 
+      <div className="section-filter">
+        {SECTIONS.map((section) => (
+          <button
+            key={section}
+            className={`section-filter-btn${selectedSections.has(section) ? " active" : ""}`}
+            onClick={() => toggleSection(section)}
+          >
+            {section}
+          </button>
+        ))}
+      </div>
+
       <div className="module-grid">
-        {modules.map((m) => (
+        {filteredModules.map((m) => (
           <ModuleCard
             key={m.module_id}
             module={m}

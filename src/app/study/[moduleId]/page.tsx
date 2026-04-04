@@ -19,7 +19,7 @@ export default function StudyPage() {
   const intervalSeconds = Number(searchParams.get("interval")) || 15;
   const randomizeMcq = searchParams.get("randomize") === "true";
 
-  const { cards, loading, error } = useCards(moduleId);
+  const { cards, moduleInfo, loading, error } = useCards(moduleId);
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const goNext = useCallback(() => {
@@ -91,11 +91,18 @@ export default function StudyPage() {
         <span className="card-counter">
           {currentIndex + 1} / {cards.length}
         </span>
-        <span
-          className={`card-type-badge ${currentCard.type === "flashcard" ? "flashcard" : "mcq"}`}
-        >
-          {currentCard.type === "flashcard" ? "Flashcard" : "MCQ"}
-        </span>
+        <div className="study-header-center">
+          {moduleInfo && (
+            <span className="module-info-badge">
+              {moduleInfo.section} · {moduleInfo.module} · {moduleInfo.module_title}
+            </span>
+          )}
+          <span
+            className={`card-type-badge ${currentCard.type === "flashcard" ? "flashcard" : "mcq"}`}
+          >
+            {currentCard.type === "flashcard" ? "Flashcard" : "MCQ"}
+          </span>
+        </div>
         {timerEnabled && (
           <span className="timer-display">
             {isPaused ? "Paused" : `${secondsRemaining}s`}

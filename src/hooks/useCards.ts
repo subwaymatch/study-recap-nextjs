@@ -4,8 +4,15 @@ import { useState, useEffect } from "react";
 import { getSupabase } from "@/lib/supabaseClient";
 import type { Flashcard, MCQ, StudyCard } from "@/types";
 
+export interface ModuleInfo {
+  section: string;
+  module: string;
+  module_title: string;
+}
+
 export function useCards(moduleId: number) {
   const [cards, setCards] = useState<StudyCard[]>([]);
+  const [moduleInfo, setModuleInfo] = useState<ModuleInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -15,7 +22,7 @@ export function useCards(moduleId: number) {
       setError(null);
 
       const supabase = getSupabase();
-      const [flashcardsRes, mcqsRes] = await Promise.all([
+      const [flashcardsRes, mcqsRes, moduleRes] = await Promise.all([
         supabase
           .from("b_flashcards")
           .select("*")
@@ -26,6 +33,11 @@ export function useCards(moduleId: number) {
           .select("*")
           .eq("module_id", moduleId)
           .order("question_number", { ascending: true }),
+        supabase
+          .from("b_modules")
+          .select("section, module, module_title")
+          .eq("module_id", moduleId)
+          .single(),
       ]);
 
       if (flashcardsRes.error) {
@@ -37,6 +49,10 @@ export function useCards(moduleId: number) {
         setError(mcqsRes.error.message);
         setLoading(false);
         return;
+      }
+
+      if (moduleRes.data) {
+        setModuleInfo(moduleRes.data as ModuleInfo);
       }
 
       const flashcards: StudyCard[] = (flashcardsRes.data as Flashcard[]).map(
@@ -54,5 +70,5 @@ export function useCards(moduleId: number) {
     fetchCards();
   }, [moduleId]);
 
-  return { cards, loading, error };
+  return { cards, moduleInfo, loading, error };
 }

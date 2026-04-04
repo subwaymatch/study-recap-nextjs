@@ -16,7 +16,7 @@ export function useModules() {
       const [modulesRes, flashcardsRes, mcqsRes] = await Promise.all([
         supabase
           .from("b_modules")
-          .select("module_id, section_title, unit_title, module_title")
+          .select("module_id, section, module, section_title, unit_title, module_title")
           .order("module_id", { ascending: true }),
         supabase.from("b_flashcards").select("module_id"),
         supabase.from("b_mcqs").select("module_id"),
