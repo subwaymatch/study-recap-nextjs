@@ -9,12 +9,12 @@ const SECTIONS = ["FAR", "AUD", "REG", "ISC"] as const;
 
 export default function ModuleSelectPage() {
   const { modules, loading, error } = useModules();
-  const [timerEnabled, setTimerEnabled] = useState(true);
+  const [timerEnabled, setTimerEnabled] = useState(false);
   const [intervalSeconds, setIntervalSeconds] = useState(20);
   const [randomizeMcq, setRandomizeMcq] = useState(false);
-  const [hideEmpty, setHideEmpty] = useState(false);
+  const [hideEmpty, setHideEmpty] = useState(true);
   const [selectedSections, setSelectedSections] = useState<Set<string>>(
-    new Set()
+    new Set(),
   );
 
   const toggleSection = (section: string) => {
@@ -35,9 +35,7 @@ export default function ModuleSelectPage() {
       result = result.filter((m) => selectedSections.has(m.section));
     }
     if (hideEmpty) {
-      result = result.filter(
-        (m) => m.flashcard_count > 0 || m.mcq_count > 0
-      );
+      result = result.filter((m) => m.flashcard_count > 0 || m.mcq_count > 0);
     }
     return result;
   }, [modules, selectedSections, hideEmpty]);
@@ -58,7 +56,9 @@ export default function ModuleSelectPage() {
 
   const viewAllCounts = useMemo(() => {
     if (selectedSections.size === 0) return null;
-    const sectionModules = modules.filter((m) => selectedSections.has(m.section));
+    const sectionModules = modules.filter((m) =>
+      selectedSections.has(m.section),
+    );
     return {
       flashcards: sectionModules.reduce((sum, m) => sum + m.flashcard_count, 0),
       mcqs: sectionModules.reduce((sum, m) => sum + m.mcq_count, 0),
@@ -140,7 +140,8 @@ export default function ModuleSelectPage() {
 
         {viewAllHref && viewAllCounts && (
           <Link href={viewAllHref} className="section-filter-btn view-all-btn">
-            View All ({viewAllCounts.flashcards} flashcards, {viewAllCounts.mcqs} MCQs)
+            View All ({viewAllCounts.flashcards} flashcards,{" "}
+            {viewAllCounts.mcqs} MCQs)
           </Link>
         )}
       </div>

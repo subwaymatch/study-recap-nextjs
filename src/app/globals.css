@@ -34,8 +34,18 @@ body {
 body {
   background: var(--bg-primary);
   color: var(--text-primary);
-  font-family: var(--font-geist-sans), -apple-system, BlinkMacSystemFont,
-    "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+  font-family:
+    var(--font-geist-sans),
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    Oxygen,
+    Ubuntu,
+    Cantarell,
+    "Helvetica Neue",
+    sans-serif;
+  letter-spacing: -0.01em;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -73,7 +83,10 @@ a {
   border-radius: 12px;
   padding: clamp(1.2rem, 2vw, 2rem);
   cursor: pointer;
-  transition: background 0.2s, border-color 0.2s, transform 0.15s;
+  transition:
+    background 0.2s,
+    border-color 0.2s,
+    transform 0.15s;
 }
 
 .module-card:hover:not(.module-card-disabled) {
@@ -182,7 +195,7 @@ a {
 
 /* Flashcard Display */
 .flashcard-display .flashcard-body {
-  font-size: var(--font-xl);
+  font-size: var(--font-lg);
   line-height: 1.4;
   margin-bottom: 1.5em;
   font-weight: 500;
@@ -198,7 +211,7 @@ a {
 
 /* MCQ Display */
 .mcq-display .mcq-body {
-  font-size: var(--font-lg);
+  font-size: var(--font-md);
   line-height: 1.4;
   margin-bottom: 1.5em;
   font-weight: 500;
@@ -214,7 +227,7 @@ a {
 .mcq-option {
   padding: clamp(0.8rem, 1.5vw, 1.5rem) clamp(1rem, 2vw, 2rem);
   border-radius: 10px;
-  font-size: var(--font-md);
+  font-size: var(--font-sm);
   line-height: 1.4;
   background: var(--bg-option);
   border: 1px solid var(--border);
@@ -242,8 +255,12 @@ a {
   padding-top: 1.2em;
 }
 
-.mcq-explanation strong {
+.mcq-explanation-item.correct strong {
   color: var(--text-correct);
+}
+
+.mcq-explanation-item.incorrect strong {
+  color: var(--text-incorrect);
 }
 
 .mcq-explanation-item + .mcq-explanation-item {
@@ -355,7 +372,9 @@ a {
   padding: clamp(0.6rem, 1vw, 1rem) clamp(1.2rem, 2vw, 2.5rem);
   font-size: var(--font-sm);
   cursor: pointer;
-  transition: background 0.2s, border-color 0.2s;
+  transition:
+    background 0.2s,
+    border-color 0.2s;
   font-weight: 500;
 }
 
@@ -454,7 +473,10 @@ a {
   font-size: var(--font-xs);
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.2s, border-color 0.2s, color 0.2s;
+  transition:
+    background 0.2s,
+    border-color 0.2s,
+    color 0.2s;
   letter-spacing: 0.05em;
 }
 

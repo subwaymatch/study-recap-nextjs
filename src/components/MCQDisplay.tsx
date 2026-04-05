@@ -29,7 +29,7 @@ function shuffleWithSeed<T>(arr: T[], seed: number): T[] {
  */
 function replaceExplanationPlaceholders(
   html: string,
-  originalIndexToLabel: Map<number, string>
+  originalIndexToLabel: Map<number, string>,
 ): string {
   return html.replace(/(?:&quot;|")?#(\d+)#(?:&quot;|")?/g, (_, num) => {
     const originalIndex = parseInt(num, 10) - 1;
@@ -121,9 +121,7 @@ export function MCQDisplay({ mcq, randomize = false }: MCQDisplayProps) {
             key={origIdx}
             className={`mcq-option${origIdx === correctOriginalIndex ? " correct" : ""}`}
           >
-            <span className="option-label">
-              {OPTION_LABELS[displayIdx]}.
-            </span>
+            <span className="option-label">{OPTION_LABELS[displayIdx]}.</span>
             <span
               dangerouslySetInnerHTML={{
                 __html: extractOptionHtml(originalOptions[origIdx]),
@@ -135,11 +133,14 @@ export function MCQDisplay({ mcq, randomize = false }: MCQDisplayProps) {
       {orderedExplanations.length > 0 && (
         <div className="mcq-explanation">
           {orderedExplanations.map(({ explanation, label, isCorrect }) => (
-            <div key={label} className="mcq-explanation-item">
+            <div
+              key={label}
+              className={`mcq-explanation-item ${isCorrect ? "correct" : "incorrect"}`}
+            >
               <strong>
                 {isCorrect
                   ? `Explanation (${label} — Correct):`
-                  : `Explanation (${label}):`}
+                  : `Explanation (${label}) - Incorrect:`}
               </strong>
               <div
                 className="html-content"
@@ -147,8 +148,8 @@ export function MCQDisplay({ mcq, randomize = false }: MCQDisplayProps) {
                   __html: sanitizeHtml(
                     replaceExplanationPlaceholders(
                       explanation,
-                      originalIndexToLabel
-                    )
+                      originalIndexToLabel,
+                    ),
                   ),
                 }}
               />
