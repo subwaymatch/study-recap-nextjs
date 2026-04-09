@@ -58,6 +58,7 @@ a {
 /* Module Select Page */
 .module-select {
   height: 100vh;
+  height: 100dvh;
   display: flex;
   flex-direction: column;
   padding: clamp(1.5rem, 3vw, 3rem);
@@ -131,6 +132,7 @@ a {
 /* Study Page */
 .study-page {
   height: 100vh;
+  height: 100dvh;
   display: flex;
   flex-direction: column;
 }
@@ -360,6 +362,7 @@ a {
   justify-content: center;
   gap: clamp(0.8rem, 1.5vw, 1.5rem);
   padding: clamp(0.8rem, 1.5vw, 1.5rem) clamp(1.5rem, 3vw, 3rem);
+  padding-bottom: max(clamp(0.8rem, 1.5vw, 1.5rem), env(safe-area-inset-bottom));
   border-top: 1px solid var(--border);
   flex-shrink: 0;
 }
@@ -407,6 +410,7 @@ a {
 .loading-screen,
 .error-screen {
   height: 100vh;
+  height: 100dvh;
   display: flex;
   align-items: center;
   justify-content: center;
