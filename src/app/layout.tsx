@@ -6,6 +6,10 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Study Recap",
   description: "Flashcard and MCQ study display for TV",
+  robots: {
+    index: false,
+    follow: false,
+  },
 };
 
 export default function RootLayout({
