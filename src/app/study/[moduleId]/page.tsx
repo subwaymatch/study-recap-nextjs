@@ -100,7 +100,22 @@ export default function StudyPage() {
           <span
             className={`card-type-badge ${currentCard.type === "flashcard" ? "flashcard" : "mcq"}`}
           >
-            {currentCard.type === "flashcard" ? "Flashcard" : "MCQ"}
+            <span className="badge-icon" aria-hidden="true">
+              {currentCard.type === "flashcard" ? (
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="2" y="4" width="20" height="16" rx="2"/>
+                  <path d="M2 9h20"/>
+                </svg>
+              ) : (
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="6" cy="7" r="2"/><circle cx="6" cy="13" r="2"/><circle cx="6" cy="19" r="2"/>
+                  <line x1="11" y1="7" x2="21" y2="7"/><line x1="11" y1="13" x2="21" y2="13"/><line x1="11" y1="19" x2="21" y2="19"/>
+                </svg>
+              )}
+            </span>
+            <span className="badge-label">
+              {currentCard.type === "flashcard" ? "Flashcard" : "MCQ"}
+            </span>
           </span>
         </div>
         {timerEnabled && (

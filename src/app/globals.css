@@ -155,6 +155,7 @@ a {
   display: flex;
   align-items: center;
   gap: 0.8em;
+  min-width: 0;
 }
 
 .module-info-badge {
@@ -169,6 +170,15 @@ a {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+}
+
+.badge-icon {
+  display: none;
+  align-items: center;
 }
 
 .card-type-badge.flashcard {
@@ -402,6 +412,32 @@ a {
 @media (max-width: 599px) {
   .nav-btn-label {
     display: none;
+  }
+
+  .study-header-center {
+    flex: 1;
+    overflow: hidden;
+    margin: 0 0.4em;
+  }
+
+  .module-info-badge {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .badge-label {
+    display: none;
+  }
+
+  .badge-icon {
+    display: inline-flex;
+  }
+
+  .study-header .card-type-badge {
+    padding: 0.35em 0.5em;
   }
 }
 
