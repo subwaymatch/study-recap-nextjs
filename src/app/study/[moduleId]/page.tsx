@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useCards } from "@/hooks/useCards";
 import { useAutoAdvance } from "@/hooks/useAutoAdvance";
@@ -8,6 +8,54 @@ import { FlashcardDisplay } from "@/components/FlashcardDisplay";
 import { MCQDisplay } from "@/components/MCQDisplay";
 import { NavButtons } from "@/components/NavButtons";
 import { ProgressBar } from "@/components/ProgressBar";
+import { AskAITab } from "@/components/AskAITab";
+import { stripHtml } from "@/lib/html";
+import type { StudyCard } from "@/types";
+
+function buildCardContext(card: StudyCard): string {
+  if (card.type === "flashcard") {
+    const body = stripHtml(card.data.body);
+    const explanation = card.data.explanation
+      ? stripHtml(card.data.explanation)
+      : "";
+    return (
+      `Card type: Flashcard\n` +
+      `Front:\n${body}` +
+      (explanation ? `\n\nExplanation:\n${explanation}` : "")
+    );
+  }
+
+  const mcq = card.data;
+  const labels = ["A", "B", "C", "D"];
+  const options = [
+    mcq.option_text1,
+    mcq.option_text2,
+    mcq.option_text3,
+    mcq.option_text4,
+  ]
+    .map((opt, i) => `${labels[i]}. ${stripHtml(opt)}`)
+    .join("\n");
+  const explanations = [
+    mcq.explanation1,
+    mcq.explanation2,
+    mcq.explanation3,
+    mcq.explanation4,
+  ]
+    .map((expl, i) =>
+      expl ? `${labels[i]}: ${stripHtml(expl)}` : null,
+    )
+    .filter((s): s is string => Boolean(s))
+    .join("\n");
+  const correctLabel = labels[mcq.correct_option_number - 1] ?? "?";
+
+  return (
+    `Card type: Multiple Choice Question\n` +
+    `Question:\n${stripHtml(mcq.body)}\n\n` +
+    `Options:\n${options}\n\n` +
+    `Correct answer: ${correctLabel}` +
+    (explanations ? `\n\nExplanations:\n${explanations}` : "")
+  );
+}
 
 export default function StudyPage() {
   const params = useParams();
@@ -21,6 +69,12 @@ export default function StudyPage() {
 
   const { cards, moduleInfo, loading, error } = useCards(moduleId);
   const [currentIndex, setCurrentIndex] = useState(0);
+
+  const currentCard = cards[currentIndex];
+  const askAiContext = useMemo(
+    () => (currentCard ? buildCardContext(currentCard) : ""),
+    [currentCard],
+  );
 
   const goNext = useCallback(() => {
     setCurrentIndex((prev) => Math.min(prev + 1, cards.length - 1));
@@ -48,6 +102,16 @@ export default function StudyPage() {
 
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
+      // Ignore shortcuts while typing in form fields (e.g. Ask AI input).
+      const target = e.target as HTMLElement | null;
+      if (
+        target &&
+        (target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          target.isContentEditable)
+      ) {
+        return;
+      }
       switch (e.key) {
         case "ArrowRight":
           goNext();
@@ -79,14 +143,13 @@ export default function StudyPage() {
     return <div className="error-screen">Error: {error}</div>;
   }
 
-  if (cards.length === 0) {
+  if (cards.length === 0 || !currentCard) {
     return <div className="loading-screen">No cards found for this module.</div>;
   }
 
-  const currentCard = cards[currentIndex];
-
   return (
-    <div className="study-page">
+    <div className="study-layout">
+      <div className="study-page">
       <div className="study-header">
         <span className="card-counter">
           {currentIndex + 1} / {cards.length}
@@ -157,6 +220,8 @@ export default function StudyPage() {
         hasNext={currentIndex < cards.length - 1}
         timerEnabled={timerEnabled}
       />
+      </div>
+      <AskAITab contextText={askAiContext} />
     </div>
   );
 }
