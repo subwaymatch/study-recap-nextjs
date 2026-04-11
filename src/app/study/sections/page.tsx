@@ -37,12 +37,37 @@ function SectionStudyContent() {
   const timerEnabled = searchParams.get("timer") === "true";
   const intervalSeconds = Number(searchParams.get("interval")) || 20;
   const randomizeMcq = searchParams.get("randomize") === "true";
+  const shuffleCards = searchParams.get("shuffle") === "true";
+  const typesParam = searchParams.get("types");
+  const showFlashcards = typesParam === null || typesParam.split(",").includes("flashcard");
+  const showMcqs = typesParam === null || typesParam.split(",").includes("mcq");
 
   const { cards, loading, error } = useSectionCards(sections);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isCardListOpen, setIsCardListOpen] = useState(false);
 
-  const currentCardForContext = cards[currentIndex];
+  const displayCards = useMemo(() => {
+    let result = cards;
+    if (!showFlashcards || !showMcqs) {
+      result = result.filter((card) => {
+        if (card.type === "flashcard") return showFlashcards;
+        if (card.type === "mcq") return showMcqs;
+        return true;
+      });
+    }
+    if (shuffleCards && result.length > 0) {
+      result = [...result];
+      for (let i = result.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [result[i], result[j]] = [result[j], result[i]];
+      }
+    }
+    return result;
+  // shuffleCards intentionally excluded: shuffle is seeded once per card load
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cards, showFlashcards, showMcqs]);
+
+  const currentCardForContext = displayCards[currentIndex];
   const askAiContext = useMemo(
     () =>
       currentCardForContext ? buildCardContext(currentCardForContext) : "",
@@ -53,8 +78,8 @@ function SectionStudyContent() {
     : "";
 
   const goNext = useCallback(() => {
-    setCurrentIndex((prev) => Math.min(prev + 1, cards.length - 1));
-  }, [cards.length]);
+    setCurrentIndex((prev) => Math.min(prev + 1, displayCards.length - 1));
+  }, [displayCards.length]);
 
   const goPrev = useCallback(() => {
     setCurrentIndex((prev) => Math.max(prev - 1, 0));
@@ -63,13 +88,13 @@ function SectionStudyContent() {
   const { secondsRemaining, isPaused, resetTimer, togglePause } =
     useAutoAdvance({
       intervalSeconds,
-      enabled: timerEnabled && cards.length > 0,
+      enabled: timerEnabled && displayCards.length > 0,
       onAdvance: useCallback(() => {
         setCurrentIndex((prev) => {
-          if (prev >= cards.length - 1) return 0;
+          if (prev >= displayCards.length - 1) return 0;
           return prev + 1;
         });
-      }, [cards.length]),
+      }, [displayCards.length]),
     });
 
   const goHome = useCallback(() => {
@@ -133,7 +158,7 @@ function SectionStudyContent() {
     );
   }
 
-  if (cards.length === 0) {
+  if (displayCards.length === 0) {
     return (
       <div className="empty-screen">
         <div className="empty-screen-content">
@@ -145,14 +170,14 @@ function SectionStudyContent() {
     );
   }
 
-  const currentCard = cards[currentIndex];
+  const currentCard = displayCards[currentIndex];
 
   return (
     <div className="study-layout">
       <div className="study-page">
       <div className="study-header">
         <span className="card-counter">
-          {currentIndex + 1} / {cards.length}
+          {currentIndex + 1} / {displayCards.length}
         </span>
         <div className="study-header-center">
           <span className="module-info-badge">
@@ -189,7 +214,7 @@ function SectionStudyContent() {
         </div>
       </div>
 
-      <CardProgressTrack currentIndex={currentIndex} totalCards={cards.length} />
+      <CardProgressTrack currentIndex={currentIndex} totalCards={displayCards.length} />
 
       {timerEnabled && (
         <ProgressBar
@@ -220,7 +245,7 @@ function SectionStudyContent() {
         onHome={goHome}
         isPaused={isPaused}
         hasPrev={currentIndex > 0}
-        hasNext={currentIndex < cards.length - 1}
+        hasNext={currentIndex < displayCards.length - 1}
         timerEnabled={timerEnabled}
       />
       </div>
@@ -230,7 +255,7 @@ function SectionStudyContent() {
         cardType={currentCard.type}
       />
       <CardListOverlay
-        cards={cards}
+        cards={displayCards}
         currentIndex={currentIndex}
         isOpen={isCardListOpen}
         onOpen={() => setIsCardListOpen(true)}
