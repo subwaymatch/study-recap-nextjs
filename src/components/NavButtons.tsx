@@ -28,7 +28,8 @@ export function NavButtons({
         <span className="nav-btn-label">Home</span>
       </button>
       <button className="nav-btn" onClick={onPrev} disabled={!hasPrev}>
-        ← <span className="nav-btn-label">Prev</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: "inline-block", verticalAlign: "-2px", marginRight: "0.3em" }}><polyline points="15 18 9 12 15 6"/></svg>
+        <span className="nav-btn-label">Prev</span>
       </button>
       {timerEnabled && (
         <button className="nav-btn pause-btn" onClick={onTogglePause}>
@@ -36,7 +37,8 @@ export function NavButtons({
         </button>
       )}
       <button className="nav-btn" onClick={onNext} disabled={!hasNext}>
-        <span className="nav-btn-label">Next</span> →
+        <span className="nav-btn-label">Next</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: "inline-block", verticalAlign: "-2px", marginLeft: "0.3em" }}><polyline points="9 18 15 12 9 6"/></svg>
       </button>
     </div>
   );

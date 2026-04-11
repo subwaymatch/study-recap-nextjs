@@ -747,6 +747,13 @@ a {
   color: var(--text-primary);
 }
 
+.ask-ai-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-shrink: 0;
+}
+
 .ask-ai-clear-btn {
   background: transparent;
   border: 1px solid var(--border);
@@ -775,6 +782,30 @@ a {
 .ask-ai-clear-btn:disabled {
   opacity: 0.4;
   cursor: not-allowed;
+}
+
+.ask-ai-close-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.35em;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    border-color 0.15s,
+    color 0.15s;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
+}
+
+.ask-ai-close-btn:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--accent);
+  color: var(--accent);
 }
 
 .ask-ai-messages {
@@ -1193,6 +1224,11 @@ a {
   background: var(--bg-card-hover);
   color: var(--accent);
   border-color: var(--accent);
+}
+
+/* Hide the keyboard shortcut button when the Ask AI panel is expanded */
+.ask-ai-tab.expanded ~ .shortcuts-hint {
+  display: none;
 }
 
 .shortcuts-overlay {

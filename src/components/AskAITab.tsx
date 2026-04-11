@@ -358,13 +358,14 @@ export function AskAITab({ contextText, cardId, cardType }: AskAITabProps) {
             <div className="ask-ai-title">
               <strong>Ask AI</strong>
             </div>
+            <div className="ask-ai-header-actions">
             <button
               type="button"
               className="ask-ai-clear-btn"
               onClick={clearHistory}
               disabled={messages.length === 0 && !isStreaming}
-              title="Clear chat history"
-              aria-label="Clear chat history"
+              title="Clear AI Chat History for this Card"
+              aria-label="Clear AI Chat History for this Card"
             >
               <svg
                 width="16"
@@ -384,6 +385,29 @@ export function AskAITab({ contextText, cardId, cardType }: AskAITabProps) {
                 <path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2" />
               </svg>
             </button>
+            <button
+              type="button"
+              className="ask-ai-close-btn"
+              onClick={() => setIsExpanded(false)}
+              title="Close Ask AI panel"
+              aria-label="Close Ask AI panel"
+            >
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </button>
+            </div>
           </div>
 
           <div className="ask-ai-messages" ref={messagesRef}>
@@ -490,7 +514,7 @@ export function AskAITab({ contextText, cardId, cardType }: AskAITabProps) {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleInputKeyDown}
-              placeholder="Ask about this card… (Enter to send)"
+              placeholder="Ask about this card…"
               rows={2}
               disabled={isStreaming}
             />
