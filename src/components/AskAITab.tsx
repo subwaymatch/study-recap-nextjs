@@ -9,14 +9,15 @@ interface ChatMessage {
 
 interface AskAITabProps {
   contextText: string;
+  cardId: string;
 }
 
-const STORAGE_KEY = "study-recap:ask-ai:history";
+const STORAGE_PREFIX = "study-recap:ask-ai:history";
 
-function loadHistory(): ChatMessage[] {
+function loadHistory(cardId: string): ChatMessage[] {
   if (typeof window === "undefined") return [];
   try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
+    const raw = window.localStorage.getItem(`${STORAGE_PREFIX}:${cardId}`);
     if (!raw) return [];
     const parsed = JSON.parse(raw);
     if (!Array.isArray(parsed)) return [];
@@ -33,37 +34,48 @@ function loadHistory(): ChatMessage[] {
   }
 }
 
-function saveHistory(messages: ChatMessage[]) {
+function saveHistory(cardId: string, messages: ChatMessage[]) {
   if (typeof window === "undefined") return;
   try {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(messages));
+    window.localStorage.setItem(
+      `${STORAGE_PREFIX}:${cardId}`,
+      JSON.stringify(messages),
+    );
   } catch {
     // Ignore quota errors.
   }
 }
 
-export function AskAITab({ contextText }: AskAITabProps) {
+export function AskAITab({ contextText, cardId }: AskAITabProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [hydrated, setHydrated] = useState(false);
 
   const abortRef = useRef<AbortController | null>(null);
   const messagesRef = useRef<HTMLDivElement>(null);
+  // Tracks whether the current messages state came from a load (not a user action).
+  // Prevents saving the just-loaded history back to localStorage on the first render.
+  const isLoadingRef = useRef(false);
 
-  // Hydrate chat history from localStorage on mount.
+  // Load history for the current card; abort any in-flight request on card change.
   useEffect(() => {
-    setMessages(loadHistory());
-    setHydrated(true);
-  }, []);
+    abortRef.current?.abort();
+    setIsStreaming(false);
+    setError(null);
+    isLoadingRef.current = true;
+    setMessages(loadHistory(cardId));
+  }, [cardId]);
 
-  // Persist history whenever it changes (after hydration).
+  // Persist history whenever messages change, skipping the post-load update.
   useEffect(() => {
-    if (!hydrated) return;
-    saveHistory(messages);
-  }, [messages, hydrated]);
+    if (isLoadingRef.current) {
+      isLoadingRef.current = false;
+      return;
+    }
+    saveHistory(cardId, messages);
+  }, [messages, cardId]);
 
   // Auto-scroll messages area to the bottom on new content.
   useEffect(() => {
@@ -136,7 +148,7 @@ export function AskAITab({ contextText }: AskAITabProps) {
       });
     } catch (err) {
       if (err instanceof DOMException && err.name === "AbortError") {
-        // User aborted (e.g. cleared history); silently drop the placeholder.
+        // User aborted (e.g. cleared history or changed card); silently drop the placeholder.
         setMessages((prev) => {
           const last = prev[prev.length - 1];
           if (last && last.role === "assistant" && last.content === "") {
@@ -168,12 +180,12 @@ export function AskAITab({ contextText }: AskAITabProps) {
     setError(null);
     if (typeof window !== "undefined") {
       try {
-        window.localStorage.removeItem(STORAGE_KEY);
+        window.localStorage.removeItem(`${STORAGE_PREFIX}:${cardId}`);
       } catch {
         // Ignore.
       }
     }
-  }, []);
+  }, [cardId]);
 
   const handleInputKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     // Prevent global study shortcuts (arrows, space, escape) from firing
@@ -211,7 +223,6 @@ export function AskAITab({ contextText }: AskAITabProps) {
           <div className="ask-ai-header">
             <div className="ask-ai-title">
               <strong>Ask AI</strong>
-              <span className="ask-ai-subtitle">about this card</span>
             </div>
             <button
               type="button"
@@ -238,6 +249,10 @@ export function AskAITab({ contextText }: AskAITabProps) {
                 isLast &&
                 m.role === "assistant" &&
                 m.content === "";
+              const isBeingStreamed =
+                isStreaming && isLast && m.role === "assistant";
+              const showDisclaimer =
+                m.role === "assistant" && m.content && !isBeingStreamed;
               return (
                 <div
                   key={i}
@@ -248,11 +263,24 @@ export function AskAITab({ contextText }: AskAITabProps) {
                   </div>
                   <div className="ask-ai-message-content">
                     {showThinking ? (
-                      <span className="ask-ai-thinking">Thinking…</span>
+                      <span
+                        className="ask-ai-thinking-dots"
+                        aria-label="Waiting for response"
+                      >
+                        <span />
+                        <span />
+                        <span />
+                      </span>
                     ) : (
                       m.content
                     )}
                   </div>
+                  {showDisclaimer && (
+                    <p className="ask-ai-disclaimer">
+                      AI responses may be inaccurate. Verify important
+                      information.
+                    </p>
+                  )}
                 </div>
               );
             })}

@@ -13,6 +13,7 @@ export interface Module {
 
 export interface Flashcard {
   id: number;
+  card_id: string;
   flashcard_number: number;
   module_id: number;
   body: string;
@@ -21,6 +22,7 @@ export interface Flashcard {
 
 export interface MCQ {
   id: number;
+  card_id: string;
   question_number: number;
   module_id: number;
   body: string;

@@ -56,11 +56,11 @@ export function useCards(moduleId: number) {
       }
 
       const flashcards: StudyCard[] = (flashcardsRes.data as Flashcard[]).map(
-        (f) => ({ type: "flashcard" as const, data: f })
+        (f) => ({ type: "flashcard" as const, data: { ...f, card_id: `flashcard-${f.id}` } })
       );
       const mcqs: StudyCard[] = (mcqsRes.data as MCQ[]).map((m) => ({
         type: "mcq" as const,
-        data: m,
+        data: { ...m, card_id: `mcq-${m.id}` },
       }));
 
       setCards([...flashcards, ...mcqs]);
