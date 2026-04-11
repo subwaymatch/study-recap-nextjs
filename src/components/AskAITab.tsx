@@ -248,28 +248,28 @@ export function AskAITab({ contextText, cardId, cardType }: AskAITabProps) {
 
           <div className="ask-ai-messages" ref={messagesRef}>
             {messages.length === 0 && !isStreaming && (
-              <>
-                <div className="ask-ai-empty">
-                  Ask anything about the current flashcard or question. The
-                  card contents are sent along as context.
-                </div>
-                <div
-                  className="ask-ai-suggestions"
-                  role="group"
-                  aria-label="Suggested prompts"
-                >
-                  {SUGGESTIONS[cardType].map((suggestion) => (
-                    <button
-                      key={suggestion}
-                      type="button"
-                      className="ask-ai-suggestion-btn"
-                      onClick={() => void sendMessage(suggestion)}
-                    >
-                      {suggestion}
-                    </button>
-                  ))}
-                </div>
-              </>
+              <div className="ask-ai-empty">
+                Ask anything about the current flashcard or question. The card
+                contents are sent along as context.
+              </div>
+            )}
+            {!isStreaming && (
+              <div
+                className="ask-ai-suggestions"
+                role="group"
+                aria-label="Suggested prompts"
+              >
+                {SUGGESTIONS[cardType].map((suggestion) => (
+                  <button
+                    key={suggestion}
+                    type="button"
+                    className="ask-ai-suggestion-btn"
+                    onClick={() => void sendMessage(suggestion)}
+                  >
+                    {suggestion}
+                  </button>
+                ))}
+              </div>
             )}
             {messages.map((m, i) => {
               const isLast = i === messages.length - 1;
