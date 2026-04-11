@@ -194,7 +194,11 @@ function SectionStudyContent() {
         timerEnabled={timerEnabled}
       />
       </div>
-      <AskAITab contextText={askAiContext} cardId={cardId} />
+      <AskAITab
+        contextText={askAiContext}
+        cardId={cardId}
+        cardType={currentCard.type}
+      />
     </div>
   );
 }
