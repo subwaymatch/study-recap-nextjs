@@ -24,7 +24,19 @@ export const viewport: Viewport = {
 };
 
 // Inline script to apply stored theme before first paint (prevents flash).
-const themeScript = `(function(){try{var t=localStorage.getItem("study-recap:theme");if(t==="dark"||t==="light"){document.documentElement.setAttribute("data-theme",t)}else if(window.matchMedia&&window.matchMedia("(prefers-color-scheme:dark)").matches){document.documentElement.setAttribute("data-theme","dark")}}catch(e){}})()`;
+const themeScript = [
+  "(function(){",
+  "try{",
+  'var t=localStorage.getItem("study-recap:theme");',
+  'if(t==="dark"||t==="light"){',
+  'document.documentElement.setAttribute("data-theme",t)',
+  "}else if(window.matchMedia&&",
+  'window.matchMedia("(prefers-color-scheme:dark)").matches){',
+  'document.documentElement.setAttribute("data-theme","dark")',
+  "}",
+  "}catch(e){}",
+  "})()",
+].join("");
 
 export default function RootLayout({
   children,

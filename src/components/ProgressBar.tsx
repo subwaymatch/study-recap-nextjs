@@ -31,7 +31,9 @@ export function ProgressBar({
       prevSecondsRef.current = secondsRemaining;
       return () => {
         cancelAnimationFrame(outerFrameId);
-        cancelAnimationFrame(innerFrameId);
+        if (innerFrameId !== undefined) {
+          cancelAnimationFrame(innerFrameId);
+        }
       };
     }
     prevSecondsRef.current = secondsRemaining;
