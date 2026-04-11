@@ -8,6 +8,9 @@ interface ModuleCardProps {
   timerEnabled: boolean;
   intervalSeconds: number;
   randomizeMcq: boolean;
+  shuffleCards: boolean;
+  showFlashcards: boolean;
+  showMcqs: boolean;
 }
 
 export function ModuleCard({
@@ -15,6 +18,9 @@ export function ModuleCard({
   timerEnabled,
   intervalSeconds,
   randomizeMcq,
+  shuffleCards,
+  showFlashcards,
+  showMcqs,
 }: ModuleCardProps) {
   const params = new URLSearchParams();
   if (timerEnabled) {
@@ -23,6 +29,16 @@ export function ModuleCard({
   }
   if (randomizeMcq) {
     params.set("randomize", "true");
+  }
+  if (shuffleCards) {
+    params.set("shuffle", "true");
+  }
+  if (!showFlashcards || !showMcqs) {
+    const typesList = [
+      showFlashcards && "flashcard",
+      showMcqs && "mcq",
+    ].filter(Boolean).join(",");
+    params.set("types", typesList);
   }
   const query = params.toString();
   const href = `/study/${module.module_id}${query ? `?${query}` : ""}`;

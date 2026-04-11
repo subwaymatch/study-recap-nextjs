@@ -15,6 +15,9 @@ export default function ModuleSelectPage() {
   const [timerEnabled, setTimerEnabled] = useState(false);
   const [intervalSeconds, setIntervalSeconds] = useState(20);
   const [randomizeMcq, setRandomizeMcq] = useState(false);
+  const [shuffleCards, setShuffleCards] = useState(false);
+  const [showFlashcards, setShowFlashcards] = useState(true);
+  const [showMcqs, setShowMcqs] = useState(true);
   const [hideEmpty, setHideEmpty] = useState(true);
   const [selectedSections, setSelectedSections] = useState<Set<string>>(
     new Set(),
@@ -54,8 +57,18 @@ export default function ModuleSelectPage() {
     if (randomizeMcq) {
       params.set("randomize", "true");
     }
+    if (shuffleCards) {
+      params.set("shuffle", "true");
+    }
+    if (!showFlashcards || !showMcqs) {
+      const typesList = [
+        showFlashcards && "flashcard",
+        showMcqs && "mcq",
+      ].filter(Boolean).join(",");
+      params.set("types", typesList);
+    }
     return `/study/sections?${params.toString()}`;
-  }, [selectedSections, timerEnabled, intervalSeconds, randomizeMcq]);
+  }, [selectedSections, timerEnabled, intervalSeconds, randomizeMcq, shuffleCards, showFlashcards, showMcqs]);
 
   const viewAllCounts = useMemo(() => {
     if (selectedSections.size === 0) return null;
@@ -135,6 +148,36 @@ export default function ModuleSelectPage() {
           <label>
             <input
               type="checkbox"
+              checked={shuffleCards}
+              onChange={(e) => setShuffleCards(e.target.checked)}
+            />
+            Shuffle card order
+          </label>
+        </div>
+
+        <div className="timer-config">
+          <label>
+            <input
+              type="checkbox"
+              checked={showFlashcards}
+              onChange={(e) => setShowFlashcards(e.target.checked)}
+            />
+            Flashcards
+          </label>
+          <label>
+            <input
+              type="checkbox"
+              checked={showMcqs}
+              onChange={(e) => setShowMcqs(e.target.checked)}
+            />
+            MCQs
+          </label>
+        </div>
+
+        <div className="timer-config">
+          <label>
+            <input
+              type="checkbox"
               checked={hideEmpty}
               onChange={(e) => setHideEmpty(e.target.checked)}
             />
@@ -170,6 +213,9 @@ export default function ModuleSelectPage() {
             timerEnabled={timerEnabled}
             intervalSeconds={intervalSeconds}
             randomizeMcq={randomizeMcq}
+            shuffleCards={shuffleCards}
+            showFlashcards={showFlashcards}
+            showMcqs={showMcqs}
           />
         ))}
       </div>
