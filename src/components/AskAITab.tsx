@@ -125,6 +125,21 @@ export function AskAITab({ contextText, cardId, cardType }: AskAITabProps) {
     return () => mql.removeEventListener("change", update);
   }, []);
 
+  // When the panel is expanded, intercept Escape in the capture phase so it
+  // closes the panel instead of triggering the study page's "go home" handler.
+  useEffect(() => {
+    if (!isExpanded) return;
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") {
+        e.stopImmediatePropagation();
+        e.preventDefault();
+        setIsExpanded(false);
+      }
+    }
+    window.addEventListener("keydown", handleKeyDown, true);
+    return () => window.removeEventListener("keydown", handleKeyDown, true);
+  }, [isExpanded]);
+
   const handleTouchStart = useCallback(
     (e: React.TouchEvent<HTMLElement>) => {
       if (!isMobile) return;
