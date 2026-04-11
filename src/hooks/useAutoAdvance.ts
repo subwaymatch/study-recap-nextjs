@@ -20,7 +20,7 @@ export function useAutoAdvance({
 
   useEffect(() => {
     onAdvanceRef.current = onAdvance;
-  });
+  }, [onAdvance]);
 
   const clearTimer = useCallback(() => {
     if (intervalRef.current !== null) {

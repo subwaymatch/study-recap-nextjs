@@ -30,14 +30,12 @@ function applyTheme(resolved: "light" | "dark") {
 }
 
 export function ThemeToggle() {
-  const [theme, setTheme] = useState<Theme>("system");
+  const [theme, setTheme] = useState<Theme>(getStoredTheme);
 
-  // On mount, read stored theme and apply it.
+  // Apply theme on mount (SSR always renders light; this corrects it client-side).
   useEffect(() => {
-    const stored = getStoredTheme();
-    setTheme(stored);
-    applyTheme(getResolvedTheme(stored));
-  }, []);
+    applyTheme(getResolvedTheme(theme));
+  }, [theme]);
 
   // Listen for system theme changes.
   useEffect(() => {

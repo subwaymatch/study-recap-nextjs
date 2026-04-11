@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface ProgressBarProps {
   secondsRemaining: number;
@@ -13,23 +13,29 @@ export function ProgressBar({
   intervalSeconds,
   isPaused,
 }: ProgressBarProps) {
+  const [isResetting, setIsResetting] = useState(false);
   const prevSecondsRef = useRef(secondsRemaining);
-  const isResettingRef = useRef(false);
 
-  // Detect reset: seconds jumped up (e.g., from 3 to 15).
-  // This is derived state — no need for useState + useEffect.
-  const isResetting = secondsRemaining > prevSecondsRef.current;
-  prevSecondsRef.current = secondsRemaining;
-
-  // When resetting, schedule a re-render after a paint to remove the reset class.
-  if (isResetting && !isResettingRef.current) {
-    isResettingRef.current = true;
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        isResettingRef.current = false;
+  useEffect(() => {
+    // Detect reset: seconds jumped up (e.g., from 3 to 15)
+    if (secondsRemaining > prevSecondsRef.current) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- required: must render without transition before re-enabling it
+      setIsResetting(true);
+      // Remove the reset class after a frame so the browser paints without transition
+      let innerFrameId: number;
+      const outerFrameId = requestAnimationFrame(() => {
+        innerFrameId = requestAnimationFrame(() => {
+          setIsResetting(false);
+        });
       });
-    });
-  }
+      prevSecondsRef.current = secondsRemaining;
+      return () => {
+        cancelAnimationFrame(outerFrameId);
+        cancelAnimationFrame(innerFrameId);
+      };
+    }
+    prevSecondsRef.current = secondsRemaining;
+  }, [secondsRemaining]);
 
   const widthPercent = (secondsRemaining / intervalSeconds) * 100;
 

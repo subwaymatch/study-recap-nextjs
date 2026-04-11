@@ -13,6 +13,7 @@ import { CardProgressTrack } from "@/components/CardProgressTrack";
 import { KeyboardShortcutsOverlay } from "@/components/KeyboardShortcutsOverlay";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { StudyCardSkeleton } from "@/components/LoadingSkeleton";
+import { AlertCircleIcon, CardIcon } from "@/components/Icons";
 import { buildCardContext } from "@/lib/cardContext";
 
 export default function StudyPage() {
@@ -106,11 +107,7 @@ export default function StudyPage() {
     return (
       <div className="error-screen">
         <div className="error-screen-content">
-          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ opacity: 0.6 }}>
-            <circle cx="12" cy="12" r="10" />
-            <line x1="12" y1="8" x2="12" y2="12" />
-            <line x1="12" y1="16" x2="12.01" y2="16" />
-          </svg>
+          <AlertCircleIcon style={{ opacity: 0.6 }} />
           <p>{error}</p>
           <button className="nav-btn" onClick={() => window.location.reload()}>
             Retry
@@ -124,10 +121,7 @@ export default function StudyPage() {
     return (
       <div className="empty-screen">
         <div className="empty-screen-content">
-          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ opacity: 0.4 }}>
-            <rect x="2" y="4" width="20" height="16" rx="2"/>
-            <path d="M2 9h20"/>
-          </svg>
+          <CardIcon style={{ opacity: 0.4 }} />
           <p>No cards found for this module.</p>
           <button className="nav-btn" onClick={goHome}>← Back to modules</button>
         </div>
