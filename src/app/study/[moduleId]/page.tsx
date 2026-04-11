@@ -75,6 +75,7 @@ export default function StudyPage() {
     () => (currentCard ? buildCardContext(currentCard) : ""),
     [currentCard],
   );
+  const cardId = currentCard ? currentCard.data.card_id : "";
 
   const goNext = useCallback(() => {
     setCurrentIndex((prev) => Math.min(prev + 1, cards.length - 1));
@@ -221,7 +222,7 @@ export default function StudyPage() {
         timerEnabled={timerEnabled}
       />
       </div>
-      <AskAITab contextText={askAiContext} />
+      <AskAITab contextText={askAiContext} cardId={cardId} />
     </div>
   );
 }
