@@ -54,18 +54,35 @@ function saveHistory(cardId: string, messages: ChatMessage[]) {
   }
 }
 
+// Pixels of movement needed before a touch gesture locks to horizontal or vertical.
+const SWIPE_DIRECTION_LOCK = 10;
+// Horizontal distance at which a swipe commits to opening or closing the panel.
+const SWIPE_THRESHOLD = 60;
+
 export function AskAITab({ contextText, cardId, cardType }: AskAITabProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
+  // Offset applied during an in-progress swipe-to-close for visual drag feedback.
+  const [dragDx, setDragDx] = useState(0);
 
   const abortRef = useRef<AbortController | null>(null);
   const messagesRef = useRef<HTMLDivElement>(null);
   // Tracks whether the current messages state came from a load (not a user action).
   // Prevents saving the just-loaded history back to localStorage on the first render.
   const isLoadingRef = useRef(false);
+  // Active touch-gesture state; null when no gesture is in progress.
+  const touchRef = useRef<{
+    startX: number;
+    startY: number;
+    lock: "h" | "v" | null;
+  } | null>(null);
+  // Set when a swipe commits an open/close, so the trailing simulated click on
+  // the toggle button is ignored.
+  const swipeHandledRef = useRef(false);
 
   // Load history for the current card; abort any in-flight request on card change.
   useEffect(() => {
@@ -96,6 +113,95 @@ export function AskAITab({ contextText, cardId, cardType }: AskAITabProps) {
     return () => {
       abortRef.current?.abort();
     };
+  }, []);
+
+  // Track whether we're on a mobile viewport so swipe gestures only apply there.
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.matchMedia) return;
+    const mql = window.matchMedia("(max-width: 599px)");
+    const update = () => setIsMobile(mql.matches);
+    update();
+    mql.addEventListener("change", update);
+    return () => mql.removeEventListener("change", update);
+  }, []);
+
+  const handleTouchStart = useCallback(
+    (e: React.TouchEvent<HTMLElement>) => {
+      if (!isMobile) return;
+      // Don't start a swipe when the user is interacting with the textarea —
+      // text selection and caret moves should take precedence.
+      const target = e.target as HTMLElement | null;
+      if (target?.closest("textarea, input")) return;
+      const t = e.touches[0];
+      if (!t) return;
+      touchRef.current = {
+        startX: t.clientX,
+        startY: t.clientY,
+        lock: null,
+      };
+      // Clear any stale swipe-handled flag from a prior gesture.
+      swipeHandledRef.current = false;
+    },
+    [isMobile],
+  );
+
+  const handleTouchMove = useCallback(
+    (e: React.TouchEvent<HTMLElement>) => {
+      const state = touchRef.current;
+      if (!state) return;
+      const t = e.touches[0];
+      if (!t) return;
+      const dx = t.clientX - state.startX;
+      const dy = t.clientY - state.startY;
+      if (state.lock === null) {
+        if (
+          Math.abs(dx) >= SWIPE_DIRECTION_LOCK ||
+          Math.abs(dy) >= SWIPE_DIRECTION_LOCK
+        ) {
+          state.lock = Math.abs(dx) > Math.abs(dy) ? "h" : "v";
+        }
+      }
+      if (state.lock !== "h") return;
+      // Visual follow only for the expanded → close direction (rightward).
+      if (isExpanded) {
+        setDragDx(Math.max(0, dx));
+      }
+    },
+    [isExpanded],
+  );
+
+  const handleTouchEnd = useCallback(
+    (e: React.TouchEvent<HTMLElement>) => {
+      const state = touchRef.current;
+      touchRef.current = null;
+      setDragDx(0);
+      if (!state || state.lock !== "h") return;
+      const t = e.changedTouches[0];
+      if (!t) return;
+      const dx = t.clientX - state.startX;
+      if (isExpanded && dx > SWIPE_THRESHOLD) {
+        swipeHandledRef.current = true;
+        setIsExpanded(false);
+      } else if (!isExpanded && dx < -SWIPE_THRESHOLD) {
+        swipeHandledRef.current = true;
+        setIsExpanded(true);
+      }
+    },
+    [isExpanded],
+  );
+
+  const handleTouchCancel = useCallback(() => {
+    touchRef.current = null;
+    setDragDx(0);
+  }, []);
+
+  const handleToggleClick = useCallback(() => {
+    // Suppress the click that the browser synthesizes after a committed swipe.
+    if (swipeHandledRef.current) {
+      swipeHandledRef.current = false;
+      return;
+    }
+    setIsExpanded((v) => !v);
   }, []);
 
   const sendMessage = useCallback(async (overrideText?: string) => {
@@ -208,15 +314,25 @@ export function AskAITab({ contextText, cardId, cardType }: AskAITabProps) {
     }
   };
 
+  const isDragging = isMobile && isExpanded && dragDx > 0;
+  const asideStyle: React.CSSProperties | undefined = isDragging
+    ? { transform: `translateX(${dragDx}px)`, transition: "none" }
+    : undefined;
+
   return (
     <aside
       className={`ask-ai-tab ${isExpanded ? "expanded" : "collapsed"}`}
       aria-label="Ask AI panel"
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+      onTouchCancel={handleTouchCancel}
+      style={asideStyle}
     >
       <button
         type="button"
         className="ask-ai-toggle"
-        onClick={() => setIsExpanded((v) => !v)}
+        onClick={handleToggleClick}
         aria-expanded={isExpanded}
         aria-label={isExpanded ? "Collapse Ask AI panel" : "Expand Ask AI panel"}
         title={isExpanded ? "Collapse Ask AI" : "Expand Ask AI"}
