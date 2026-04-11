@@ -13,7 +13,7 @@ interface CardListOverlayProps {
   onSelect: (index: number) => void;
 }
 
-const EXCERPT_LENGTH = 20;
+const EXCERPT_LENGTH = 36;
 
 function buildExcerpt(card: StudyCard): string {
   const raw = stripHtml(card.data.body);

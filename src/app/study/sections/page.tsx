@@ -11,6 +11,7 @@ import { ProgressBar } from "@/components/ProgressBar";
 import { AskAITab } from "@/components/AskAITab";
 import { CardProgressTrack } from "@/components/CardProgressTrack";
 import { KeyboardShortcutsOverlay } from "@/components/KeyboardShortcutsOverlay";
+import { CardListOverlay } from "@/components/CardListOverlay";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { StudyCardSkeleton } from "@/components/LoadingSkeleton";
 import { AlertCircleIcon, CardIcon } from "@/components/Icons";
@@ -39,6 +40,7 @@ function SectionStudyContent() {
 
   const { cards, loading, error } = useSectionCards(sections);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [isCardListOpen, setIsCardListOpen] = useState(false);
 
   const currentCardForContext = cards[currentIndex];
   const askAiContext = useMemo(
@@ -226,6 +228,17 @@ function SectionStudyContent() {
         contextText={askAiContext}
         cardId={cardId}
         cardType={currentCard.type}
+      />
+      <CardListOverlay
+        cards={cards}
+        currentIndex={currentIndex}
+        isOpen={isCardListOpen}
+        onOpen={() => setIsCardListOpen(true)}
+        onClose={() => setIsCardListOpen(false)}
+        onSelect={(index) => {
+          setCurrentIndex(index);
+          resetTimer();
+        }}
       />
       <KeyboardShortcutsOverlay />
     </div>
