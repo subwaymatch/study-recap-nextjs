@@ -1391,6 +1391,176 @@ a {
   color: var(--text-secondary);
 }
 
+/* =================== Card List Overlay =================== */
+.card-list-fab {
+  position: fixed;
+  bottom: max(1rem, env(safe-area-inset-bottom));
+  left: 1rem;
+  z-index: 10;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.5em;
+  cursor: pointer;
+  color: var(--text-muted);
+  box-shadow: var(--shadow-sm);
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  line-height: 0;
+}
+
+.card-list-fab:hover {
+  background: var(--bg-card-hover);
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+/* Hide the card list button when the Ask AI panel is expanded, matching
+   the behavior of the keyboard shortcut hint. */
+.ask-ai-tab.expanded ~ .card-list-fab {
+  display: none;
+}
+
+.card-list-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: var(--overlay-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: overlay-fade-in 0.15s ease-out;
+  padding: 1rem;
+}
+
+.card-list-panel {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: var(--shadow-md);
+  width: min(520px, 100%);
+  max-height: min(80vh, 720px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: panel-slide-up 0.2s ease-out;
+}
+
+.card-list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.card-list-header h2 {
+  font-size: var(--font-sm);
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.card-list-close {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 0.3em;
+  line-height: 0;
+  border-radius: 6px;
+  transition: background 0.15s, color 0.15s;
+}
+
+.card-list-close:hover {
+  background: var(--bg-card-hover);
+  color: var(--text-primary);
+}
+
+.card-list-items {
+  list-style: none;
+  padding: 0.5rem;
+  margin: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.card-list-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: left;
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: var(--font-xs);
+  transition: background 0.12s, border-color 0.12s;
+}
+
+.card-list-item:hover {
+  background: var(--bg-card-hover);
+}
+
+.card-list-item.active {
+  background: var(--bg-option);
+  border-color: var(--accent);
+}
+
+.card-list-index {
+  flex-shrink: 0;
+  min-width: 2.25em;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  font-weight: 600;
+}
+
+.card-list-type {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.8em;
+  padding: 0.15em 0.5em;
+  border-radius: 999px;
+  font-size: 0.75em;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  background: var(--bg-option);
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+}
+
+.card-list-type.flashcard {
+  background: var(--bg-correct);
+  color: var(--text-correct);
+  border-color: transparent;
+}
+
+.card-list-type.mcq {
+  background: var(--ai-msg-bg);
+  color: var(--accent);
+  border-color: transparent;
+}
+
+.card-list-excerpt {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-primary);
+}
+
 /* =================== Skeleton Loading =================== */
 @keyframes skeleton-shimmer {
   0% { background-position: -200% 0; }
