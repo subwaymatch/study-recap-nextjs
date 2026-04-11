@@ -393,7 +393,7 @@ export function AskAITab({ contextText, cardId, cardType }: AskAITabProps) {
                 contents are sent along as context.
               </div>
             )}
-            {!isStreaming && (
+            {messages.length === 0 && !isStreaming && (
               <div
                 className="ask-ai-suggestions"
                 role="group"
@@ -459,6 +459,24 @@ export function AskAITab({ contextText, cardId, cardType }: AskAITabProps) {
                 </div>
               );
             })}
+            {messages.length > 0 && !isStreaming && (
+              <div
+                className="ask-ai-suggestions"
+                role="group"
+                aria-label="Suggested prompts"
+              >
+                {SUGGESTIONS[cardType].map((suggestion) => (
+                  <button
+                    key={suggestion}
+                    type="button"
+                    className="ask-ai-suggestion-btn"
+                    onClick={() => void sendMessage(suggestion)}
+                  >
+                    {suggestion}
+                  </button>
+                ))}
+              </div>
+            )}
             {error && (
               <div className="ask-ai-error" role="alert">
                 {error}
