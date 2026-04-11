@@ -1,6 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 interface ChatMessage {
   role: "user" | "assistant";
@@ -271,6 +273,12 @@ export function AskAITab({ contextText, cardId }: AskAITabProps) {
                         <span />
                         <span />
                       </span>
+                    ) : m.role === "assistant" ? (
+                      <div className="ask-ai-markdown">
+                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                          {m.content}
+                        </ReactMarkdown>
+                      </div>
                     ) : (
                       m.content
                     )}

@@ -8,6 +8,8 @@ import { FlashcardDisplay } from "@/components/FlashcardDisplay";
 import { MCQDisplay } from "@/components/MCQDisplay";
 import { NavButtons } from "@/components/NavButtons";
 import { ProgressBar } from "@/components/ProgressBar";
+import { AskAITab } from "@/components/AskAITab";
+import { buildCardContext } from "@/lib/cardContext";
 
 export default function SectionStudyPage() {
   return (
@@ -32,6 +34,16 @@ function SectionStudyContent() {
 
   const { cards, loading, error } = useSectionCards(sections);
   const [currentIndex, setCurrentIndex] = useState(0);
+
+  const currentCardForContext = cards[currentIndex];
+  const askAiContext = useMemo(
+    () =>
+      currentCardForContext ? buildCardContext(currentCardForContext) : "",
+    [currentCardForContext],
+  );
+  const cardId = currentCardForContext
+    ? currentCardForContext.data.card_id
+    : "";
 
   const goNext = useCallback(() => {
     setCurrentIndex((prev) => Math.min(prev + 1, cards.length - 1));
@@ -59,6 +71,16 @@ function SectionStudyContent() {
 
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
+      // Ignore shortcuts while typing in form fields (e.g. Ask AI input).
+      const target = e.target as HTMLElement | null;
+      if (
+        target &&
+        (target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          target.isContentEditable)
+      ) {
+        return;
+      }
       switch (e.key) {
         case "ArrowRight":
           goNext();
@@ -101,7 +123,8 @@ function SectionStudyContent() {
   const currentCard = cards[currentIndex];
 
   return (
-    <div className="study-page">
+    <div className="study-layout">
+      <div className="study-page">
       <div className="study-header">
         <span className="card-counter">
           {currentIndex + 1} / {cards.length}
@@ -170,6 +193,8 @@ function SectionStudyContent() {
         hasNext={currentIndex < cards.length - 1}
         timerEnabled={timerEnabled}
       />
+      </div>
+      <AskAITab contextText={askAiContext} cardId={cardId} />
     </div>
   );
 }
