@@ -12,7 +12,13 @@ interface ChatMessage {
 interface AskAITabProps {
   contextText: string;
   cardId: string;
+  cardType: "flashcard" | "mcq";
 }
+
+const SUGGESTIONS: Record<"flashcard" | "mcq", string[]> = {
+  flashcard: ["Explain in more detail", "Give me an example"],
+  mcq: ["Explain in more detail", "Give me an example"],
+};
 
 const STORAGE_PREFIX = "study-recap:ask-ai:history";
 
@@ -48,7 +54,7 @@ function saveHistory(cardId: string, messages: ChatMessage[]) {
   }
 }
 
-export function AskAITab({ contextText, cardId }: AskAITabProps) {
+export function AskAITab({ contextText, cardId, cardType }: AskAITabProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
@@ -92,8 +98,9 @@ export function AskAITab({ contextText, cardId }: AskAITabProps) {
     };
   }, []);
 
-  const sendMessage = useCallback(async () => {
-    const trimmed = input.trim();
+  const sendMessage = useCallback(async (overrideText?: string) => {
+    const source = overrideText ?? input;
+    const trimmed = source.trim();
     if (!trimmed || isStreaming) return;
 
     setError(null);
@@ -102,7 +109,9 @@ export function AskAITab({ contextText, cardId }: AskAITabProps) {
 
     // Add the user message + an empty assistant placeholder that we stream into.
     setMessages([...baseMessages, { role: "assistant", content: "" }]);
-    setInput("");
+    if (overrideText === undefined) {
+      setInput("");
+    }
     setIsStreaming(true);
 
     const controller = new AbortController();
@@ -239,10 +248,28 @@ export function AskAITab({ contextText, cardId }: AskAITabProps) {
 
           <div className="ask-ai-messages" ref={messagesRef}>
             {messages.length === 0 && !isStreaming && (
-              <div className="ask-ai-empty">
-                Ask anything about the current flashcard or question. The card
-                contents are sent along as context.
-              </div>
+              <>
+                <div className="ask-ai-empty">
+                  Ask anything about the current flashcard or question. The
+                  card contents are sent along as context.
+                </div>
+                <div
+                  className="ask-ai-suggestions"
+                  role="group"
+                  aria-label="Suggested prompts"
+                >
+                  {SUGGESTIONS[cardType].map((suggestion) => (
+                    <button
+                      key={suggestion}
+                      type="button"
+                      className="ask-ai-suggestion-btn"
+                      onClick={() => void sendMessage(suggestion)}
+                    >
+                      {suggestion}
+                    </button>
+                  ))}
+                </div>
+              </>
             )}
             {messages.map((m, i) => {
               const isLast = i === messages.length - 1;
