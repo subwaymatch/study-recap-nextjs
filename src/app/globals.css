@@ -576,9 +576,12 @@ a {
   flex-shrink: 0;
   background: var(--bg-card);
   border-left: 1px solid var(--border);
-  transition: width 0.25s ease;
+  transition:
+    width 0.25s ease,
+    transform 0.25s ease;
   min-height: 0;
   height: 100%;
+  will-change: transform;
 }
 
 .ask-ai-tab.collapsed {
@@ -694,6 +697,9 @@ a {
   display: flex;
   flex-direction: column;
   gap: 0.9rem;
+  /* Allow vertical scroll gestures to pan the message list while the
+     swipe-to-close handler still receives horizontal gestures. */
+  touch-action: pan-y;
 }
 
 .ask-ai-empty {
