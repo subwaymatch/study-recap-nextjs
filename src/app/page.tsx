@@ -4,6 +4,9 @@ import { useState, useMemo } from "react";
 import Link from "next/link";
 import { useModules } from "@/hooks/useModules";
 import { ModuleCard } from "@/components/ModuleCard";
+import { ThemeToggle } from "@/components/ThemeToggle";
+import { ModuleGridSkeleton } from "@/components/LoadingSkeleton";
+import { AlertCircleIcon } from "@/components/Icons";
 
 const SECTIONS = ["FAR", "AUD", "REG", "ISC"] as const;
 
@@ -66,16 +69,29 @@ export default function ModuleSelectPage() {
   }, [modules, selectedSections]);
 
   if (loading) {
-    return <div className="loading-screen">Loading modules...</div>;
+    return <ModuleGridSkeleton />;
   }
 
   if (error) {
-    return <div className="error-screen">Error: {error}</div>;
+    return (
+      <div className="error-screen">
+        <div className="error-screen-content">
+          <AlertCircleIcon style={{ opacity: 0.6 }} />
+          <p>{error}</p>
+          <button className="nav-btn" onClick={() => window.location.reload()}>
+            Retry
+          </button>
+        </div>
+      </div>
+    );
   }
 
   return (
     <div className="module-select">
-      <h1>Study Recap</h1>
+      <div className="module-select-header">
+        <h1>Study Recap</h1>
+        <ThemeToggle />
+      </div>
 
       <div className="options-bar">
         <div className="timer-config">

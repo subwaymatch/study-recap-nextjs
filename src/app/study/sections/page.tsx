@@ -9,6 +9,11 @@ import { MCQDisplay } from "@/components/MCQDisplay";
 import { NavButtons } from "@/components/NavButtons";
 import { ProgressBar } from "@/components/ProgressBar";
 import { AskAITab } from "@/components/AskAITab";
+import { CardProgressTrack } from "@/components/CardProgressTrack";
+import { KeyboardShortcutsOverlay } from "@/components/KeyboardShortcutsOverlay";
+import { ThemeToggle } from "@/components/ThemeToggle";
+import { StudyCardSkeleton } from "@/components/LoadingSkeleton";
+import { AlertCircleIcon, CardIcon } from "@/components/Icons";
 import { buildCardContext } from "@/lib/cardContext";
 
 export default function SectionStudyPage() {
@@ -105,17 +110,35 @@ function SectionStudyContent() {
   }, [goNext, goPrev, resetTimer, togglePause, goHome]);
 
   if (loading) {
-    return <div className="loading-screen">Loading cards...</div>;
+    return (
+      <div className="study-layout">
+        <StudyCardSkeleton />
+      </div>
+    );
   }
 
   if (error) {
-    return <div className="error-screen">Error: {error}</div>;
+    return (
+      <div className="error-screen">
+        <div className="error-screen-content">
+          <AlertCircleIcon style={{ opacity: 0.6 }} />
+          <p>{error}</p>
+          <button className="nav-btn" onClick={() => window.location.reload()}>
+            Retry
+          </button>
+        </div>
+      </div>
+    );
   }
 
   if (cards.length === 0) {
     return (
-      <div className="loading-screen">
-        No cards found for the selected sections.
+      <div className="empty-screen">
+        <div className="empty-screen-content">
+          <CardIcon style={{ opacity: 0.4 }} />
+          <p>No cards found for the selected sections.</p>
+          <button className="nav-btn" onClick={goHome}>← Back to modules</button>
+        </div>
       </div>
     );
   }
@@ -154,12 +177,17 @@ function SectionStudyContent() {
             </span>
           </span>
         </div>
-        {timerEnabled && (
-          <span className="timer-display">
-            {isPaused ? "Paused" : `${secondsRemaining}s`}
-          </span>
-        )}
+        <div className="study-header-right">
+          <ThemeToggle />
+          {timerEnabled && (
+            <span className="timer-display">
+              {isPaused ? "Paused" : `${secondsRemaining}s`}
+            </span>
+          )}
+        </div>
       </div>
+
+      <CardProgressTrack currentIndex={currentIndex} totalCards={cards.length} />
 
       {timerEnabled && (
         <ProgressBar
@@ -169,7 +197,7 @@ function SectionStudyContent() {
         />
       )}
 
-      <div className="card-content">
+      <div className="card-content" key={currentIndex}>
         {currentCard.type === "flashcard" ? (
           <FlashcardDisplay flashcard={currentCard.data} />
         ) : (
@@ -199,6 +227,7 @@ function SectionStudyContent() {
         cardId={cardId}
         cardType={currentCard.type}
       />
+      <KeyboardShortcutsOverlay />
     </div>
   );
 }

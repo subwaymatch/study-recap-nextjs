@@ -19,13 +19,22 @@ export function ProgressBar({
   useEffect(() => {
     // Detect reset: seconds jumped up (e.g., from 3 to 15)
     if (secondsRemaining > prevSecondsRef.current) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- required: must render without transition before re-enabling it
       setIsResetting(true);
       // Remove the reset class after a frame so the browser paints without transition
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
+      let innerFrameId: number;
+      const outerFrameId = requestAnimationFrame(() => {
+        innerFrameId = requestAnimationFrame(() => {
           setIsResetting(false);
         });
       });
+      prevSecondsRef.current = secondsRemaining;
+      return () => {
+        cancelAnimationFrame(outerFrameId);
+        if (innerFrameId !== undefined) {
+          cancelAnimationFrame(innerFrameId);
+        }
+      };
     }
     prevSecondsRef.current = secondsRemaining;
   }, [secondsRemaining]);

@@ -9,12 +9,16 @@ export function useSectionCards(sections: string[]) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const sectionsKey = sections.join(",");
+
   useEffect(() => {
     if (sections.length === 0) {
       setCards([]);
       setLoading(false);
       return;
     }
+
+    let cancelled = false;
 
     async function fetchCards() {
       setLoading(true);
@@ -27,6 +31,8 @@ export function useSectionCards(sections: string[]) {
         .from("b_modules")
         .select("module_id")
         .in("section", sections);
+
+      if (cancelled) return;
 
       if (modulesRes.error) {
         setError(modulesRes.error.message);
@@ -57,6 +63,8 @@ export function useSectionCards(sections: string[]) {
           .order("question_number", { ascending: true }),
       ]);
 
+      if (cancelled) return;
+
       if (flashcardsRes.error) {
         setError(flashcardsRes.error.message);
         setLoading(false);
@@ -81,7 +89,12 @@ export function useSectionCards(sections: string[]) {
     }
 
     fetchCards();
-  }, [sections.join(",")]);
+
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sectionsKey]);
 
   return { cards, loading, error };
 }
