@@ -152,7 +152,7 @@ a {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: clamp(0.8rem, 1.5vw, 1.5rem) clamp(1.5rem, 3vw, 3rem);
+  padding: clamp(0.35rem, 0.7vw, 0.7rem) clamp(1.5rem, 3vw, 3rem);
   border-bottom: 1px solid var(--border);
   flex-shrink: 0;
 }
@@ -382,8 +382,8 @@ a {
   align-items: center;
   justify-content: center;
   gap: clamp(0.8rem, 1.5vw, 1.5rem);
-  padding: clamp(0.8rem, 1.5vw, 1.5rem) clamp(1.5rem, 3vw, 3rem);
-  padding-bottom: max(clamp(0.8rem, 1.5vw, 1.5rem), env(safe-area-inset-bottom));
+  padding: clamp(0.35rem, 0.7vw, 0.7rem) clamp(1.5rem, 3vw, 3rem);
+  padding-bottom: max(clamp(0.35rem, 0.7vw, 0.7rem), env(safe-area-inset-bottom));
   border-top: 1px solid var(--border);
   flex-shrink: 0;
 }
@@ -582,6 +582,9 @@ a {
   min-height: 0;
   height: 100%;
   will-change: transform;
+  /* Let our handler own horizontal gestures (including swipe-to-open from
+     the collapsed vertical bar) while still allowing vertical scrolling. */
+  touch-action: pan-y;
 }
 
 .ask-ai-tab.collapsed {
@@ -667,7 +670,7 @@ a {
   background: transparent;
   border: 1px solid var(--border);
   border-radius: 6px;
-  padding: 0.35em 0.9em;
+  padding: 0.35em;
   font-size: var(--font-xs);
   color: var(--text-secondary);
   cursor: pointer;
@@ -676,6 +679,10 @@ a {
     border-color 0.15s,
     color 0.15s;
   flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
 }
 
 .ask-ai-clear-btn:hover:not(:disabled) {
@@ -992,12 +999,21 @@ a {
   color: #fff;
   border: none;
   border-radius: 6px;
-  padding: 0 1.1em;
+  padding: 0 0.9em;
   font-size: var(--font-xs);
   font-weight: 600;
   cursor: pointer;
   transition: background 0.15s;
   flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.6em;
+  line-height: 0;
+}
+
+.ask-ai-send-btn .ask-ai-thinking-dots span {
+  background: #fff;
 }
 
 .ask-ai-send-btn:hover:not(:disabled) {
