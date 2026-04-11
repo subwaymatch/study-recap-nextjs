@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useRef } from "react";
 
 interface ProgressBarProps {
   secondsRemaining: number;
@@ -13,22 +13,23 @@ export function ProgressBar({
   intervalSeconds,
   isPaused,
 }: ProgressBarProps) {
-  const [isResetting, setIsResetting] = useState(false);
   const prevSecondsRef = useRef(secondsRemaining);
+  const isResettingRef = useRef(false);
 
-  useEffect(() => {
-    // Detect reset: seconds jumped up (e.g., from 3 to 15)
-    if (secondsRemaining > prevSecondsRef.current) {
-      setIsResetting(true);
-      // Remove the reset class after a frame so the browser paints without transition
+  // Detect reset: seconds jumped up (e.g., from 3 to 15).
+  // This is derived state — no need for useState + useEffect.
+  const isResetting = secondsRemaining > prevSecondsRef.current;
+  prevSecondsRef.current = secondsRemaining;
+
+  // When resetting, schedule a re-render after a paint to remove the reset class.
+  if (isResetting && !isResettingRef.current) {
+    isResettingRef.current = true;
+    requestAnimationFrame(() => {
       requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          setIsResetting(false);
-        });
+        isResettingRef.current = false;
       });
-    }
-    prevSecondsRef.current = secondsRemaining;
-  }, [secondsRemaining]);
+    });
+  }
 
   const widthPercent = (secondsRemaining / intervalSeconds) * 100;
 

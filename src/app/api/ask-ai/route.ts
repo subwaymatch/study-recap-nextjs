@@ -1,4 +1,5 @@
 import type { NextRequest } from "next/server";
+import { checkRateLimit } from "@/lib/rateLimit";
 
 interface ChatMessage {
   role: "user" | "assistant" | "system";
@@ -10,7 +11,20 @@ interface RequestBody {
   context: string;
 }
 
+// Allow 20 requests per minute per IP.
+const RATE_LIMIT = { maxRequests: 20, windowMs: 60_000 };
+
 export async function POST(req: NextRequest) {
+  const ip =
+    req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+  const { allowed, retryAfterMs } = checkRateLimit(ip, RATE_LIMIT);
+  if (!allowed) {
+    return new Response("Too many requests. Please try again later.", {
+      status: 429,
+      headers: { "Retry-After": String(Math.ceil(retryAfterMs / 1000)) },
+    });
+  }
+
   let body: RequestBody;
   try {
     body = (await req.json()) as RequestBody;

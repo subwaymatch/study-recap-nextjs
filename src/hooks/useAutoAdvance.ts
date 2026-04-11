@@ -18,7 +18,9 @@ export function useAutoAdvance({
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const onAdvanceRef = useRef(onAdvance);
 
-  onAdvanceRef.current = onAdvance;
+  useEffect(() => {
+    onAdvanceRef.current = onAdvance;
+  });
 
   const clearTimer = useCallback(() => {
     if (intervalRef.current !== null) {

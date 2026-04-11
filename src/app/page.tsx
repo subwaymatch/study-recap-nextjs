@@ -4,6 +4,8 @@ import { useState, useMemo } from "react";
 import Link from "next/link";
 import { useModules } from "@/hooks/useModules";
 import { ModuleCard } from "@/components/ModuleCard";
+import { ThemeToggle } from "@/components/ThemeToggle";
+import { ModuleGridSkeleton } from "@/components/LoadingSkeleton";
 
 const SECTIONS = ["FAR", "AUD", "REG", "ISC"] as const;
 
@@ -66,16 +68,33 @@ export default function ModuleSelectPage() {
   }, [modules, selectedSections]);
 
   if (loading) {
-    return <div className="loading-screen">Loading modules...</div>;
+    return <ModuleGridSkeleton />;
   }
 
   if (error) {
-    return <div className="error-screen">Error: {error}</div>;
+    return (
+      <div className="error-screen">
+        <div className="error-screen-content">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ opacity: 0.6 }}>
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" y1="8" x2="12" y2="12" />
+            <line x1="12" y1="16" x2="12.01" y2="16" />
+          </svg>
+          <p>{error}</p>
+          <button className="nav-btn" onClick={() => window.location.reload()}>
+            Retry
+          </button>
+        </div>
+      </div>
+    );
   }
 
   return (
     <div className="module-select">
-      <h1>Study Recap</h1>
+      <div className="module-select-header">
+        <h1>Study Recap</h1>
+        <ThemeToggle />
+      </div>
 
       <div className="options-bar">
         <div className="timer-config">

@@ -39,18 +39,14 @@ function replaceExplanationPlaceholders(
 }
 
 export function MCQDisplay({ mcq, randomize = false }: MCQDisplayProps) {
-  const originalOptions = [
-    mcq.option_text1,
-    mcq.option_text2,
-    mcq.option_text3,
-    mcq.option_text4,
-  ];
-  const originalExplanations = [
-    mcq.explanation1,
-    mcq.explanation2,
-    mcq.explanation3,
-    mcq.explanation4,
-  ];
+  const originalOptions = useMemo(
+    () => [mcq.option_text1, mcq.option_text2, mcq.option_text3, mcq.option_text4],
+    [mcq.option_text1, mcq.option_text2, mcq.option_text3, mcq.option_text4],
+  );
+  const originalExplanations = useMemo(
+    () => [mcq.explanation1, mcq.explanation2, mcq.explanation3, mcq.explanation4],
+    [mcq.explanation1, mcq.explanation2, mcq.explanation3, mcq.explanation4],
+  );
   const correctOriginalIndex = mcq.correct_option_number - 1;
 
   // Each entry is the original index (0-3), potentially shuffled

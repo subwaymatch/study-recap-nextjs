@@ -9,6 +9,10 @@ import { MCQDisplay } from "@/components/MCQDisplay";
 import { NavButtons } from "@/components/NavButtons";
 import { ProgressBar } from "@/components/ProgressBar";
 import { AskAITab } from "@/components/AskAITab";
+import { CardProgressTrack } from "@/components/CardProgressTrack";
+import { KeyboardShortcutsOverlay } from "@/components/KeyboardShortcutsOverlay";
+import { ThemeToggle } from "@/components/ThemeToggle";
+import { StudyCardSkeleton } from "@/components/LoadingSkeleton";
 import { buildCardContext } from "@/lib/cardContext";
 
 export default function SectionStudyPage() {
@@ -105,17 +109,42 @@ function SectionStudyContent() {
   }, [goNext, goPrev, resetTimer, togglePause, goHome]);
 
   if (loading) {
-    return <div className="loading-screen">Loading cards...</div>;
+    return (
+      <div className="study-layout">
+        <StudyCardSkeleton />
+      </div>
+    );
   }
 
   if (error) {
-    return <div className="error-screen">Error: {error}</div>;
+    return (
+      <div className="error-screen">
+        <div className="error-screen-content">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ opacity: 0.6 }}>
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" y1="8" x2="12" y2="12" />
+            <line x1="12" y1="16" x2="12.01" y2="16" />
+          </svg>
+          <p>{error}</p>
+          <button className="nav-btn" onClick={() => window.location.reload()}>
+            Retry
+          </button>
+        </div>
+      </div>
+    );
   }
 
   if (cards.length === 0) {
     return (
-      <div className="loading-screen">
-        No cards found for the selected sections.
+      <div className="empty-screen">
+        <div className="empty-screen-content">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ opacity: 0.4 }}>
+            <rect x="2" y="4" width="20" height="16" rx="2"/>
+            <path d="M2 9h20"/>
+          </svg>
+          <p>No cards found for the selected sections.</p>
+          <button className="nav-btn" onClick={goHome}>← Back to modules</button>
+        </div>
       </div>
     );
   }
@@ -154,12 +183,17 @@ function SectionStudyContent() {
             </span>
           </span>
         </div>
-        {timerEnabled && (
-          <span className="timer-display">
-            {isPaused ? "Paused" : `${secondsRemaining}s`}
-          </span>
-        )}
+        <div className="study-header-right">
+          <ThemeToggle />
+          {timerEnabled && (
+            <span className="timer-display">
+              {isPaused ? "Paused" : `${secondsRemaining}s`}
+            </span>
+          )}
+        </div>
       </div>
+
+      <CardProgressTrack currentIndex={currentIndex} totalCards={cards.length} />
 
       {timerEnabled && (
         <ProgressBar
@@ -169,7 +203,7 @@ function SectionStudyContent() {
         />
       )}
 
-      <div className="card-content">
+      <div className="card-content" key={currentIndex}>
         {currentCard.type === "flashcard" ? (
           <FlashcardDisplay flashcard={currentCard.data} />
         ) : (
@@ -199,6 +233,7 @@ function SectionStudyContent() {
         cardId={cardId}
         cardType={currentCard.type}
       />
+      <KeyboardShortcutsOverlay />
     </div>
   );
 }
