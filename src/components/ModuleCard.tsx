@@ -46,13 +46,21 @@ export function ModuleCard({
 
   const content = (
     <>
-      <div className="section-title">{module.section}</div>
-      <div className="unit-title">{module.unit} {module.unit_title}</div>
-      <div className="module-title">{module.module} {module.module_title}</div>
-      <div className="counts">
-        <span>{module.flashcard_count} flashcards</span>
-        <span>{module.mcq_count} MCQs</span>
+      <div className="module-card-body">
+        <div className="section-title">{module.section}</div>
+        <div className="module-title">{module.module} {module.module_title}</div>
+        <div className="counts">
+          <span>{module.flashcard_count} flashcards</span>
+          <span>{module.mcq_count} MCQs</span>
+        </div>
       </div>
+      {!disabled && (
+        <span className="module-card-arrow" aria-hidden="true">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
+        </span>
+      )}
     </>
   );
 
