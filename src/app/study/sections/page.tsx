@@ -177,7 +177,8 @@ function SectionStudyContent() {
       <div className="study-page">
       <div className="study-header">
         <span className="card-counter">
-          {currentIndex + 1} / {displayCards.length}
+          {currentIndex + 1}
+          <span className="card-counter-total">/{displayCards.length}</span>
         </span>
         <div className="study-header-center">
           <span className="module-info-badge">
@@ -225,11 +226,13 @@ function SectionStudyContent() {
       )}
 
       <div className="card-content" key={currentIndex}>
-        {currentCard.type === "flashcard" ? (
-          <FlashcardDisplay flashcard={currentCard.data} />
-        ) : (
-          <MCQDisplay mcq={currentCard.data} randomize={randomizeMcq} />
-        )}
+        <div className="card-content-inner">
+          {currentCard.type === "flashcard" ? (
+            <FlashcardDisplay flashcard={currentCard.data} />
+          ) : (
+            <MCQDisplay mcq={currentCard.data} randomize={randomizeMcq} />
+          )}
+        </div>
       </div>
 
       <NavButtons
