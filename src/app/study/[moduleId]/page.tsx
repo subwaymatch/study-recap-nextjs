@@ -12,7 +12,7 @@ import { AskAITab } from "@/components/AskAITab";
 import { CardProgressTrack } from "@/components/CardProgressTrack";
 import { KeyboardShortcutsOverlay } from "@/components/KeyboardShortcutsOverlay";
 import { CardListOverlay } from "@/components/CardListOverlay";
-import { ThemeToggle } from "@/components/ThemeToggle";
+import { SettingsPanel, getStoredAskAIEnabled } from "@/components/SettingsPanel";
 import { StudyCardSkeleton } from "@/components/LoadingSkeleton";
 import { AlertCircleIcon, CardIcon } from "@/components/Icons";
 import { buildCardContext } from "@/lib/cardContext";
@@ -35,6 +35,12 @@ export default function StudyPage() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isCardListOpen, setIsCardListOpen] = useState(false);
   const [isAskAIExpanded, setIsAskAIExpanded] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [askAIEnabled, setAskAIEnabled] = useState(true);
+
+  useEffect(() => {
+    setAskAIEnabled(getStoredAskAIEnabled());
+  }, []);
 
   const displayCards = useMemo(() => {
     let result = cards;
@@ -173,33 +179,17 @@ export default function StudyPage() {
               {moduleInfo.section} · {moduleInfo.module} · {moduleInfo.module_title}
             </span>
           )}
-          <span
-            className={`card-type-badge ${currentCard.type === "flashcard" ? "flashcard" : "mcq"}`}
-          >
-            <span className="badge-icon" aria-hidden="true">
-              {currentCard.type === "flashcard" ? (
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="2" y="4" width="20" height="16" rx="2"/>
-                  <path d="M2 9h20"/>
-                </svg>
-              ) : (
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="6" cy="7" r="2"/><circle cx="6" cy="13" r="2"/><circle cx="6" cy="19" r="2"/>
-                  <line x1="11" y1="7" x2="21" y2="7"/><line x1="11" y1="13" x2="21" y2="13"/><line x1="11" y1="19" x2="21" y2="19"/>
-                </svg>
-              )}
-            </span>
-            <span className="badge-label">
-              {currentCard.type === "flashcard" ? "Flashcard" : "MCQ"}
-            </span>
-          </span>
         </div>
         <div className="study-header-right">
           <span className="card-counter">
             {currentIndex + 1}
             <span className="card-counter-total">/{displayCards.length}</span>
           </span>
-          <ThemeToggle />
+          <button className="header-icon-btn" onClick={() => setIsSettingsOpen(true)} title="Settings" aria-label="Open settings">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+            </svg>
+          </button>
           {timerEnabled && (
             <span className="timer-display">
               {isPaused ? "Paused" : `${secondsRemaining}s`}
@@ -220,6 +210,26 @@ export default function StudyPage() {
 
       <div className="card-content" key={currentIndex}>
         <div className="card-content-inner">
+          <span
+            className={`card-type-badge card-type-badge-inline ${currentCard.type === "flashcard" ? "flashcard" : "mcq"}`}
+          >
+            <span className="badge-icon" aria-hidden="true">
+              {currentCard.type === "flashcard" ? (
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="2" y="4" width="20" height="16" rx="2"/>
+                  <path d="M2 9h20"/>
+                </svg>
+              ) : (
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="6" cy="7" r="2"/><circle cx="6" cy="13" r="2"/><circle cx="6" cy="19" r="2"/>
+                  <line x1="11" y1="7" x2="21" y2="7"/><line x1="11" y1="13" x2="21" y2="13"/><line x1="11" y1="19" x2="21" y2="19"/>
+                </svg>
+              )}
+            </span>
+            <span className="badge-label">
+              {currentCard.type === "flashcard" ? "Flashcard" : "MCQ"}
+            </span>
+          </span>
           {currentCard.type === "flashcard" ? (
             <FlashcardDisplay flashcard={currentCard.data} />
           ) : (
@@ -238,20 +248,24 @@ export default function StudyPage() {
           resetTimer();
         }}
         onTogglePause={togglePause}
-        onOpenAskAI={() => setIsAskAIExpanded(true)}
+        onToggleAskAI={() => setIsAskAIExpanded((prev) => !prev)}
         isPaused={isPaused}
         hasPrev={currentIndex > 0}
         hasNext={currentIndex < displayCards.length - 1}
         timerEnabled={timerEnabled}
+        isAskAIExpanded={isAskAIExpanded}
+        showAskAI={askAIEnabled}
       />
       </div>
-      <AskAITab
-        contextText={askAiContext}
-        cardId={cardId}
-        cardType={currentCard.type}
-        isExpanded={isAskAIExpanded}
-        onExpandedChange={setIsAskAIExpanded}
-      />
+      {askAIEnabled && (
+        <AskAITab
+          contextText={askAiContext}
+          cardId={cardId}
+          cardType={currentCard.type}
+          isExpanded={isAskAIExpanded}
+          onExpandedChange={setIsAskAIExpanded}
+        />
+      )}
       <CardListOverlay
         cards={displayCards}
         currentIndex={currentIndex}
@@ -263,6 +277,15 @@ export default function StudyPage() {
         }}
       />
       <KeyboardShortcutsOverlay />
+      <SettingsPanel
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+        askAIEnabled={askAIEnabled}
+        onAskAIEnabledChange={(enabled) => {
+          setAskAIEnabled(enabled);
+          if (!enabled) setIsAskAIExpanded(false);
+        }}
+      />
     </div>
   );
 }
