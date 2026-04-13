@@ -13,6 +13,8 @@ interface AskAITabProps {
   contextText: string;
   cardId: string;
   cardType: "flashcard" | "mcq";
+  isExpanded: boolean;
+  onExpandedChange: (expanded: boolean) => void;
 }
 
 const SUGGESTIONS: Record<"flashcard" | "mcq", string[]> = {
@@ -59,8 +61,7 @@ const SWIPE_DIRECTION_LOCK = 10;
 // Horizontal distance at which a swipe commits to opening or closing the panel.
 const SWIPE_THRESHOLD = 60;
 
-export function AskAITab({ contextText, cardId, cardType }: AskAITabProps) {
-  const [isExpanded, setIsExpanded] = useState(false);
+export function AskAITab({ contextText, cardId, cardType, isExpanded, onExpandedChange }: AskAITabProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
@@ -133,12 +134,12 @@ export function AskAITab({ contextText, cardId, cardType }: AskAITabProps) {
       if (e.key === "Escape") {
         e.stopImmediatePropagation();
         e.preventDefault();
-        setIsExpanded(false);
+        onExpandedChange(false);
       }
     }
     window.addEventListener("keydown", handleKeyDown, true);
     return () => window.removeEventListener("keydown", handleKeyDown, true);
-  }, [isExpanded]);
+  }, [isExpanded, onExpandedChange]);
 
   const handleTouchStart = useCallback(
     (e: React.TouchEvent<HTMLElement>) => {
@@ -199,13 +200,13 @@ export function AskAITab({ contextText, cardId, cardType }: AskAITabProps) {
       const dx = t.clientX - state.startX;
       if (isExpanded && dx > SWIPE_THRESHOLD) {
         swipeHandledRef.current = true;
-        setIsExpanded(false);
+        onExpandedChange(false);
       } else if (!isExpanded && dx < -SWIPE_THRESHOLD) {
         swipeHandledRef.current = true;
-        setIsExpanded(true);
+        onExpandedChange(true);
       }
     },
-    [isExpanded],
+    [isExpanded, onExpandedChange],
   );
 
   const handleTouchCancel = useCallback(() => {
@@ -219,8 +220,8 @@ export function AskAITab({ contextText, cardId, cardType }: AskAITabProps) {
       swipeHandledRef.current = false;
       return;
     }
-    setIsExpanded((v) => !v);
-  }, []);
+    onExpandedChange(!isExpanded);
+  }, [isExpanded, onExpandedChange]);
 
   const sendMessage = useCallback(async (overrideText?: string) => {
     const source = overrideText ?? input;
@@ -403,7 +404,7 @@ export function AskAITab({ contextText, cardId, cardType }: AskAITabProps) {
             <button
               type="button"
               className="ask-ai-close-btn"
-              onClick={() => setIsExpanded(false)}
+              onClick={() => onExpandedChange(false)}
               title="Close Ask AI panel"
               aria-label="Close Ask AI panel"
             >

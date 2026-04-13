@@ -8,7 +8,6 @@ interface CardListOverlayProps {
   cards: StudyCard[];
   currentIndex: number;
   isOpen: boolean;
-  onOpen: () => void;
   onClose: () => void;
   onSelect: (index: number) => void;
 }
@@ -26,7 +25,6 @@ export function CardListOverlay({
   cards,
   currentIndex,
   isOpen,
-  onOpen,
   onClose,
   onSelect,
 }: CardListOverlayProps) {
@@ -61,36 +59,7 @@ export function CardListOverlay({
     [onSelect, onClose],
   );
 
-  if (!isOpen) {
-    return (
-      <button
-        type="button"
-        className="card-list-fab"
-        onClick={onOpen}
-        title="Show all cards"
-        aria-label="Show list of all cards"
-      >
-        <svg
-          width="18"
-          height="18"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          aria-hidden="true"
-        >
-          <line x1="8" y1="6" x2="21" y2="6" />
-          <line x1="8" y1="12" x2="21" y2="12" />
-          <line x1="8" y1="18" x2="21" y2="18" />
-          <line x1="3" y1="6" x2="3.01" y2="6" />
-          <line x1="3" y1="12" x2="3.01" y2="12" />
-          <line x1="3" y1="18" x2="3.01" y2="18" />
-        </svg>
-      </button>
-    );
-  }
+  if (!isOpen) return null;
 
   return (
     <div
