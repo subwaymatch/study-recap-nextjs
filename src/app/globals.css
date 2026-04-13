@@ -229,18 +229,6 @@ a {
   gap: 0.15em;
 }
 
-.study-header .card-counter::before {
-  content: "";
-  display: inline-block;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--accent);
-  margin-right: 0.3em;
-  flex-shrink: 0;
-  position: relative;
-  top: -0.05em;
-}
 
 .card-counter-total {
   font-size: var(--font-xs);
@@ -282,7 +270,7 @@ a {
   color: var(--text-secondary);
 }
 
-.study-header .card-type-badge {
+.card-type-badge {
   font-size: var(--font-xs);
   padding: 0.3em 0.8em;
   border-radius: 6px;
@@ -315,7 +303,7 @@ a {
   flex: 1;
   overflow-y: auto;
   padding: clamp(1rem, 2vw, 2rem) clamp(1.2rem, 3vw, 3rem);
-  padding-bottom: clamp(3.5rem, 5vw, 4.5rem);
+  padding-bottom: 0;
   display: flex;
   flex-direction: column;
   animation: card-fade-in 0.25s ease-out;
@@ -346,6 +334,12 @@ a {
 .card-content-inner > * {
   margin-top: auto;
   margin-bottom: auto;
+}
+
+.card-type-badge-inline {
+  margin-top: 0;
+  margin-bottom: 0.5em;
+  align-self: flex-start;
 }
 
 /* Flashcard Display */
@@ -510,10 +504,9 @@ a {
 
 /* Nav Buttons — connected to card body */
 .nav-buttons {
-  position: absolute;
-  left: clamp(1.2rem, 3vw, 3rem);
-  right: clamp(1.2rem, 3vw, 3rem);
-  bottom: 0;
+  flex-shrink: 0;
+  margin: 0 clamp(1.2rem, 3vw, 3rem);
+  margin-bottom: clamp(1rem, 2vw, 2rem);
   display: flex;
   align-items: stretch;
   background: var(--bg-card-surface);
@@ -533,10 +526,10 @@ a {
   border: none;
   border-radius: 0;
   color: var(--text-secondary);
-  padding: 0.7rem 0.5rem;
+  padding: 1rem 0.5rem;
   cursor: pointer;
   font-family: inherit;
-  font-size: var(--font-xs);
+  font-size: var(--font-sm);
   font-weight: 500;
   transition: background 0.15s, color 0.15s;
 }
@@ -605,10 +598,16 @@ a {
     left: 0;
     right: 0;
     bottom: 0;
+    margin: 0;
     border-radius: 0;
     background: var(--bg-card);
     border-top: 1px solid var(--border);
     padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .nav-buttons .nav-btn {
+    padding: 1rem 0.5rem;
+    font-size: var(--font-sm);
   }
 
   .nav-btn-ask-ai {
@@ -624,8 +623,8 @@ a {
   }
 
   .card-content {
-    padding: clamp(0.5rem, 1.5vw, 0.75rem) clamp(0.75rem, 2vw, 1rem);
-    padding-bottom: calc(3.5rem + env(safe-area-inset-bottom));
+    padding: clamp(0.5rem, 1.5vw, 0.75rem) clamp(1.2rem, 4vw, 1.8rem);
+    padding-bottom: calc(4.5rem + env(safe-area-inset-bottom));
   }
 
   .card-content-inner {
@@ -638,17 +637,6 @@ a {
     display: none;
   }
 
-  .badge-label {
-    display: none;
-  }
-
-  .badge-icon {
-    display: inline-flex;
-  }
-
-  .study-header .card-type-badge {
-    padding: 0.35em 0.5em;
-  }
 }
 
 /* Timer display */
@@ -1808,6 +1796,157 @@ a {
 
 .error-boundary-btn:hover {
   background: var(--text-secondary);
+}
+
+/* =================== Settings Panel =================== */
+.settings-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: var(--overlay-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: overlay-fade-in 0.15s ease-out;
+}
+
+.settings-panel {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: var(--shadow-md);
+  padding: 1.5rem;
+  min-width: 340px;
+  max-width: 90vw;
+  animation: panel-slide-up 0.2s ease-out;
+}
+
+.settings-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.2rem;
+}
+
+.settings-header h2 {
+  font-size: var(--font-sm);
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.settings-close {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 0.2em;
+  line-height: 0;
+  border-radius: 6px;
+  transition: background 0.15s, color 0.15s;
+}
+
+.settings-close:hover {
+  background: var(--bg-card-hover);
+  color: var(--text-primary);
+}
+
+.settings-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.settings-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.settings-label {
+  font-size: var(--font-xs);
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.settings-theme-options {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.settings-theme-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4em;
+  padding: 0.55em 0.6em;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: var(--font-xs);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.settings-theme-btn:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--text-muted);
+  color: var(--text-primary);
+}
+
+.settings-theme-btn.active {
+  background: var(--text-primary);
+  border-color: var(--text-primary);
+  color: var(--bg-primary);
+}
+
+.settings-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.settings-switch {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  border: none;
+  border-radius: 12px;
+  background: var(--border);
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+
+.settings-switch.on {
+  background: var(--accent);
+}
+
+.settings-switch-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.2s;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+
+.settings-switch.on .settings-switch-thumb {
+  transform: translateX(20px);
+}
+
+.settings-hint {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  line-height: 1.4;
 }
 
 /* =================== Focus Visible =================== */
