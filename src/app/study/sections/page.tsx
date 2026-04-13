@@ -45,6 +45,7 @@ function SectionStudyContent() {
   const { cards, loading, error } = useSectionCards(sections);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isCardListOpen, setIsCardListOpen] = useState(false);
+  const [isAskAIExpanded, setIsAskAIExpanded] = useState(false);
 
   const displayCards = useMemo(() => {
     let result = cards;
@@ -176,11 +177,13 @@ function SectionStudyContent() {
     <div className="study-layout">
       <div className="study-page">
       <div className="study-header">
-        <span className="card-counter">
-          {currentIndex + 1}
-          <span className="card-counter-total">/{displayCards.length}</span>
-        </span>
-        <div className="study-header-center">
+        <div className="study-header-left">
+          <button className="header-icon-btn" onClick={goHome} title="Home (Esc)" aria-label="Go home">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          </button>
+          <button className="header-icon-btn" onClick={() => setIsCardListOpen(true)} title="Card list" aria-label="Show list of all cards">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+          </button>
           <span className="module-info-badge">
             {sections.join(", ")}
           </span>
@@ -206,6 +209,10 @@ function SectionStudyContent() {
           </span>
         </div>
         <div className="study-header-right">
+          <span className="card-counter">
+            {currentIndex + 1}
+            <span className="card-counter-total">/{displayCards.length}</span>
+          </span>
           <ThemeToggle />
           {timerEnabled && (
             <span className="timer-display">
@@ -245,7 +252,7 @@ function SectionStudyContent() {
           resetTimer();
         }}
         onTogglePause={togglePause}
-        onHome={goHome}
+        onOpenAskAI={() => setIsAskAIExpanded(true)}
         isPaused={isPaused}
         hasPrev={currentIndex > 0}
         hasNext={currentIndex < displayCards.length - 1}
@@ -256,12 +263,13 @@ function SectionStudyContent() {
         contextText={askAiContext}
         cardId={cardId}
         cardType={currentCard.type}
+        isExpanded={isAskAIExpanded}
+        onExpandedChange={setIsAskAIExpanded}
       />
       <CardListOverlay
         cards={displayCards}
         currentIndex={currentIndex}
         isOpen={isCardListOpen}
-        onOpen={() => setIsCardListOpen(true)}
         onClose={() => setIsCardListOpen(false)}
         onSelect={(index) => {
           setCurrentIndex(index);

@@ -248,11 +248,33 @@ a {
   font-weight: 400;
 }
 
-.study-header-center {
+.study-header-left {
   display: flex;
   align-items: center;
-  gap: 0.8em;
+  gap: 0.5em;
   min-width: 0;
+  flex: 1;
+}
+
+.header-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0.4em;
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  line-height: 0;
+  flex-shrink: 0;
+}
+
+.header-icon-btn:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--text-muted);
+  color: var(--text-primary);
 }
 
 .module-info-badge {
@@ -293,7 +315,7 @@ a {
   flex: 1;
   overflow-y: auto;
   padding: clamp(1rem, 2vw, 2rem) clamp(1.2rem, 3vw, 3rem);
-  padding-bottom: clamp(6rem, 10vw, 9rem);
+  padding-bottom: clamp(3.5rem, 5vw, 4.5rem);
   display: flex;
   flex-direction: column;
   animation: card-fade-in 0.25s ease-out;
@@ -301,7 +323,7 @@ a {
 
 .card-content-inner {
   background: var(--bg-card-surface);
-  border-radius: clamp(16px, 2vw, 24px);
+  border-radius: clamp(16px, 2vw, 24px) clamp(16px, 2vw, 24px) 0 0;
   padding: clamp(1.5rem, 3vw, 3rem) clamp(1.5rem, 4vw, 4rem);
   flex: 1;
   display: flex;
@@ -486,37 +508,75 @@ a {
   opacity: 0.4;
 }
 
-/* Nav Buttons */
+/* Nav Buttons — connected to card body */
 .nav-buttons {
   position: absolute;
-  left: 0;
-  right: 0;
+  left: clamp(1.2rem, 3vw, 3rem);
+  right: clamp(1.2rem, 3vw, 3rem);
   bottom: 0;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: clamp(0.8rem, 1.5vw, 1.5rem);
-  padding: 0 clamp(1.5rem, 3vw, 3rem) clamp(1.2rem, 2vw, 2rem);
-  padding-bottom: max(clamp(1.2rem, 2vw, 2rem), env(safe-area-inset-bottom));
-  background: transparent;
-  border: none;
-  pointer-events: none;
-  z-index: 5;
-}
-
-.nav-buttons > * {
-  pointer-events: auto;
-}
-
-.nav-btn-group {
-  display: inline-flex;
   align-items: stretch;
-  background: var(--text-primary);
-  border-radius: 999px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  background: var(--bg-card-surface);
+  border-top: 1px solid var(--border);
+  border-radius: 0 0 clamp(16px, 2vw, 24px) clamp(16px, 2vw, 24px);
+  z-index: 5;
   overflow: hidden;
 }
 
+.nav-buttons .nav-btn {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4em;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  color: var(--text-secondary);
+  padding: 0.7rem 0.5rem;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: var(--font-xs);
+  font-weight: 500;
+  transition: background 0.15s, color 0.15s;
+}
+
+.nav-buttons .nav-btn + .nav-btn {
+  border-left: 1px solid var(--border);
+}
+
+.nav-buttons .nav-btn:hover:not(:disabled) {
+  background: var(--bg-card-hover);
+  color: var(--text-primary);
+}
+
+.nav-buttons .nav-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.nav-shortcut-key {
+  font-family: inherit;
+  font-size: 0.75em;
+  color: var(--text-muted);
+  background: var(--bg-option);
+  border: 1px solid var(--border);
+  padding: 0.1em 0.35em;
+  border-radius: 4px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.nav-btn-text {
+  font-size: inherit;
+}
+
+/* Ask AI button only visible on mobile */
+.nav-btn-ask-ai {
+  display: none;
+}
+
+/* Standalone .nav-btn (used outside nav-buttons, e.g. error/empty screens) */
 .nav-btn {
   background: var(--bg-card);
   color: var(--text-primary);
@@ -525,35 +585,8 @@ a {
   padding: clamp(0.6rem, 1vw, 1rem) clamp(1.2rem, 2vw, 2.5rem);
   font-size: var(--font-sm);
   cursor: pointer;
-  transition:
-    background 0.2s,
-    border-color 0.2s,
-    color 0.2s;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
   font-weight: 500;
-}
-
-.nav-btn-group .nav-btn {
-  background: transparent;
-  color: #ffffff;
-  border: none;
-  border-radius: 0;
-  position: relative;
-  padding: clamp(0.7rem, 1.1vw, 1.05rem) clamp(1.3rem, 2.2vw, 2.6rem);
-}
-
-.nav-btn-group .nav-btn + .nav-btn {
-  box-shadow: inset 1px 0 0 rgba(255, 255, 255, 0.25);
-}
-
-.nav-btn-group .nav-btn:hover:not(:disabled),
-.nav-btn-group .nav-btn:focus-visible {
-  background: rgba(255, 255, 255, 0.15);
-  color: #ffffff;
-  z-index: 1;
-}
-
-.nav-btn-group .nav-btn.home-btn {
-  color: rgba(255, 255, 255, 0.85);
 }
 
 .nav-btn:hover {
@@ -566,33 +599,43 @@ a {
   cursor: not-allowed;
 }
 
-.nav-btn.pause-btn {
-  min-width: clamp(100px, 10vw, 140px);
-  border-radius: 999px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-}
-
-.nav-btn.home-btn {
-  color: var(--text-secondary);
-}
-
 @media (max-width: 599px) {
-  .nav-btn-label {
+  .nav-buttons {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 0;
+    background: var(--bg-card);
+    border-top: 1px solid var(--border);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .nav-btn-ask-ai {
+    display: inline-flex;
+  }
+
+  .nav-btn-text {
     display: none;
   }
 
-  .study-header-center {
-    flex: 1;
-    overflow: hidden;
-    margin: 0 0.4em;
+  .nav-shortcut-key {
+    display: none;
   }
 
-  .module-info-badge {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    flex: 1;
-    min-width: 0;
+  .card-content {
+    padding: clamp(0.5rem, 1.5vw, 0.75rem) clamp(0.75rem, 2vw, 1rem);
+    padding-bottom: calc(3.5rem + env(safe-area-inset-bottom));
+  }
+
+  .card-content-inner {
+    background: transparent;
+    border-radius: 0;
+    padding: 0;
+  }
+
+  .study-header-left .module-info-badge {
+    display: none;
   }
 
   .badge-label {
@@ -654,6 +697,7 @@ a {
   display: flex;
   align-items: center;
   gap: 0.6em;
+  flex-shrink: 0;
 }
 
 /* Options bar (horizontal layout) */
@@ -997,9 +1041,9 @@ a {
 }
 
 .ask-ai-message-assistant .ask-ai-message-content {
-  background: var(--ai-msg-bg);
-  /* Markdown handles block spacing; disable pre-wrap so paragraphs
-     and lists render correctly. */
+  background: none;
+  padding: 0;
+  border-radius: 0;
   white-space: normal;
 }
 
@@ -1246,6 +1290,10 @@ a {
 }
 
 @media (max-width: 599px) {
+  .ask-ai-tab.collapsed {
+    display: none;
+  }
+
   .ask-ai-tab.expanded {
     position: absolute;
     top: 0;
@@ -1337,6 +1385,12 @@ a {
 /* Hide the keyboard shortcut button when the Ask AI panel is expanded */
 .ask-ai-tab.expanded ~ .shortcuts-hint {
   display: none;
+}
+
+@media (max-width: 599px) {
+  .shortcuts-hint {
+    display: none;
+  }
 }
 
 .shortcuts-overlay {

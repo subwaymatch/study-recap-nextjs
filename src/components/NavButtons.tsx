@@ -4,7 +4,7 @@ interface NavButtonsProps {
   onPrev: () => void;
   onNext: () => void;
   onTogglePause: () => void;
-  onHome: () => void;
+  onOpenAskAI: () => void;
   isPaused: boolean;
   hasPrev: boolean;
   hasNext: boolean;
@@ -15,7 +15,7 @@ export function NavButtons({
   onPrev,
   onNext,
   onTogglePause,
-  onHome,
+  onOpenAskAI,
   isPaused,
   hasPrev,
   hasNext,
@@ -23,25 +23,28 @@ export function NavButtons({
 }: NavButtonsProps) {
   return (
     <div className="nav-buttons">
-      <div className="nav-btn-group" role="group" aria-label="Navigation">
-        <button className="nav-btn home-btn" onClick={onHome}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: "inline-block", verticalAlign: "-2px", marginRight: "0.3em" }}><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-          <span className="nav-btn-label">Home</span>
-        </button>
-        <button className="nav-btn" onClick={onPrev} disabled={!hasPrev}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: "inline-block", verticalAlign: "-2px", marginRight: "0.3em" }}><polyline points="15 18 9 12 15 6"/></svg>
-          <span className="nav-btn-label">Prev</span>
-        </button>
-        <button className="nav-btn" onClick={onNext} disabled={!hasNext}>
-          <span className="nav-btn-label">Next</span>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: "inline-block", verticalAlign: "-2px", marginLeft: "0.3em" }}><polyline points="9 18 15 12 9 6"/></svg>
-        </button>
-      </div>
+      <button className="nav-btn" onClick={onPrev} disabled={!hasPrev}>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+        <span className="nav-btn-text">Prev</span>
+        <kbd className="nav-shortcut-key">←</kbd>
+      </button>
       {timerEnabled && (
-        <button className="nav-btn pause-btn" onClick={onTogglePause}>
-          {isPaused ? "▶ Resume" : "⏸ Pause"}
+        <button className="nav-btn nav-btn-pause" onClick={onTogglePause}>
+          <span aria-hidden="true">{isPaused ? "▶" : "⏸"}</span>
+          <span className="nav-btn-text">{isPaused ? "Resume" : "Pause"}</span>
         </button>
       )}
+      <button className="nav-btn nav-btn-ask-ai" onClick={onOpenAskAI}>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+        </svg>
+        <span className="nav-btn-text">Ask AI</span>
+      </button>
+      <button className="nav-btn" onClick={onNext} disabled={!hasNext}>
+        <kbd className="nav-shortcut-key">→</kbd>
+        <span className="nav-btn-text">Next</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
     </div>
   );
 }
