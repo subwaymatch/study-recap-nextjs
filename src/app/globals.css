@@ -220,18 +220,14 @@ a {
 }
 
 .study-header .card-counter {
-  font-size: var(--font-md);
   color: var(--text-primary);
-  font-weight: 700;
   font-variant-numeric: tabular-nums;
   display: flex;
   align-items: baseline;
   gap: 0.15em;
 }
 
-
 .card-counter-total {
-  font-size: var(--font-xs);
   color: var(--text-muted);
   font-weight: 400;
 }
@@ -239,7 +235,7 @@ a {
 .study-header-left {
   display: flex;
   align-items: center;
-  gap: 0.5em;
+  gap: 0;
   min-width: 0;
   flex: 1;
 }
@@ -249,19 +245,23 @@ a {
   align-items: center;
   justify-content: center;
   background: transparent;
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  padding: 0.4em;
+  /* border: 1px solid var(--border); */
+  border: none;
+  border-radius: 5px;
+  padding: 1em;
   cursor: pointer;
-  color: var(--text-muted);
-  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  /* color: var(--text-muted); */
+  transition:
+    background 0.15s,
+    border-color 0.15s,
+    color 0.15s;
   line-height: 0;
   flex-shrink: 0;
 }
 
 .header-icon-btn:hover {
   background: var(--bg-card-hover);
-  border-color: var(--text-muted);
+  /* border-color: var(--text-muted); */
   color: var(--text-primary);
 }
 
@@ -344,7 +344,7 @@ a {
 
 /* Flashcard Display */
 .flashcard-display .flashcard-body {
-  font-size: var(--font-lg);
+  font-size: var(--font-sm);
   line-height: 1.4;
   margin-bottom: 1.5em;
   font-weight: 600;
@@ -352,8 +352,7 @@ a {
 
 .flashcard-display .flashcard-explanation {
   font-size: var(--font-sm);
-  color: var(--text-secondary);
-  line-height: 1.6;
+  line-height: 1.5;
   border-top: 1px solid var(--border);
   padding-top: 1.5em;
 }
@@ -525,13 +524,14 @@ a {
   background: transparent;
   border: none;
   border-radius: 0;
-  color: var(--text-secondary);
-  padding: 1rem 0.5rem;
+  padding: 2rem 0.5rem;
   cursor: pointer;
   font-family: inherit;
   font-size: var(--font-sm);
   font-weight: 500;
-  transition: background 0.15s, color 0.15s;
+  transition:
+    background 0.15s,
+    color 0.15s;
 }
 
 .nav-buttons .nav-btn + .nav-btn {
@@ -550,14 +550,19 @@ a {
 
 .nav-shortcut-key {
   font-family: inherit;
-  font-size: 0.75em;
-  color: var(--text-muted);
+  font-size: 0.85em;
+  color: var(--text-secondary);
   background: var(--bg-option);
   border: 1px solid var(--border);
-  padding: 0.1em 0.35em;
+  border: transparent;
+  padding: 0.15em 0.35em;
   border-radius: 4px;
-  font-weight: 600;
+  /* font-weight: 600; */
   line-height: 1;
+}
+
+.nav-btn-svg {
+  display: none;
 }
 
 .nav-btn-text {
@@ -578,7 +583,10 @@ a {
   padding: clamp(0.6rem, 1vw, 1rem) clamp(1.2rem, 2vw, 2.5rem);
   font-size: var(--font-sm);
   cursor: pointer;
-  transition: background 0.2s, border-color 0.2s, color 0.2s;
+  transition:
+    background 0.2s,
+    border-color 0.2s,
+    color 0.2s;
   font-weight: 500;
 }
 
@@ -622,6 +630,10 @@ a {
     display: none;
   }
 
+  .nav-btn-svg {
+    display: block;
+  }
+
   .card-content {
     padding: clamp(0.5rem, 1.5vw, 0.75rem) clamp(1.2rem, 4vw, 1.8rem);
     padding-bottom: calc(4.5rem + env(safe-area-inset-bottom));
@@ -636,7 +648,6 @@ a {
   .study-header-left .module-info-badge {
     display: none;
   }
-
 }
 
 /* Timer display */
@@ -775,7 +786,6 @@ a {
   border-color: var(--text-primary);
   color: var(--bg-primary);
 }
-
 
 .view-all-btn:hover {
   background: var(--text-secondary);
@@ -1059,12 +1069,20 @@ a {
   font-weight: 700;
 }
 
-.ask-ai-markdown h1 { font-size: 1.15em; }
-.ask-ai-markdown h2 { font-size: 1.1em; }
-.ask-ai-markdown h3 { font-size: 1.05em; }
+.ask-ai-markdown h1 {
+  font-size: 1.15em;
+}
+.ask-ai-markdown h2 {
+  font-size: 1.1em;
+}
+.ask-ai-markdown h3 {
+  font-size: 1.05em;
+}
 .ask-ai-markdown h4,
 .ask-ai-markdown h5,
-.ask-ai-markdown h6 { font-size: 1em; }
+.ask-ai-markdown h6 {
+  font-size: 1em;
+}
 
 .ask-ai-markdown ul,
 .ask-ai-markdown ol {
@@ -1153,7 +1171,9 @@ a {
 }
 
 @keyframes ask-ai-dot-bounce {
-  0%, 60%, 100% {
+  0%,
+  60%,
+  100% {
     transform: translateY(0);
     opacity: 0.45;
   }
@@ -1319,7 +1339,10 @@ a {
   padding: 0.4em;
   cursor: pointer;
   color: var(--text-muted);
-  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  transition:
+    background 0.15s,
+    border-color 0.15s,
+    color 0.15s;
   line-height: 0;
 }
 
@@ -1360,7 +1383,10 @@ a {
   cursor: pointer;
   color: var(--text-muted);
   box-shadow: var(--shadow-sm);
-  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  transition:
+    background 0.15s,
+    color 0.15s,
+    border-color 0.15s;
   line-height: 0;
 }
 
@@ -1393,8 +1419,12 @@ a {
 }
 
 @keyframes overlay-fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .shortcuts-panel {
@@ -1409,8 +1439,14 @@ a {
 }
 
 @keyframes panel-slide-up {
-  from { opacity: 0; transform: translateY(16px) scale(0.98); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .shortcuts-header {
@@ -1435,7 +1471,9 @@ a {
   padding: 0.1em 0.3em;
   line-height: 1;
   border-radius: 6px;
-  transition: background 0.15s, color 0.15s;
+  transition:
+    background 0.15s,
+    color 0.15s;
 }
 
 .shortcuts-close:hover {
@@ -1498,7 +1536,10 @@ a {
   cursor: pointer;
   color: var(--text-muted);
   box-shadow: var(--shadow-sm);
-  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  transition:
+    background 0.15s,
+    color 0.15s,
+    border-color 0.15s;
   line-height: 0;
 }
 
@@ -1561,7 +1602,9 @@ a {
   padding: 0.3em;
   line-height: 0;
   border-radius: 6px;
-  transition: background 0.15s, color 0.15s;
+  transition:
+    background 0.15s,
+    color 0.15s;
 }
 
 .card-list-close:hover {
@@ -1593,7 +1636,9 @@ a {
   color: var(--text-primary);
   font-family: inherit;
   font-size: var(--font-xs);
-  transition: background 0.12s, border-color 0.12s;
+  transition:
+    background 0.12s,
+    border-color 0.12s;
 }
 
 .card-list-item:hover {
@@ -1654,8 +1699,12 @@ a {
 
 /* =================== Skeleton Loading =================== */
 @keyframes skeleton-shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
 }
 
 .skeleton-shimmer {
@@ -1842,7 +1891,9 @@ a {
   padding: 0.2em;
   line-height: 0;
   border-radius: 6px;
-  transition: background 0.15s, color 0.15s;
+  transition:
+    background 0.15s,
+    color 0.15s;
 }
 
 .settings-close:hover {
@@ -1888,7 +1939,10 @@ a {
   font-size: var(--font-xs);
   font-weight: 500;
   cursor: pointer;
-  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  transition:
+    background 0.15s,
+    border-color 0.15s,
+    color 0.15s;
 }
 
 .settings-theme-btn:hover {

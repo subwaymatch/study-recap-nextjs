@@ -18,8 +18,16 @@ interface AskAITabProps {
 }
 
 const SUGGESTIONS: Record<"flashcard" | "mcq", string[]> = {
-  flashcard: ["Explain in more detail", "Give me an example"],
-  mcq: ["Explain in more detail", "Give me an example"],
+  flashcard: [
+    "Explain like I'm five.",
+    "Explain in more detail.",
+    "Give me an example.",
+  ],
+  mcq: [
+    "Explain like I'm five.",
+    "Explain in more detail.",
+    "Give me an example.",
+  ],
 };
 
 const STORAGE_PREFIX = "study-recap:ask-ai:history";
@@ -61,7 +69,13 @@ const SWIPE_DIRECTION_LOCK = 10;
 // Horizontal distance at which a swipe commits to opening or closing the panel.
 const SWIPE_THRESHOLD = 60;
 
-export function AskAITab({ contextText, cardId, cardType, isExpanded, onExpandedChange }: AskAITabProps) {
+export function AskAITab({
+  contextText,
+  cardId,
+  cardType,
+  isExpanded,
+  onExpandedChange,
+}: AskAITabProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
@@ -223,92 +237,95 @@ export function AskAITab({ contextText, cardId, cardType, isExpanded, onExpanded
     onExpandedChange(!isExpanded);
   }, [isExpanded, onExpandedChange]);
 
-  const sendMessage = useCallback(async (overrideText?: string) => {
-    const source = overrideText ?? input;
-    const trimmed = source.trim();
-    if (!trimmed || isStreaming) return;
+  const sendMessage = useCallback(
+    async (overrideText?: string) => {
+      const source = overrideText ?? input;
+      const trimmed = source.trim();
+      if (!trimmed || isStreaming) return;
 
-    setError(null);
-    const userMsg: ChatMessage = { role: "user", content: trimmed };
-    const baseMessages: ChatMessage[] = [...messages, userMsg];
+      setError(null);
+      const userMsg: ChatMessage = { role: "user", content: trimmed };
+      const baseMessages: ChatMessage[] = [...messages, userMsg];
 
-    // Add the user message + an empty assistant placeholder that we stream into.
-    setMessages([...baseMessages, { role: "assistant", content: "" }]);
-    if (overrideText === undefined) {
-      setInput("");
-    }
-    setIsStreaming(true);
-
-    const controller = new AbortController();
-    abortRef.current = controller;
-
-    try {
-      const res = await fetch("/api/ask-ai", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          messages: baseMessages,
-          context: contextText,
-        }),
-        signal: controller.signal,
-      });
-
-      if (!res.ok || !res.body) {
-        const text = await res.text().catch(() => "");
-        throw new Error(text || `Request failed (${res.status})`);
+      // Add the user message + an empty assistant placeholder that we stream into.
+      setMessages([...baseMessages, { role: "assistant", content: "" }]);
+      if (overrideText === undefined) {
+        setInput("");
       }
+      setIsStreaming(true);
 
-      const reader = res.body.getReader();
-      const decoder = new TextDecoder();
-      let accumulated = "";
+      const controller = new AbortController();
+      abortRef.current = controller;
 
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        accumulated += decoder.decode(value, { stream: true });
+      try {
+        const res = await fetch("/api/ask-ai", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            messages: baseMessages,
+            context: contextText,
+          }),
+          signal: controller.signal,
+        });
+
+        if (!res.ok || !res.body) {
+          const text = await res.text().catch(() => "");
+          throw new Error(text || `Request failed (${res.status})`);
+        }
+
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        let accumulated = "";
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          accumulated += decoder.decode(value, { stream: true });
+          setMessages((prev) => {
+            const next = prev.slice();
+            next[next.length - 1] = {
+              role: "assistant",
+              content: accumulated,
+            };
+            return next;
+          });
+        }
+        // Flush any remaining decoder bytes.
+        accumulated += decoder.decode();
         setMessages((prev) => {
           const next = prev.slice();
-          next[next.length - 1] = {
-            role: "assistant",
-            content: accumulated,
-          };
+          next[next.length - 1] = { role: "assistant", content: accumulated };
           return next;
         });
+      } catch (err) {
+        if (err instanceof DOMException && err.name === "AbortError") {
+          // User aborted (e.g. cleared history or changed card); silently drop the placeholder.
+          setMessages((prev) => {
+            const last = prev[prev.length - 1];
+            if (last && last.role === "assistant" && last.content === "") {
+              return prev.slice(0, -1);
+            }
+            return prev;
+          });
+        } else {
+          const msg = err instanceof Error ? err.message : "Unknown error";
+          setError(msg);
+          // Remove the empty assistant placeholder on failure.
+          setMessages((prev) => {
+            const last = prev[prev.length - 1];
+            if (last && last.role === "assistant" && last.content === "") {
+              return prev.slice(0, -1);
+            }
+            return prev;
+          });
+        }
+      } finally {
+        setIsStreaming(false);
+        abortRef.current = null;
       }
-      // Flush any remaining decoder bytes.
-      accumulated += decoder.decode();
-      setMessages((prev) => {
-        const next = prev.slice();
-        next[next.length - 1] = { role: "assistant", content: accumulated };
-        return next;
-      });
-    } catch (err) {
-      if (err instanceof DOMException && err.name === "AbortError") {
-        // User aborted (e.g. cleared history or changed card); silently drop the placeholder.
-        setMessages((prev) => {
-          const last = prev[prev.length - 1];
-          if (last && last.role === "assistant" && last.content === "") {
-            return prev.slice(0, -1);
-          }
-          return prev;
-        });
-      } else {
-        const msg = err instanceof Error ? err.message : "Unknown error";
-        setError(msg);
-        // Remove the empty assistant placeholder on failure.
-        setMessages((prev) => {
-          const last = prev[prev.length - 1];
-          if (last && last.role === "assistant" && last.content === "") {
-            return prev.slice(0, -1);
-          }
-          return prev;
-        });
-      }
-    } finally {
-      setIsStreaming(false);
-      abortRef.current = null;
-    }
-  }, [input, isStreaming, messages, contextText]);
+    },
+    [input, isStreaming, messages, contextText],
+  );
 
   const clearHistory = useCallback(() => {
     abortRef.current?.abort();
@@ -333,8 +350,7 @@ export function AskAITab({ contextText, cardId, cardType, isExpanded, onExpanded
     }
   };
 
-  const isDraggingOpen =
-    isMobile && !isExpanded && dragDx < 0;
+  const isDraggingOpen = isMobile && !isExpanded && dragDx < 0;
   const isDraggingClose = isMobile && isExpanded && dragDx > 0;
   const asideStyle: React.CSSProperties | undefined = isDraggingClose
     ? { transform: `translateX(${dragDx}px)`, transition: "none" }
@@ -357,15 +373,15 @@ export function AskAITab({ contextText, cardId, cardType, isExpanded, onExpanded
         className="ask-ai-toggle"
         onClick={handleToggleClick}
         aria-expanded={isExpanded}
-        aria-label={isExpanded ? "Collapse Ask AI panel" : "Expand Ask AI panel"}
+        aria-label={
+          isExpanded ? "Collapse Ask AI panel" : "Expand Ask AI panel"
+        }
         title={isExpanded ? "Collapse Ask AI" : "Expand Ask AI"}
       >
         <span className="ask-ai-toggle-chevron" aria-hidden="true">
           {isExpanded ? "›" : "‹"}
         </span>
-        {!isExpanded && (
-          <span className="ask-ai-toggle-label">Ask AI</span>
-        )}
+        {!isExpanded && <span className="ask-ai-toggle-label">Ask AI</span>}
       </button>
 
       {isExpanded && (
@@ -375,54 +391,54 @@ export function AskAITab({ contextText, cardId, cardType, isExpanded, onExpanded
               <strong>Ask AI</strong>
             </div>
             <div className="ask-ai-header-actions">
-            <button
-              type="button"
-              className="ask-ai-clear-btn"
-              onClick={clearHistory}
-              disabled={messages.length === 0 && !isStreaming}
-              title="Clear AI Chat History for this Card"
-              aria-label="Clear AI Chat History for this Card"
-            >
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden="true"
+              <button
+                type="button"
+                className="ask-ai-clear-btn"
+                onClick={clearHistory}
+                disabled={messages.length === 0 && !isStreaming}
+                title="Clear AI Chat History for this Card"
+                aria-label="Clear AI Chat History for this Card"
               >
-                <polyline points="3 6 5 6 21 6" />
-                <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
-                <path d="M10 11v6" />
-                <path d="M14 11v6" />
-                <path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2" />
-              </svg>
-            </button>
-            <button
-              type="button"
-              className="ask-ai-close-btn"
-              onClick={() => onExpandedChange(false)}
-              title="Close Ask AI panel"
-              aria-label="Close Ask AI panel"
-            >
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden="true"
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <polyline points="3 6 5 6 21 6" />
+                  <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+                  <path d="M10 11v6" />
+                  <path d="M14 11v6" />
+                  <path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2" />
+                </svg>
+              </button>
+              <button
+                type="button"
+                className="ask-ai-close-btn"
+                onClick={() => onExpandedChange(false)}
+                title="Close Ask AI panel"
+                aria-label="Close Ask AI panel"
               >
-                <line x1="18" y1="6" x2="6" y2="18" />
-                <line x1="6" y1="6" x2="18" y2="18" />
-              </svg>
-            </button>
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              </button>
             </div>
           </div>
 
@@ -543,10 +559,7 @@ export function AskAITab({ contextText, cardId, cardType, isExpanded, onExpanded
               aria-label="Send message"
             >
               {isStreaming ? (
-                <span
-                  className="ask-ai-thinking-dots"
-                  aria-hidden="true"
-                >
+                <span className="ask-ai-thinking-dots" aria-hidden="true">
                   <span />
                   <span />
                   <span />

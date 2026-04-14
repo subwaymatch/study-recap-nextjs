@@ -28,7 +28,20 @@ export function NavButtons({
   return (
     <div className="nav-buttons">
       <button className="nav-btn" onClick={onPrev} disabled={!hasPrev}>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+        <svg
+          className="nav-btn-svg"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+        >
+          <polyline points="15 18 9 12 15 6" />
+        </svg>
         <span className="nav-btn-text">Prev</span>
         <kbd className="nav-shortcut-key">←</kbd>
       </button>
@@ -39,9 +52,22 @@ export function NavButtons({
         </button>
       )}
       {showAskAI && (
-        <button className={`nav-btn nav-btn-ask-ai${isAskAIExpanded ? " active" : ""}`} onClick={onToggleAskAI}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+        <button
+          className={`nav-btn nav-btn-ask-ai${isAskAIExpanded ? " active" : ""}`}
+          onClick={onToggleAskAI}
+        >
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
           </svg>
           <span className="nav-btn-text">Ask AI</span>
         </button>
@@ -49,7 +75,20 @@ export function NavButtons({
       <button className="nav-btn" onClick={onNext} disabled={!hasNext}>
         <kbd className="nav-shortcut-key">→</kbd>
         <span className="nav-btn-text">Next</span>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+        <svg
+          className="nav-btn-svg"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+        >
+          <polyline points="9 18 15 12 9 6" />
+        </svg>
       </button>
     </div>
   );
