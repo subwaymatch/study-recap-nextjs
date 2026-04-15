@@ -23,7 +23,8 @@ export const viewport: Viewport = {
   ],
 };
 
-// Inline script to apply stored theme before first paint (prevents flash).
+// Inline script to apply stored theme and card font scale before first paint
+// (prevents flash of unstyled content).
 const themeScript = [
   "(function(){",
   "try{",
@@ -33,6 +34,14 @@ const themeScript = [
   "}else if(window.matchMedia&&",
   'window.matchMedia("(prefers-color-scheme:dark)").matches){',
   'document.documentElement.setAttribute("data-theme","dark")',
+  "}",
+  'var s=localStorage.getItem("study-recap:card-font-scale");',
+  "if(s){",
+  "var n=parseFloat(s);",
+  "if(isFinite(n)){",
+  "n=Math.min(1.8,Math.max(0.8,n));",
+  'document.documentElement.style.setProperty("--card-font-scale",String(n))',
+  "}",
   "}",
   "}catch(e){}",
   "})()",

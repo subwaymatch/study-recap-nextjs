@@ -6,6 +6,12 @@ type Theme = "light" | "dark" | "system";
 
 const THEME_KEY = "study-recap:theme";
 const ASK_AI_KEY = "study-recap:ask-ai-enabled";
+const FONT_SCALE_KEY = "study-recap:card-font-scale";
+
+const FONT_SCALE_MIN = 0.8;
+const FONT_SCALE_MAX = 1.8;
+const FONT_SCALE_STEP = 0.05;
+const FONT_SCALE_DEFAULT = 1;
 
 function getStoredTheme(): Theme {
   if (typeof window === "undefined") return "system";
@@ -41,6 +47,31 @@ export function getStoredAskAIEnabled(): boolean {
   return true;
 }
 
+function clampFontScale(value: number): number {
+  if (!Number.isFinite(value)) return FONT_SCALE_DEFAULT;
+  return Math.min(FONT_SCALE_MAX, Math.max(FONT_SCALE_MIN, value));
+}
+
+function getStoredFontScale(): number {
+  if (typeof window === "undefined") return FONT_SCALE_DEFAULT;
+  try {
+    const stored = window.localStorage.getItem(FONT_SCALE_KEY);
+    if (stored == null) return FONT_SCALE_DEFAULT;
+    const parsed = parseFloat(stored);
+    if (!Number.isFinite(parsed)) return FONT_SCALE_DEFAULT;
+    return clampFontScale(parsed);
+  } catch {
+    return FONT_SCALE_DEFAULT;
+  }
+}
+
+function applyFontScale(scale: number) {
+  document.documentElement.style.setProperty(
+    "--card-font-scale",
+    String(scale),
+  );
+}
+
 interface SettingsPanelProps {
   isOpen: boolean;
   onClose: () => void;
@@ -55,10 +86,15 @@ export function SettingsPanel({
   onAskAIEnabledChange,
 }: SettingsPanelProps) {
   const [theme, setTheme] = useState<Theme>(getStoredTheme);
+  const [fontScale, setFontScale] = useState<number>(getStoredFontScale);
 
   useEffect(() => {
     applyTheme(getResolvedTheme(theme));
   }, [theme]);
+
+  useEffect(() => {
+    applyFontScale(fontScale);
+  }, [fontScale]);
 
   useEffect(() => {
     if (typeof window === "undefined" || !window.matchMedia) return;
@@ -113,9 +149,33 @@ export function SettingsPanel({
     }
   }, [askAIEnabled, onAskAIEnabledChange]);
 
-  if (!isOpen) return null;
+  const handleFontScaleChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const next = clampFontScale(parseFloat(e.target.value));
+      setFontScale(next);
+      try {
+        if (next === FONT_SCALE_DEFAULT) {
+          window.localStorage.removeItem(FONT_SCALE_KEY);
+        } else {
+          window.localStorage.setItem(FONT_SCALE_KEY, String(next));
+        }
+      } catch {
+        // Ignore storage errors.
+      }
+    },
+    [],
+  );
 
-  const resolved = getResolvedTheme(theme);
+  const resetFontScale = useCallback(() => {
+    setFontScale(FONT_SCALE_DEFAULT);
+    try {
+      window.localStorage.removeItem(FONT_SCALE_KEY);
+    } catch {
+      // Ignore storage errors.
+    }
+  }, []);
+
+  if (!isOpen) return null;
 
   return (
     <div className="settings-overlay" onClick={onClose}>
@@ -188,9 +248,48 @@ export function SettingsPanel({
                   <line x1="8" y1="21" x2="16" y2="21" />
                   <line x1="12" y1="17" x2="12" y2="21" />
                 </svg>
-                System{resolved ? ` (${resolved})` : ""}
+                System
               </button>
             </div>
+          </div>
+
+          <div className="settings-section">
+            <div className="settings-toggle-row">
+              <label className="settings-label" htmlFor="card-font-scale">
+                Card font size
+              </label>
+              <button
+                type="button"
+                className="settings-reset-btn"
+                onClick={resetFontScale}
+                disabled={fontScale === FONT_SCALE_DEFAULT}
+              >
+                Reset
+              </button>
+            </div>
+            <div className="settings-slider-row">
+              <span className="settings-slider-label-sm" aria-hidden="true">A</span>
+              <input
+                id="card-font-scale"
+                type="range"
+                className="settings-slider"
+                min={FONT_SCALE_MIN}
+                max={FONT_SCALE_MAX}
+                step={FONT_SCALE_STEP}
+                value={fontScale}
+                onChange={handleFontScaleChange}
+                aria-valuemin={FONT_SCALE_MIN}
+                aria-valuemax={FONT_SCALE_MAX}
+                aria-valuenow={fontScale}
+              />
+              <span className="settings-slider-label-lg" aria-hidden="true">A</span>
+              <span className="settings-slider-value">
+                {Math.round(fontScale * 100)}%
+              </span>
+            </div>
+            <p className="settings-hint">
+              Applies to flashcard and MCQ content only.
+            </p>
           </div>
 
           <div className="settings-section">
