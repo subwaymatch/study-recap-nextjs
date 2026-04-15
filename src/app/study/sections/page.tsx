@@ -198,100 +198,95 @@ function SectionStudyContent() {
   return (
     <div className="study-layout">
       <div className="study-page">
-      <div className="study-header">
-        <div className="study-header-left">
-          <button className="header-icon-btn" onClick={goHome} title="Home (Esc)" aria-label="Go home">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-          </button>
-        </div>
-        <div className="study-header-center">
-          <span className="module-info-badge">
-            {sections.join(", ")}
-          </span>
-        </div>
-        <div className="study-header-right">
-          <span className="card-counter">
-            {currentIndex + 1}
-            <span className="card-counter-total">/{displayCards.length}</span>
-          </span>
-          <button className="header-icon-btn" onClick={() => setIsCardListOpen(true)} title="Card list" aria-label="Show list of all cards">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
-          </button>
-          <button className="header-icon-btn" onClick={() => setIsSettingsOpen(true)} title="Settings" aria-label="Open settings">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-            </svg>
-          </button>
-          {timerEnabled && (
-            <span className="timer-display">
-              {isPaused ? "Paused" : `${secondsRemaining}s`}
+        <CardProgressTrack currentIndex={currentIndex} totalCards={displayCards.length} />
+        <div className="study-header">
+          <div className="study-header-left">
+            <button className="header-icon-btn" onClick={goHome} title="Home (Esc)" aria-label="Go home">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            </button>
+          </div>
+          <div className="study-header-center">
+            <span className="module-info-badge">
+              {sections.join(", ")}
             </span>
-          )}
+          </div>
+          <div className="study-header-right">
+            <span className="card-counter">
+              {currentIndex + 1}
+              <span className="card-counter-total">/{displayCards.length}</span>
+            </span>
+            <button className="header-icon-btn" onClick={() => setIsCardListOpen(true)} title="Card list" aria-label="Show list of all cards">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+            </button>
+            <button className="header-icon-btn" onClick={() => setIsSettingsOpen(true)} title="Settings" aria-label="Open settings">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+              </svg>
+            </button>
+          </div>
         </div>
-      </div>
 
-      <CardProgressTrack currentIndex={currentIndex} totalCards={displayCards.length} />
-
-      {timerEnabled && (
-        <ProgressBar
-          secondsRemaining={secondsRemaining}
-          intervalSeconds={intervalSeconds}
-          isPaused={isPaused}
-        />
-      )}
-
-      <div
-        className={`card-content slide-${slideDirection}`}
-        key={currentIndex}
-        {...swipeHandlers}
-      >
-        <div className="card-content-inner">
-          <span
-            className={`card-type-badge card-type-badge-inline ${currentCard.type === "flashcard" ? "flashcard" : "mcq"}`}
-          >
-            <span className="badge-icon" aria-hidden="true">
-              {currentCard.type === "flashcard" ? (
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="2" y="4" width="20" height="16" rx="2"/>
-                  <path d="M2 9h20"/>
-                </svg>
-              ) : (
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="6" cy="7" r="2"/><circle cx="6" cy="13" r="2"/><circle cx="6" cy="19" r="2"/>
-                  <line x1="11" y1="7" x2="21" y2="7"/><line x1="11" y1="13" x2="21" y2="13"/><line x1="11" y1="19" x2="21" y2="19"/>
-                </svg>
+        <div
+          className={`card-content slide-${slideDirection}`}
+          key={currentIndex}
+          {...swipeHandlers}
+        >
+          <div className="card-content-inner">
+            <div className="card-top-bar">
+              <span
+                className={`card-type-badge card-type-badge-inline ${currentCard.type === "flashcard" ? "flashcard" : "mcq"}`}
+              >
+                <span className="badge-icon" aria-hidden="true">
+                  {currentCard.type === "flashcard" ? (
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="2" y="4" width="20" height="16" rx="2"/>
+                      <path d="M2 9h20"/>
+                    </svg>
+                  ) : (
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="6" cy="7" r="2"/><circle cx="6" cy="13" r="2"/><circle cx="6" cy="19" r="2"/>
+                      <line x1="11" y1="7" x2="21" y2="7"/><line x1="11" y1="13" x2="21" y2="13"/><line x1="11" y1="19" x2="21" y2="19"/>
+                    </svg>
+                  )}
+                </span>
+                <span className="badge-label">
+                  {currentCard.type === "flashcard" ? "Flashcard" : "MCQ"}
+                </span>
+              </span>
+              {timerEnabled && (
+                <ProgressBar
+                  secondsRemaining={secondsRemaining}
+                  intervalSeconds={intervalSeconds}
+                  isPaused={isPaused}
+                />
               )}
-            </span>
-            <span className="badge-label">
-              {currentCard.type === "flashcard" ? "Flashcard" : "MCQ"}
-            </span>
-          </span>
-          {currentCard.type === "flashcard" ? (
-            <FlashcardDisplay flashcard={currentCard.data} />
-          ) : (
-            <MCQDisplay mcq={currentCard.data} randomize={randomizeMcq} />
-          )}
+            </div>
+            {currentCard.type === "flashcard" ? (
+              <FlashcardDisplay flashcard={currentCard.data} />
+            ) : (
+              <MCQDisplay mcq={currentCard.data} randomize={randomizeMcq} />
+            )}
+          </div>
         </div>
-      </div>
 
-      <NavButtons
-        onPrev={() => {
-          goPrev();
-          resetTimer();
-        }}
-        onNext={() => {
-          goNext();
-          resetTimer();
-        }}
-        onTogglePause={togglePause}
-        onToggleAskAI={() => setIsAskAIExpanded((prev) => !prev)}
-        isPaused={isPaused}
-        hasPrev={currentIndex > 0}
-        hasNext={currentIndex < displayCards.length - 1}
-        timerEnabled={timerEnabled}
-        isAskAIExpanded={isAskAIExpanded}
-        showAskAI={askAIEnabled}
-      />
+        <NavButtons
+          onPrev={() => {
+            goPrev();
+            resetTimer();
+          }}
+          onNext={() => {
+            goNext();
+            resetTimer();
+          }}
+          onTogglePause={togglePause}
+          onToggleAskAI={() => setIsAskAIExpanded((prev) => !prev)}
+          isPaused={isPaused}
+          hasPrev={currentIndex > 0}
+          hasNext={currentIndex < displayCards.length - 1}
+          timerEnabled={timerEnabled}
+          isAskAIExpanded={isAskAIExpanded}
+          showAskAI={askAIEnabled}
+        />
       </div>
       {askAIEnabled && (
         <AskAITab

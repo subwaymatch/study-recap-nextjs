@@ -68,6 +68,8 @@ function saveHistory(cardId: string, messages: ChatMessage[]) {
 const SWIPE_DIRECTION_LOCK = 10;
 // Horizontal distance at which a swipe commits to opening or closing the panel.
 const SWIPE_THRESHOLD = 60;
+const MOBILE_PANEL_MEDIA_QUERY =
+  "(max-width: 900px), (hover: none) and (pointer: coarse)";
 
 export function AskAITab({
   contextText,
@@ -133,7 +135,7 @@ export function AskAITab({
   // Track whether we're on a mobile viewport so swipe gestures only apply there.
   useEffect(() => {
     if (typeof window === "undefined" || !window.matchMedia) return;
-    const mql = window.matchMedia("(max-width: 599px)");
+    const mql = window.matchMedia(MOBILE_PANEL_MEDIA_QUERY);
     const update = () => setIsMobile(mql.matches);
     update();
     mql.addEventListener("change", update);
