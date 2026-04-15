@@ -4,6 +4,7 @@ import { Suspense, useState, useEffect, useCallback, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useSectionCards } from "@/hooks/useSectionCards";
 import { useAutoAdvance } from "@/hooks/useAutoAdvance";
+import { useSwipeNavigation } from "@/hooks/useSwipeNavigation";
 import { FlashcardDisplay } from "@/components/FlashcardDisplay";
 import { MCQDisplay } from "@/components/MCQDisplay";
 import { NavButtons } from "@/components/NavButtons";
@@ -107,6 +108,17 @@ function SectionStudyContent() {
   const goHome = useCallback(() => {
     router.push("/");
   }, [router]);
+
+  const swipeHandlers = useSwipeNavigation({
+    onSwipeLeft: useCallback(() => {
+      goNext();
+      resetTimer();
+    }, [goNext, resetTimer]),
+    onSwipeRight: useCallback(() => {
+      goPrev();
+      resetTimer();
+    }, [goPrev, resetTimer]),
+  });
 
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
@@ -224,7 +236,7 @@ function SectionStudyContent() {
         />
       )}
 
-      <div className="card-content" key={currentIndex}>
+      <div className="card-content" key={currentIndex} {...swipeHandlers}>
         <div className="card-content-inner">
           <span
             className={`card-type-badge card-type-badge-inline ${currentCard.type === "flashcard" ? "flashcard" : "mcq"}`}
