@@ -157,7 +157,10 @@ export function AskAITab({
 
   const handleTouchStart = useCallback(
     (e: React.TouchEvent<HTMLElement>) => {
-      if (!isMobile) return;
+      // Only track swipe-to-close while the panel is expanded. When
+      // collapsed, the aside is off-screen and we don't want to compete
+      // with the study page's swipe-to-navigate gesture on the card.
+      if (!isMobile || !isExpanded) return;
       // Don't start a swipe when the user is interacting with the textarea —
       // text selection and caret moves should take precedence.
       const target = e.target as HTMLElement | null;
@@ -172,7 +175,7 @@ export function AskAITab({
       // Clear any stale swipe-handled flag from a prior gesture.
       swipeHandledRef.current = false;
     },
-    [isMobile],
+    [isMobile, isExpanded],
   );
 
   const handleTouchMove = useCallback(
@@ -192,15 +195,10 @@ export function AskAITab({
         }
       }
       if (state.lock !== "h") return;
-      // Visual follow: rightward drag closes when expanded, leftward drag
-      // previews the open gesture when collapsed.
-      if (isExpanded) {
-        setDragDx(Math.max(0, dx));
-      } else {
-        setDragDx(Math.min(0, dx));
-      }
+      // Visual follow: rightward drag closes the expanded panel.
+      setDragDx(Math.max(0, dx));
     },
-    [isExpanded],
+    [],
   );
 
   const handleTouchEnd = useCallback(
@@ -215,9 +213,6 @@ export function AskAITab({
       if (isExpanded && dx > SWIPE_THRESHOLD) {
         swipeHandledRef.current = true;
         onExpandedChange(false);
-      } else if (!isExpanded && dx < -SWIPE_THRESHOLD) {
-        swipeHandledRef.current = true;
-        onExpandedChange(true);
       }
     },
     [isExpanded, onExpandedChange],
@@ -350,13 +345,10 @@ export function AskAITab({
     }
   };
 
-  const isDraggingOpen = isMobile && !isExpanded && dragDx < 0;
   const isDraggingClose = isMobile && isExpanded && dragDx > 0;
   const asideStyle: React.CSSProperties | undefined = isDraggingClose
     ? { transform: `translateX(${dragDx}px)`, transition: "none" }
-    : isDraggingOpen
-      ? { transform: `translateX(${dragDx}px)`, transition: "none" }
-      : undefined;
+    : undefined;
 
   return (
     <aside

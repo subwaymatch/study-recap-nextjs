@@ -316,6 +316,9 @@ a {
   padding-bottom: 0;
   display: flex;
   flex-direction: column;
+  /* Let the browser handle vertical scroll, while horizontal gestures are
+     delivered to the swipe-navigation touch handlers without interference. */
+  touch-action: pan-y;
 }
 
 /* Card change animations — direction matches the swipe/nav button pressed.
