@@ -362,6 +362,10 @@ export function AskAITab({
     <aside
       className={`ask-ai-tab ${isExpanded ? "expanded" : "collapsed"}`}
       aria-label="Ask AI panel"
+      // On mobile, the collapsed aside slides off-screen. Mark it inert so its
+      // (visually hidden) toggle button isn't reachable by keyboard or AT.
+      // On desktop the toggle stays focusable so users can expand via keyboard.
+      inert={isMobile && !isExpanded}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
@@ -384,8 +388,7 @@ export function AskAITab({
         {!isExpanded && <span className="ask-ai-toggle-label">Ask AI</span>}
       </button>
 
-      {isExpanded && (
-        <div className="ask-ai-panel">
+      <div className="ask-ai-panel" inert={!isExpanded}>
           <div className="ask-ai-header">
             <div className="ask-ai-title">
               <strong>Ask AI</strong>
@@ -583,7 +586,6 @@ export function AskAITab({
             </button>
           </div>
         </div>
-      )}
     </aside>
   );
 }

@@ -45,6 +45,7 @@ function SectionStudyContent() {
 
   const { cards, loading, error } = useSectionCards(sections);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [slideDirection, setSlideDirection] = useState<"next" | "prev">("next");
   const [isCardListOpen, setIsCardListOpen] = useState(false);
   const [isAskAIExpanded, setIsAskAIExpanded] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -86,10 +87,12 @@ function SectionStudyContent() {
     : "";
 
   const goNext = useCallback(() => {
+    setSlideDirection("next");
     setCurrentIndex((prev) => Math.min(prev + 1, displayCards.length - 1));
   }, [displayCards.length]);
 
   const goPrev = useCallback(() => {
+    setSlideDirection("prev");
     setCurrentIndex((prev) => Math.max(prev - 1, 0));
   }, []);
 
@@ -98,6 +101,7 @@ function SectionStudyContent() {
       intervalSeconds,
       enabled: timerEnabled && displayCards.length > 0,
       onAdvance: useCallback(() => {
+        setSlideDirection("next");
         setCurrentIndex((prev) => {
           if (prev >= displayCards.length - 1) return 0;
           return prev + 1;
@@ -236,7 +240,11 @@ function SectionStudyContent() {
         />
       )}
 
-      <div className="card-content" key={currentIndex} {...swipeHandlers}>
+      <div
+        className={`card-content slide-${slideDirection}`}
+        key={currentIndex}
+        {...swipeHandlers}
+      >
         <div className="card-content-inner">
           <span
             className={`card-type-badge card-type-badge-inline ${currentCard.type === "flashcard" ? "flashcard" : "mcq"}`}
@@ -300,6 +308,7 @@ function SectionStudyContent() {
         isOpen={isCardListOpen}
         onClose={() => setIsCardListOpen(false)}
         onSelect={(index) => {
+          setSlideDirection(index >= currentIndex ? "next" : "prev");
           setCurrentIndex(index);
           resetTimer();
         }}
