@@ -903,6 +903,25 @@ a {
   width: clamp(320px, 32vw, 460px);
 }
 
+.ask-ai-resize-handle {
+  flex-shrink: 0;
+  width: 6px;
+  margin-right: -3px;
+  cursor: col-resize;
+  background: transparent;
+  position: relative;
+  z-index: 1;
+  touch-action: none;
+  transition: background 0.15s;
+}
+
+.ask-ai-resize-handle:hover,
+.ask-ai-resize-handle:focus-visible,
+.ask-ai-resize-handle.resizing {
+  background: var(--accent);
+  outline: none;
+}
+
 .ask-ai-toggle {
   width: 44px;
   flex-shrink: 0;
@@ -1072,20 +1091,18 @@ a {
   font-size: var(--font-xs);
   text-align: left;
   padding: 0.6em 0.85em;
-  border: 1px solid var(--border);
+  border: none;
   border-radius: 8px;
   background: var(--bg-primary);
   color: var(--text-primary);
   cursor: pointer;
   transition:
     background 0.15s,
-    border-color 0.15s,
     color 0.15s;
 }
 
 .ask-ai-suggestion-btn:hover {
   background: var(--bg-option);
-  border-color: var(--accent);
   color: var(--accent);
 }
 
