@@ -13,7 +13,7 @@ export function ProgressBar({
 }: ProgressBarProps) {
   const safeInterval = Math.max(intervalSeconds, 1);
   const progress = Math.min(Math.max(secondsRemaining / safeInterval, 0), 1);
-  const radius = 17;
+  const radius = 18;
   const circumference = 2 * Math.PI * radius;
   const dashOffset = circumference * (1 - progress);
 
@@ -47,7 +47,6 @@ export function ProgressBar({
       </svg>
       <span className="donut-timer-value">
         {secondsRemaining}
-        <span className="donut-timer-unit">s</span>
       </span>
     </div>
   );
