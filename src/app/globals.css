@@ -316,7 +316,17 @@ a {
   padding-bottom: 0;
   display: flex;
   flex-direction: column;
-  animation: card-fade-in 0.25s ease-out;
+}
+
+/* Card change animations — direction matches the swipe/nav button pressed.
+   Going next (→): new card slides in from the right.
+   Going prev (←): new card slides in from the left. */
+.card-content.slide-next {
+  animation: card-slide-in-from-right 0.25s ease-out;
+}
+
+.card-content.slide-prev {
+  animation: card-slide-in-from-left 0.25s ease-out;
 }
 
 .card-content-inner {
@@ -330,14 +340,25 @@ a {
   overflow-y: auto;
 }
 
-@keyframes card-fade-in {
+@keyframes card-slide-in-from-right {
   from {
     opacity: 0;
-    transform: translateY(6px);
+    transform: translateX(30%);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateX(0);
+  }
+}
+
+@keyframes card-slide-in-from-left {
+  from {
+    opacity: 0;
+    transform: translateX(-30%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
   }
 }
 
@@ -832,6 +853,9 @@ a {
   /* Let our handler own horizontal gestures (including swipe-to-open from
      the collapsed vertical bar) while still allowing vertical scrolling. */
   touch-action: pan-y;
+  /* Clip panel content when the desktop tab is collapsed to its 44px width,
+     and keep the mobile slide-out cleanly contained. */
+  overflow: hidden;
 }
 
 .ask-ai-tab.collapsed {
@@ -1321,11 +1345,9 @@ a {
 }
 
 @media (max-width: 599px) {
-  .ask-ai-tab.collapsed {
-    display: none;
-  }
-
-  .ask-ai-tab.expanded {
+  /* On mobile, the tab slides in from the right edge. It is always mounted
+     so that both the open and close transitions animate smoothly. */
+  .ask-ai-tab {
     position: absolute;
     top: 0;
     right: 0;
@@ -1333,6 +1355,17 @@ a {
     width: min(92vw, 420px);
     z-index: 20;
     box-shadow: -4px 0 16px rgba(0, 0, 0, 0.12);
+  }
+
+  .ask-ai-tab.collapsed {
+    width: min(92vw, 420px);
+    transform: translateX(100%);
+    pointer-events: none;
+    box-shadow: none;
+  }
+
+  .ask-ai-tab.expanded {
+    transform: translateX(0);
   }
 }
 
