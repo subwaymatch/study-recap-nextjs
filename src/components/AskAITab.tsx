@@ -71,6 +71,33 @@ const SWIPE_THRESHOLD = 60;
 const MOBILE_PANEL_MEDIA_QUERY =
   "(max-width: 900px), (hover: none) and (pointer: coarse)";
 
+// Bounds for desktop panel width (in pixels) when the user resizes via the handle.
+const MIN_PANEL_WIDTH = 320;
+const MAX_PANEL_WIDTH = 900;
+const WIDTH_STORAGE_KEY = "study-recap:ask-ai:width";
+
+function loadWidth(): number | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = window.localStorage.getItem(WIDTH_STORAGE_KEY);
+    if (!raw) return null;
+    const n = parseInt(raw, 10);
+    if (!Number.isFinite(n)) return null;
+    return Math.min(MAX_PANEL_WIDTH, Math.max(MIN_PANEL_WIDTH, n));
+  } catch {
+    return null;
+  }
+}
+
+function saveWidth(width: number) {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.setItem(WIDTH_STORAGE_KEY, String(Math.round(width)));
+  } catch {
+    // Ignore quota errors.
+  }
+}
+
 export function AskAITab({
   contextText,
   cardId,
@@ -85,9 +112,15 @@ export function AskAITab({
   const [isMobile, setIsMobile] = useState(false);
   // Offset applied during an in-progress swipe-to-close for visual drag feedback.
   const [dragDx, setDragDx] = useState(0);
+  // User-customized panel width (desktop only). null => fall back to CSS default.
+  const [panelWidth, setPanelWidth] = useState<number | null>(null);
+  // True while the user is actively dragging the resize handle.
+  const [isResizing, setIsResizing] = useState(false);
 
   const abortRef = useRef<AbortController | null>(null);
   const messagesRef = useRef<HTMLDivElement>(null);
+  // Tracks an active resize drag on the left edge handle.
+  const resizeRef = useRef<{ startX: number; startWidth: number } | null>(null);
   // Tracks whether the current messages state came from a load (not a user action).
   // Prevents saving the just-loaded history back to localStorage on the first render.
   const isLoadingRef = useRef(false);
@@ -140,6 +173,11 @@ export function AskAITab({
     update();
     mql.addEventListener("change", update);
     return () => mql.removeEventListener("change", update);
+  }, []);
+
+  // Load the user's saved desktop panel width once on mount.
+  useEffect(() => {
+    setPanelWidth(loadWidth());
   }, []);
 
   // When the panel is expanded, intercept Escape in the capture phase so it
@@ -337,6 +375,74 @@ export function AskAITab({
     }
   }, [cardId]);
 
+  const handleResizePointerDown = useCallback(
+    (e: React.PointerEvent<HTMLDivElement>) => {
+      // Only allow resizing on desktop while expanded. Ignore non-primary buttons.
+      if (isMobile || !isExpanded || e.button !== 0) return;
+      const aside = e.currentTarget.closest(".ask-ai-tab") as HTMLElement | null;
+      const startWidth = aside?.getBoundingClientRect().width ?? panelWidth ?? 0;
+      resizeRef.current = { startX: e.clientX, startWidth };
+      setIsResizing(true);
+      e.currentTarget.setPointerCapture(e.pointerId);
+      e.preventDefault();
+    },
+    [isMobile, isExpanded, panelWidth],
+  );
+
+  const handleResizePointerMove = useCallback(
+    (e: React.PointerEvent<HTMLDivElement>) => {
+      const state = resizeRef.current;
+      if (!state) return;
+      // The aside is anchored to the right edge, so dragging left (negative dx)
+      // should grow the panel.
+      const dx = e.clientX - state.startX;
+      const next = Math.min(
+        MAX_PANEL_WIDTH,
+        Math.max(MIN_PANEL_WIDTH, state.startWidth - dx),
+      );
+      setPanelWidth(next);
+    },
+    [],
+  );
+
+  const handleResizePointerUp = useCallback(
+    (e: React.PointerEvent<HTMLDivElement>) => {
+      if (!resizeRef.current) return;
+      resizeRef.current = null;
+      setIsResizing(false);
+      if (e.currentTarget.hasPointerCapture(e.pointerId)) {
+        e.currentTarget.releasePointerCapture(e.pointerId);
+      }
+      setPanelWidth((w) => {
+        if (w !== null) saveWidth(w);
+        return w;
+      });
+    },
+    [],
+  );
+
+  const handleResizeKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLDivElement>) => {
+      if (isMobile || !isExpanded) return;
+      const step = e.shiftKey ? 40 : 16;
+      let next: number | null = null;
+      if (e.key === "ArrowLeft") {
+        next = (panelWidth ?? MIN_PANEL_WIDTH) + step;
+      } else if (e.key === "ArrowRight") {
+        next = (panelWidth ?? MIN_PANEL_WIDTH) - step;
+      }
+      if (next === null) return;
+      e.preventDefault();
+      const clamped = Math.min(
+        MAX_PANEL_WIDTH,
+        Math.max(MIN_PANEL_WIDTH, next),
+      );
+      setPanelWidth(clamped);
+      saveWidth(clamped);
+    },
+    [isMobile, isExpanded, panelWidth],
+  );
+
   const handleInputKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     // Prevent global study shortcuts (arrows, space, escape) from firing
     // while typing in the textarea.
@@ -348,9 +454,20 @@ export function AskAITab({
   };
 
   const isDraggingClose = isMobile && isExpanded && dragDx > 0;
-  const asideStyle: React.CSSProperties | undefined = isDraggingClose
-    ? { transform: `translateX(${dragDx}px)`, transition: "none" }
-    : undefined;
+  const asideStyle: React.CSSProperties = {};
+  if (isDraggingClose) {
+    asideStyle.transform = `translateX(${dragDx}px)`;
+    asideStyle.transition = "none";
+  }
+  // Apply the user's custom width only on desktop while expanded; mobile uses a
+  // fixed viewport-based width handled by CSS.
+  if (!isMobile && isExpanded && panelWidth !== null) {
+    asideStyle.width = `${panelWidth}px`;
+    if (isResizing) {
+      // Disable width transitions while actively dragging for a tight follow.
+      asideStyle.transition = "none";
+    }
+  }
 
   return (
     <aside
@@ -366,6 +483,23 @@ export function AskAITab({
       onTouchCancel={handleTouchCancel}
       style={asideStyle}
     >
+      {!isMobile && isExpanded && (
+        <div
+          className={`ask-ai-resize-handle${isResizing ? " resizing" : ""}`}
+          onPointerDown={handleResizePointerDown}
+          onPointerMove={handleResizePointerMove}
+          onPointerUp={handleResizePointerUp}
+          onPointerCancel={handleResizePointerUp}
+          onKeyDown={handleResizeKeyDown}
+          role="separator"
+          aria-orientation="vertical"
+          aria-label="Resize Ask AI panel"
+          aria-valuemin={MIN_PANEL_WIDTH}
+          aria-valuemax={MAX_PANEL_WIDTH}
+          aria-valuenow={panelWidth ?? undefined}
+          tabIndex={0}
+        />
+      )}
       <button
         type="button"
         className="ask-ai-toggle"
