@@ -1,7 +1,5 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-
 interface ProgressBarProps {
   secondsRemaining: number;
   intervalSeconds: number;
@@ -13,40 +11,44 @@ export function ProgressBar({
   intervalSeconds,
   isPaused,
 }: ProgressBarProps) {
-  const [isResetting, setIsResetting] = useState(false);
-  const prevSecondsRef = useRef(secondsRemaining);
-
-  useEffect(() => {
-    // Detect reset: seconds jumped up (e.g., from 3 to 15)
-    if (secondsRemaining > prevSecondsRef.current) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- required: must render without transition before re-enabling it
-      setIsResetting(true);
-      // Remove the reset class after a frame so the browser paints without transition
-      let innerFrameId: number;
-      const outerFrameId = requestAnimationFrame(() => {
-        innerFrameId = requestAnimationFrame(() => {
-          setIsResetting(false);
-        });
-      });
-      prevSecondsRef.current = secondsRemaining;
-      return () => {
-        cancelAnimationFrame(outerFrameId);
-        if (innerFrameId !== undefined) {
-          cancelAnimationFrame(innerFrameId);
-        }
-      };
-    }
-    prevSecondsRef.current = secondsRemaining;
-  }, [secondsRemaining]);
-
-  const widthPercent = (secondsRemaining / intervalSeconds) * 100;
+  const safeInterval = Math.max(intervalSeconds, 1);
+  const progress = Math.min(Math.max(secondsRemaining / safeInterval, 0), 1);
+  const radius = 17;
+  const circumference = 2 * Math.PI * radius;
+  const dashOffset = circumference * (1 - progress);
 
   return (
-    <div className="progress-bar-container">
-      <div
-        className={`progress-bar-fill${isResetting ? " reset" : ""}${isPaused ? " paused" : ""}`}
-        style={{ width: `${widthPercent}%` }}
-      />
+    <div
+      className={`progress-bar-container donut-timer${isPaused ? " paused" : ""}`}
+      role="timer"
+      aria-live="polite"
+      aria-label={
+        isPaused
+          ? `Auto-advance paused with ${secondsRemaining} seconds remaining`
+          : `${secondsRemaining} seconds remaining before auto-advance`
+      }
+    >
+      <svg
+        className="donut-timer-ring"
+        viewBox="0 0 40 40"
+        aria-hidden="true"
+      >
+        <circle className="donut-timer-track" cx="20" cy="20" r={radius} />
+        <circle
+          className="donut-timer-fill"
+          cx="20"
+          cy="20"
+          r={radius}
+          style={{
+            strokeDasharray: circumference,
+            strokeDashoffset: dashOffset,
+          }}
+        />
+      </svg>
+      <span className="donut-timer-value">
+        {secondsRemaining}
+        <span className="donut-timer-unit">s</span>
+      </span>
     </div>
   );
 }

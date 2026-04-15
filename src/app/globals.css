@@ -199,6 +199,7 @@ a {
   height: 100dvh;
   width: 100%;
   overflow: hidden;
+  position: relative;
 }
 
 .study-page {
@@ -312,7 +313,7 @@ a {
 .card-content {
   flex: 1;
   overflow-y: auto;
-  padding: clamp(1rem, 2vw, 2rem) clamp(1.2rem, 3vw, 3rem);
+  padding: clamp(0.5rem, 1.2vw, 1rem) clamp(1.2rem, 3vw, 3rem);
   padding-bottom: 0;
   display: flex;
   flex-direction: column;
@@ -343,6 +344,14 @@ a {
   overflow-y: auto;
 }
 
+.card-top-bar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
 @keyframes card-slide-in-from-right {
   from {
     opacity: 0;
@@ -365,14 +374,14 @@ a {
   }
 }
 
-.card-content-inner > * {
+.card-content-inner > :not(.card-top-bar) {
   margin-top: auto;
   margin-bottom: auto;
 }
 
 .card-type-badge-inline {
   margin-top: 0;
-  margin-bottom: 0.5em;
+  margin-bottom: 0;
   align-self: flex-start;
 }
 
@@ -514,25 +523,58 @@ a {
   margin-left: 1.5em;
 }
 
-/* Progress Bar */
-.progress-bar-container {
+/* Auto-advance donut timer */
+.progress-bar-container.donut-timer {
+  position: relative;
+  width: 2.75rem;
+  height: 2.75rem;
   flex-shrink: 0;
-  height: 6px;
-  background: var(--bg-card);
 }
 
-.progress-bar-fill {
+.donut-timer-ring {
+  display: block;
+  width: 100%;
   height: 100%;
-  background: var(--accent);
-  transition: width 1s linear;
+  transform: rotate(-90deg);
 }
 
-.progress-bar-fill.reset {
+.donut-timer-track,
+.donut-timer-fill {
+  fill: none;
+  stroke-width: 4;
+}
+
+.donut-timer-track {
+  stroke: rgba(255, 255, 255, 0.45);
+}
+
+.donut-timer-fill {
+  stroke: var(--accent);
+  stroke-linecap: round;
+  transition: stroke-dashoffset 1s linear;
+}
+
+.donut-timer.paused .donut-timer-fill {
+  opacity: 0.45;
   transition: none;
 }
 
-.progress-bar-fill.paused {
-  opacity: 0.4;
+.donut-timer-value {
+  position: absolute;
+  inset: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.05em;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.donut-timer-unit {
+  font-size: 0.62em;
+  color: var(--text-secondary);
 }
 
 /* Nav Buttons — connected to card body */
@@ -633,7 +675,7 @@ a {
   cursor: not-allowed;
 }
 
-@media (max-width: 599px) {
+@media (max-width: 900px), (hover: none) and (pointer: coarse) {
   .nav-buttons {
     position: fixed;
     left: 0;
@@ -668,7 +710,7 @@ a {
   }
 
   .card-content {
-    padding: clamp(0.5rem, 1.5vw, 0.75rem) clamp(1.2rem, 4vw, 1.8rem);
+    padding: clamp(0.35rem, 1.2vw, 0.5rem) clamp(1.2rem, 4vw, 1.8rem);
     padding-bottom: calc(4.5rem + env(safe-area-inset-bottom));
   }
 
@@ -676,6 +718,10 @@ a {
     background: transparent;
     border-radius: 0;
     padding: 0;
+  }
+
+  .card-top-bar {
+    margin-bottom: 0.5rem;
   }
 
   .study-header-center .module-info-badge {
@@ -695,13 +741,6 @@ a {
   .nav-buttons .nav-btn {
     padding: 0.6rem 0.5rem;
   }
-}
-
-/* Timer display */
-.timer-display {
-  font-size: var(--font-xs);
-  color: var(--text-muted);
-  font-variant-numeric: tabular-nums;
 }
 
 /* Loading and Error states */
@@ -1347,7 +1386,7 @@ a {
   cursor: not-allowed;
 }
 
-@media (max-width: 599px) {
+@media (max-width: 900px), (hover: none) and (pointer: coarse) {
   /* On mobile, the tab slides in from the right edge. It is always mounted
      so that both the open and close transitions animate smoothly. */
   .ask-ai-tab {
@@ -1375,15 +1414,15 @@ a {
 /* =================== Card Progress Track =================== */
 .card-progress-track {
   flex-shrink: 0;
-  height: 2px;
-  background: transparent;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.65);
 }
 
 .card-progress-fill {
   height: 100%;
   background: var(--accent);
   transition: width 0.3s ease;
-  border-radius: 0 2px 2px 0;
+  border-radius: 0 999px 999px 0;
 }
 
 /* =================== Theme Toggle =================== */
@@ -1460,7 +1499,7 @@ a {
   display: none;
 }
 
-@media (max-width: 599px) {
+@media (max-width: 900px), (hover: none) and (pointer: coarse) {
   .shortcuts-hint {
     display: none;
   }
