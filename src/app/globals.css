@@ -227,6 +227,7 @@ a {
 .study-header .card-counter {
   color: var(--text-primary);
   font-variant-numeric: tabular-nums;
+  font-size: var(--font-xs);
   display: flex;
   align-items: baseline;
   gap: 0.15em;
@@ -281,7 +282,7 @@ a {
 
 .module-info-badge {
   font-size: var(--font-xs);
-  color: var(--text-secondary);
+  color: var(--text-primary);
 }
 
 .card-type-badge {
