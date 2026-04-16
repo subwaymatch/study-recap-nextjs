@@ -260,12 +260,11 @@ a {
   align-items: center;
   justify-content: center;
   background: transparent;
-  /* border: 1px solid var(--border); */
   border: none;
   border-radius: 5px;
   padding: 0.45em;
   cursor: pointer;
-  /* color: var(--text-muted); */
+  color: var(--text-secondary);
   transition:
     background 0.15s,
     border-color 0.15s,
@@ -545,6 +544,10 @@ a {
 }
 
 .donut-timer-track {
+  stroke: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="dark"] .donut-timer-track {
   stroke: rgba(255, 255, 255, 0.45);
 }
 
@@ -1755,7 +1758,7 @@ a {
 
 .card-list-item.active {
   background: var(--bg-option);
-  border-color: var(--accent);
+  border-color: transparent;
 }
 
 .card-list-index {
@@ -1785,14 +1788,14 @@ a {
 }
 
 .card-list-type.flashcard {
-  background: var(--bg-correct);
-  color: var(--text-correct);
+  background: var(--ai-msg-bg);
+  color: var(--accent);
   border-color: transparent;
 }
 
 .card-list-type.mcq {
-  background: var(--ai-msg-bg);
-  color: var(--accent);
+  background: var(--bg-correct);
+  color: var(--text-correct);
   border-color: transparent;
 }
 
