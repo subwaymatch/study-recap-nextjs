@@ -1,7 +1,7 @@
 :root {
   --bg-primary: #f0f0f0;
   --bg-card: #ffffff;
-  --bg-card-hover: #e8e8e8;
+  --bg-card-hover: #f8f8f8;
   --bg-correct: #e8f5e9;
   --bg-option: #f5f5f5;
   --bg-card-surface: #ffffff;
@@ -17,6 +17,7 @@
   --font-md: clamp(1.4rem, 2vw, 2rem);
   --font-sm: clamp(1rem, 1.5vw, 1.4rem);
   --font-xs: clamp(0.85rem, 1.2vw, 1.1rem);
+  --font-xxs: clamp(0.7rem, 1vw, 0.95rem);
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04);
   --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.06);
   --overlay-bg: rgba(0, 0, 0, 0.4);
@@ -217,6 +218,8 @@ a {
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
   padding: clamp(0.25rem, 0.5vw, 0.5rem) clamp(1.5rem, 3vw, 3rem);
+  padding: clamp(0.5rem, 1vw, 1rem) clamp(1.5rem, 3vw, 3rem);
+  padding: clamp(0.4rem, 0.8vw, 0.75rem) clamp(1.5rem, 3vw, 3rem);
   flex-shrink: 0;
   gap: 0.5rem;
 }
@@ -283,11 +286,6 @@ a {
 
 .card-type-badge {
   font-size: var(--font-xs);
-  padding: 0.3em 0.8em;
-  border-radius: 6px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
   flex-shrink: 0;
   display: inline-flex;
   align-items: center;
@@ -300,12 +298,13 @@ a {
 }
 
 .card-type-badge.flashcard {
-  background: var(--bg-option);
-  color: var(--text-secondary);
+  /* background: var(--bg-option); */
+  color: var(--text-muted);
+  color: var(--accent);
 }
 
 .card-type-badge.mcq {
-  background: var(--bg-correct);
+  /* background: var(--bg-correct); */
   color: var(--text-correct);
 }
 
@@ -596,7 +595,7 @@ a {
   padding: 2rem 0.5rem;
   cursor: pointer;
   font-family: inherit;
-  font-size: var(--font-sm);
+  font-size: var(--font-xs);
   font-weight: 500;
   transition:
     background 0.15s,
@@ -896,7 +895,7 @@ a {
 }
 
 .ask-ai-tab.collapsed {
-  width: 44px;
+  width: 38px;
 }
 
 .ask-ai-tab.expanded {
@@ -923,7 +922,7 @@ a {
 }
 
 .ask-ai-toggle {
-  width: 44px;
+  width: 38px;
   flex-shrink: 0;
   background: transparent;
   border: none;
@@ -934,7 +933,7 @@ a {
   align-items: center;
   gap: 0.9rem;
   padding: 1rem 0;
-  color: var(--text-secondary);
+  color: var(--accent);
   font-size: var(--font-xs);
   font-weight: 600;
   transition:
@@ -961,7 +960,7 @@ a {
   writing-mode: vertical-rl;
   transform: rotate(180deg);
   text-transform: uppercase;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.08em;
 }
 
 .ask-ai-panel {
@@ -977,7 +976,7 @@ a {
   align-items: center;
   justify-content: space-between;
   gap: 0.8rem;
-  padding: 0.9rem 1rem;
+  padding: 0.5rem 1rem;
   border-bottom: 1px solid var(--border);
   flex-shrink: 0;
 }
@@ -986,11 +985,9 @@ a {
   display: flex;
   flex-direction: column;
   min-width: 0;
-}
-
-.ask-ai-title strong {
-  font-size: var(--font-sm);
-  color: var(--text-primary);
+  font-size: var(--font-xs);
+  font-weight: 600;
+  color: var(--accent);
 }
 
 .ask-ai-header-actions {
@@ -1426,8 +1423,8 @@ a {
 /* =================== Card Progress Track =================== */
 .card-progress-track {
   flex-shrink: 0;
-  height: 6px;
-  background: rgba(255, 255, 255, 0.65);
+  height: 2px;
+  /* background: rgba(255, 255, 255, 0.65); */
 }
 
 .card-progress-fill {

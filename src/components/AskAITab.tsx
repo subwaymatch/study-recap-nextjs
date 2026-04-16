@@ -218,28 +218,25 @@ export function AskAITab({
     [isMobile, isExpanded],
   );
 
-  const handleTouchMove = useCallback(
-    (e: React.TouchEvent<HTMLElement>) => {
-      const state = touchRef.current;
-      if (!state) return;
-      const t = e.touches[0];
-      if (!t) return;
-      const dx = t.clientX - state.startX;
-      const dy = t.clientY - state.startY;
-      if (state.lock === null) {
-        if (
-          Math.abs(dx) >= SWIPE_DIRECTION_LOCK ||
-          Math.abs(dy) >= SWIPE_DIRECTION_LOCK
-        ) {
-          state.lock = Math.abs(dx) > Math.abs(dy) ? "h" : "v";
-        }
+  const handleTouchMove = useCallback((e: React.TouchEvent<HTMLElement>) => {
+    const state = touchRef.current;
+    if (!state) return;
+    const t = e.touches[0];
+    if (!t) return;
+    const dx = t.clientX - state.startX;
+    const dy = t.clientY - state.startY;
+    if (state.lock === null) {
+      if (
+        Math.abs(dx) >= SWIPE_DIRECTION_LOCK ||
+        Math.abs(dy) >= SWIPE_DIRECTION_LOCK
+      ) {
+        state.lock = Math.abs(dx) > Math.abs(dy) ? "h" : "v";
       }
-      if (state.lock !== "h") return;
-      // Visual follow: rightward drag closes the expanded panel.
-      setDragDx(Math.max(0, dx));
-    },
-    [],
-  );
+    }
+    if (state.lock !== "h") return;
+    // Visual follow: rightward drag closes the expanded panel.
+    setDragDx(Math.max(0, dx));
+  }, []);
 
   const handleTouchEnd = useCallback(
     (e: React.TouchEvent<HTMLElement>) => {
@@ -379,8 +376,11 @@ export function AskAITab({
     (e: React.PointerEvent<HTMLDivElement>) => {
       // Only allow resizing on desktop while expanded. Ignore non-primary buttons.
       if (isMobile || !isExpanded || e.button !== 0) return;
-      const aside = e.currentTarget.closest(".ask-ai-tab") as HTMLElement | null;
-      const startWidth = aside?.getBoundingClientRect().width ?? panelWidth ?? 0;
+      const aside = e.currentTarget.closest(
+        ".ask-ai-tab",
+      ) as HTMLElement | null;
+      const startWidth =
+        aside?.getBoundingClientRect().width ?? panelWidth ?? 0;
       resizeRef.current = { startX: e.clientX, startWidth };
       setIsResizing(true);
       e.currentTarget.setPointerCapture(e.pointerId);
@@ -517,203 +517,201 @@ export function AskAITab({
       </button>
 
       <div className="ask-ai-panel" inert={!isExpanded}>
-          <div className="ask-ai-header">
-            <div className="ask-ai-title">
-              <strong>Ask AI</strong>
-            </div>
-            <div className="ask-ai-header-actions">
-              <button
-                type="button"
-                className="ask-ai-clear-btn"
-                onClick={clearHistory}
-                disabled={messages.length === 0 && !isStreaming}
-                title="Clear AI Chat History for this Card"
-                aria-label="Clear AI Chat History for this Card"
-              >
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  aria-hidden="true"
-                >
-                  <polyline points="3 6 5 6 21 6" />
-                  <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
-                  <path d="M10 11v6" />
-                  <path d="M14 11v6" />
-                  <path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2" />
-                </svg>
-              </button>
-              <button
-                type="button"
-                className="ask-ai-close-btn"
-                onClick={() => onExpandedChange(false)}
-                title="Close Ask AI panel"
-                aria-label="Close Ask AI panel"
-              >
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  aria-hidden="true"
-                >
-                  <line x1="18" y1="6" x2="6" y2="18" />
-                  <line x1="6" y1="6" x2="18" y2="18" />
-                </svg>
-              </button>
-            </div>
-          </div>
-
-          <div className="ask-ai-messages" ref={messagesRef}>
-            {messages.length === 0 && !isStreaming && (
-              <div className="ask-ai-empty">
-                Ask anything about the current flashcard or question. The card
-                contents are sent along as context.
-              </div>
-            )}
-            {messages.length === 0 && !isStreaming && (
-              <div
-                className="ask-ai-suggestions"
-                role="group"
-                aria-label="Suggested prompts"
-              >
-                {SUGGESTIONS[cardType].map((suggestion) => (
-                  <button
-                    key={suggestion}
-                    type="button"
-                    className="ask-ai-suggestion-btn"
-                    onClick={() => void sendMessage(suggestion)}
-                  >
-                    {suggestion}
-                  </button>
-                ))}
-              </div>
-            )}
-            {messages.map((m, i) => {
-              const isLast = i === messages.length - 1;
-              const showThinking =
-                isStreaming &&
-                isLast &&
-                m.role === "assistant" &&
-                m.content === "";
-              const isBeingStreamed =
-                isStreaming && isLast && m.role === "assistant";
-              const showDisclaimer =
-                m.role === "assistant" && m.content && !isBeingStreamed;
-              return (
-                <div
-                  key={i}
-                  className={`ask-ai-message ask-ai-message-${m.role}`}
-                >
-                  <div className="ask-ai-message-role">
-                    {m.role === "user" ? "You" : "AI"}
-                  </div>
-                  <div className="ask-ai-message-content">
-                    {showThinking ? (
-                      <span
-                        className="ask-ai-thinking-dots"
-                        aria-label="Waiting for response"
-                      >
-                        <span />
-                        <span />
-                        <span />
-                      </span>
-                    ) : m.role === "assistant" ? (
-                      <div className="ask-ai-markdown">
-                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                          {m.content}
-                        </ReactMarkdown>
-                      </div>
-                    ) : (
-                      m.content
-                    )}
-                  </div>
-                  {showDisclaimer && (
-                    <p className="ask-ai-disclaimer">
-                      AI responses may be inaccurate. Verify important
-                      information.
-                    </p>
-                  )}
-                </div>
-              );
-            })}
-            {messages.length > 0 && !isStreaming && (
-              <div
-                className="ask-ai-suggestions"
-                role="group"
-                aria-label="Suggested prompts"
-              >
-                {SUGGESTIONS[cardType].map((suggestion) => (
-                  <button
-                    key={suggestion}
-                    type="button"
-                    className="ask-ai-suggestion-btn"
-                    onClick={() => void sendMessage(suggestion)}
-                  >
-                    {suggestion}
-                  </button>
-                ))}
-              </div>
-            )}
-            {error && (
-              <div className="ask-ai-error" role="alert">
-                {error}
-              </div>
-            )}
-          </div>
-
-          <div className="ask-ai-input-area">
-            <textarea
-              className="ask-ai-input"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={handleInputKeyDown}
-              placeholder="Ask about this card…"
-              rows={2}
-              disabled={isStreaming}
-            />
+        <div className="ask-ai-header">
+          <div className="ask-ai-title">Ask AI</div>
+          <div className="ask-ai-header-actions">
             <button
               type="button"
-              className="ask-ai-send-btn"
-              onClick={() => void sendMessage()}
-              disabled={isStreaming || !input.trim()}
-              title="Send message"
-              aria-label="Send message"
+              className="ask-ai-clear-btn"
+              onClick={clearHistory}
+              disabled={messages.length === 0 && !isStreaming}
+              title="Clear AI Chat History for this Card"
+              aria-label="Clear AI Chat History for this Card"
             >
-              {isStreaming ? (
-                <span className="ask-ai-thinking-dots" aria-hidden="true">
-                  <span />
-                  <span />
-                  <span />
-                </span>
-              ) : (
-                <svg
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  aria-hidden="true"
-                >
-                  <line x1="22" y1="2" x2="11" y2="13" />
-                  <polygon points="22 2 15 22 11 13 2 9 22 2" />
-                </svg>
-              )}
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <polyline points="3 6 5 6 21 6" />
+                <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+                <path d="M10 11v6" />
+                <path d="M14 11v6" />
+                <path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2" />
+              </svg>
+            </button>
+            <button
+              type="button"
+              className="ask-ai-close-btn"
+              onClick={() => onExpandedChange(false)}
+              title="Close Ask AI panel"
+              aria-label="Close Ask AI panel"
+            >
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
             </button>
           </div>
         </div>
+
+        <div className="ask-ai-messages" ref={messagesRef}>
+          {messages.length === 0 && !isStreaming && (
+            <div className="ask-ai-empty">
+              Ask anything about the current flashcard or question. The card
+              contents are sent along as context.
+            </div>
+          )}
+          {messages.length === 0 && !isStreaming && (
+            <div
+              className="ask-ai-suggestions"
+              role="group"
+              aria-label="Suggested prompts"
+            >
+              {SUGGESTIONS[cardType].map((suggestion) => (
+                <button
+                  key={suggestion}
+                  type="button"
+                  className="ask-ai-suggestion-btn"
+                  onClick={() => void sendMessage(suggestion)}
+                >
+                  {suggestion}
+                </button>
+              ))}
+            </div>
+          )}
+          {messages.map((m, i) => {
+            const isLast = i === messages.length - 1;
+            const showThinking =
+              isStreaming &&
+              isLast &&
+              m.role === "assistant" &&
+              m.content === "";
+            const isBeingStreamed =
+              isStreaming && isLast && m.role === "assistant";
+            const showDisclaimer =
+              m.role === "assistant" && m.content && !isBeingStreamed;
+            return (
+              <div
+                key={i}
+                className={`ask-ai-message ask-ai-message-${m.role}`}
+              >
+                <div className="ask-ai-message-role">
+                  {m.role === "user" ? "You" : "AI"}
+                </div>
+                <div className="ask-ai-message-content">
+                  {showThinking ? (
+                    <span
+                      className="ask-ai-thinking-dots"
+                      aria-label="Waiting for response"
+                    >
+                      <span />
+                      <span />
+                      <span />
+                    </span>
+                  ) : m.role === "assistant" ? (
+                    <div className="ask-ai-markdown">
+                      <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                        {m.content}
+                      </ReactMarkdown>
+                    </div>
+                  ) : (
+                    m.content
+                  )}
+                </div>
+                {showDisclaimer && (
+                  <p className="ask-ai-disclaimer">
+                    AI responses may be inaccurate. Verify important
+                    information.
+                  </p>
+                )}
+              </div>
+            );
+          })}
+          {messages.length > 0 && !isStreaming && (
+            <div
+              className="ask-ai-suggestions"
+              role="group"
+              aria-label="Suggested prompts"
+            >
+              {SUGGESTIONS[cardType].map((suggestion) => (
+                <button
+                  key={suggestion}
+                  type="button"
+                  className="ask-ai-suggestion-btn"
+                  onClick={() => void sendMessage(suggestion)}
+                >
+                  {suggestion}
+                </button>
+              ))}
+            </div>
+          )}
+          {error && (
+            <div className="ask-ai-error" role="alert">
+              {error}
+            </div>
+          )}
+        </div>
+
+        <div className="ask-ai-input-area">
+          <textarea
+            className="ask-ai-input"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={handleInputKeyDown}
+            placeholder="Ask about this card…"
+            rows={2}
+            disabled={isStreaming}
+          />
+          <button
+            type="button"
+            className="ask-ai-send-btn"
+            onClick={() => void sendMessage()}
+            disabled={isStreaming || !input.trim()}
+            title="Send message"
+            aria-label="Send message"
+          >
+            {isStreaming ? (
+              <span className="ask-ai-thinking-dots" aria-hidden="true">
+                <span />
+                <span />
+                <span />
+              </span>
+            ) : (
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <line x1="22" y1="2" x2="11" y2="13" />
+                <polygon points="22 2 15 22 11 13 2 9 22 2" />
+              </svg>
+            )}
+          </button>
+        </div>
+      </div>
     </aside>
   );
 }
