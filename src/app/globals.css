@@ -709,7 +709,7 @@ a {
   .card-content {
     padding: clamp(0.35rem, 1.2vw, 0.5rem) 0;
     padding-bottom: calc(4.5rem + env(safe-area-inset-bottom));
-    background: var(--bg-card-surface);
+    background: var(--bg-primary);
   }
 
   .card-content-inner {
