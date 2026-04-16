@@ -227,7 +227,7 @@ a {
 .study-header .card-counter {
   color: var(--text-primary);
   font-variant-numeric: tabular-nums;
-  font-size: var(--font-xs);
+  font-size: 0.85rem;
   display: flex;
   align-items: baseline;
   gap: 0.15em;
@@ -280,7 +280,7 @@ a {
 }
 
 .module-info-badge {
-  font-size: var(--font-xs);
+  font-size: 0.85rem;
   color: var(--text-primary);
 }
 
@@ -712,7 +712,7 @@ a {
   }
 
   .card-content-inner {
-    background: transparent;
+    background: var(--bg-card-surface);
     border-radius: 0;
     padding: 0 clamp(1.2rem, 4vw, 1.8rem);
     padding-right: calc(clamp(1.2rem, 4vw, 1.8rem) + 0.5rem);
@@ -938,7 +938,7 @@ a {
   gap: 0.9rem;
   padding: 1rem 0;
   color: var(--accent);
-  font-size: var(--font-xs);
+  font-size: 0.85rem;
   font-weight: 600;
   transition:
     background 0.15s,
@@ -989,7 +989,7 @@ a {
   display: flex;
   flex-direction: column;
   min-width: 0;
-  font-size: var(--font-xs);
+  font-size: 0.85rem;
   font-weight: 600;
   color: var(--accent);
 }
