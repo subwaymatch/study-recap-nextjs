@@ -709,17 +709,18 @@ a {
   .card-content {
     padding: clamp(0.35rem, 1.2vw, 0.5rem) 0;
     padding-bottom: calc(4.5rem + env(safe-area-inset-bottom));
+    background: var(--bg-card-surface);
   }
 
   .card-content-inner {
     background: var(--bg-card-surface);
     border-radius: 16px 16px 0 0;
-    padding: clamp(1rem, 3vw, 1.5rem) clamp(1.2rem, 4vw, 1.8rem) 0;
+    padding: clamp(1.75rem, 4vw, 2.25rem) clamp(1.2rem, 4vw, 1.8rem) clamp(1.25rem, 3vw, 1.75rem);
     padding-right: calc(clamp(1.2rem, 4vw, 1.8rem) + 0.5rem);
   }
 
   .card-top-bar {
-    margin-bottom: 0.5rem;
+    margin-bottom: 1rem;
   }
 
   .card-type-badge-inline {
