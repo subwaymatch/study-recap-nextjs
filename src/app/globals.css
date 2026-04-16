@@ -713,13 +713,17 @@ a {
 
   .card-content-inner {
     background: var(--bg-card-surface);
-    border-radius: 0;
-    padding: 0 clamp(1.2rem, 4vw, 1.8rem);
+    border-radius: 16px 16px 0 0;
+    padding: clamp(1rem, 3vw, 1.5rem) clamp(1.2rem, 4vw, 1.8rem) 0;
     padding-right: calc(clamp(1.2rem, 4vw, 1.8rem) + 0.5rem);
   }
 
   .card-top-bar {
     margin-bottom: 0.5rem;
+  }
+
+  .card-type-badge-inline {
+    margin-top: 0.25rem;
   }
 
   .study-header-center .module-info-badge {
