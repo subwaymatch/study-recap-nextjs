@@ -28,6 +28,8 @@ export function NavButtons({
   return (
     <div className="nav-buttons">
       <button className="nav-btn" onClick={onPrev} disabled={!hasPrev}>
+        <kbd className="nav-shortcut-key">←</kbd>
+        <span className="nav-btn-text">Prev</span>
         <svg
           className="nav-btn-svg"
           width="16"
@@ -42,14 +44,11 @@ export function NavButtons({
         >
           <polyline points="15 18 9 12 15 6" />
         </svg>
-        <span className="nav-btn-text">Prev</span>
-        <kbd className="nav-shortcut-key">←</kbd>
       </button>
       {timerEnabled && (
         <button className="nav-btn nav-btn-pause" onClick={onTogglePause}>
           {isPaused ? (
             <svg
-              className="nav-btn-svg"
               width="16"
               height="16"
               viewBox="0 0 24 24"
@@ -64,7 +63,6 @@ export function NavButtons({
             </svg>
           ) : (
             <svg
-              className="nav-btn-svg"
               width="16"
               height="16"
               viewBox="0 0 24 24"
