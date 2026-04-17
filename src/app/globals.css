@@ -285,7 +285,7 @@ a {
 }
 
 .card-type-badge {
-  font-size: var(--font-xs);
+  font-size: 0.85rem;
   flex-shrink: 0;
   display: inline-flex;
   align-items: center;
