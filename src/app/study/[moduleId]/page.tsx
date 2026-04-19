@@ -278,7 +278,6 @@ export default function StudyPage() {
         <AskAITab
           contextText={askAiContext}
           cardId={cardId}
-          cardType={currentCard.type}
           isExpanded={isAskAIExpanded}
           onExpandedChange={setIsAskAIExpanded}
         />

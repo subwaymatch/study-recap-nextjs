@@ -14,6 +14,23 @@ interface RequestBody {
 // Allow 20 requests per minute per IP.
 const RATE_LIMIT = { maxRequests: 20, windowMs: 60_000 };
 
+// Marker that separates the streamed answer text from the trailing JSON
+// payload of follow-up suggestions. Uses the ASCII Unit Separator control
+// character so it cannot collide with normal markdown content.
+export const FOLLOWUPS_DELIMITER = "\u001F";
+
+const FOLLOWUPS_SCHEMA = {
+  type: "object",
+  properties: {
+    questions: {
+      type: "array",
+      items: { type: "string" },
+    },
+  },
+  required: ["questions"],
+  additionalProperties: false,
+} as const;
+
 export async function POST(req: NextRequest) {
   const ip =
     req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
@@ -58,11 +75,13 @@ export async function POST(req: NextRequest) {
     (context || "(no context provided)") +
     "\n--- END CONTEXT ---";
 
+  const conversationMessages: ChatMessage[] = messages
+    .filter((m) => m.role === "user" || m.role === "assistant")
+    .map((m) => ({ role: m.role, content: String(m.content ?? "") }));
+
   const upstreamMessages: ChatMessage[] = [
     { role: "system", content: systemPrompt },
-    ...messages
-      .filter((m) => m.role === "user" || m.role === "assistant")
-      .map((m) => ({ role: m.role, content: String(m.content ?? "") })),
+    ...conversationMessages,
   ];
 
   let upstream: Response;
@@ -101,6 +120,7 @@ export async function POST(req: NextRequest) {
     async start(controller) {
       const reader = upstream.body!.getReader();
       let buffer = "";
+      let answerText = "";
       try {
         while (true) {
           const { done, value } = await reader.read();
@@ -122,12 +142,33 @@ export async function POST(req: NextRequest) {
                 const delta: string | undefined =
                   parsed?.choices?.[0]?.delta?.content;
                 if (delta) {
+                  answerText += delta;
                   controller.enqueue(encoder.encode(delta));
                 }
               } catch {
                 // Ignore malformed SSE chunks.
               }
             }
+          }
+        }
+
+        if (answerText.trim()) {
+          const followups = await fetchFollowups({
+            baseUrl,
+            model,
+            apiKey,
+            context,
+            conversation: [
+              ...conversationMessages,
+              { role: "assistant", content: answerText },
+            ],
+          });
+          if (followups.length > 0) {
+            controller.enqueue(
+              encoder.encode(
+                FOLLOWUPS_DELIMITER + JSON.stringify({ questions: followups }),
+              ),
+            );
           }
         }
       } catch (err) {
@@ -146,4 +187,75 @@ export async function POST(req: NextRequest) {
       "X-Accel-Buffering": "no",
     },
   });
+}
+
+async function fetchFollowups(params: {
+  baseUrl: string;
+  model: string;
+  apiKey: string;
+  context: string;
+  conversation: ChatMessage[];
+}): Promise<string[]> {
+  const { baseUrl, model, apiKey, context, conversation } = params;
+  const systemPrompt =
+    "You generate short follow-up questions a student might ask next while " +
+    "studying a flashcard or multiple-choice question. Return exactly three " +
+    "distinct, concise follow-up questions phrased from the student's " +
+    "perspective. Each question must be under 70 characters, written in " +
+    "plain language, and grounded in the study card context and recent " +
+    "conversation. Avoid repeating questions the student has already asked." +
+    "\n\n--- STUDY CARD CONTEXT ---\n" +
+    (context || "(no context provided)") +
+    "\n--- END CONTEXT ---";
+
+  try {
+    const res = await fetch(`${baseUrl}/chat/completions`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model,
+        messages: [
+          { role: "system", content: systemPrompt },
+          ...conversation,
+          {
+            role: "user",
+            content:
+              "Suggest exactly three short follow-up questions I could ask " +
+              "next to deepen my understanding.",
+          },
+        ],
+        response_format: {
+          type: "json_schema",
+          json_schema: {
+            name: "follow_up_suggestions",
+            strict: true,
+            schema: FOLLOWUPS_SCHEMA,
+          },
+        },
+      }),
+    });
+    if (!res.ok) return [];
+    const data = await res.json();
+    const content = data?.choices?.[0]?.message?.content;
+    if (typeof content !== "string") return [];
+    const parsed: unknown = JSON.parse(content);
+    if (
+      !parsed ||
+      typeof parsed !== "object" ||
+      !Array.isArray((parsed as { questions?: unknown }).questions)
+    ) {
+      return [];
+    }
+    const rawQuestions = (parsed as { questions: unknown[] }).questions;
+    return rawQuestions
+      .filter((q): q is string => typeof q === "string")
+      .map((q) => q.trim())
+      .filter((q) => q.length > 0)
+      .slice(0, 3);
+  } catch {
+    return [];
+  }
 }

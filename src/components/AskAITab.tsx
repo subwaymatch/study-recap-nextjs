@@ -12,25 +12,93 @@ interface ChatMessage {
 interface AskAITabProps {
   contextText: string;
   cardId: string;
-  cardType: "flashcard" | "mcq";
   isExpanded: boolean;
   onExpandedChange: (expanded: boolean) => void;
 }
 
-const SUGGESTIONS: Record<"flashcard" | "mcq", string[]> = {
-  flashcard: [
-    "Explain like I'm five.",
-    "Explain in more detail.",
-    "Give me an example.",
-  ],
-  mcq: [
-    "Explain like I'm five.",
-    "Explain in more detail.",
-    "Give me an example.",
-  ],
-};
+const DEFAULT_SUGGESTIONS: readonly string[] = [
+  "Explain like I'm five.",
+  "Explain in more detail.",
+  "Give me an example.",
+];
 
 const STORAGE_PREFIX = "study-recap:ask-ai:history";
+const SUGGESTIONS_STORAGE_PREFIX = "study-recap:ask-ai:suggestions";
+
+// Marker the API uses to separate the streamed answer from the trailing
+// JSON-encoded follow-up suggestions. Must match the server-side constant.
+const FOLLOWUPS_DELIMITER = "\u001F";
+
+function loadSuggestions(cardId: string): string[] {
+  if (typeof window === "undefined") return [...DEFAULT_SUGGESTIONS];
+  try {
+    const raw = window.localStorage.getItem(
+      `${SUGGESTIONS_STORAGE_PREFIX}:${cardId}`,
+    );
+    if (!raw) return [...DEFAULT_SUGGESTIONS];
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [...DEFAULT_SUGGESTIONS];
+    const cleaned = parsed
+      .filter((s): s is string => typeof s === "string")
+      .map((s) => s.trim())
+      .filter((s) => s.length > 0)
+      .slice(0, 3);
+    return cleaned.length > 0 ? cleaned : [...DEFAULT_SUGGESTIONS];
+  } catch {
+    return [...DEFAULT_SUGGESTIONS];
+  }
+}
+
+function saveSuggestions(cardId: string, suggestions: string[]) {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.setItem(
+      `${SUGGESTIONS_STORAGE_PREFIX}:${cardId}`,
+      JSON.stringify(suggestions),
+    );
+  } catch {
+    // Ignore quota errors.
+  }
+}
+
+function clearStoredSuggestions(cardId: string) {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.removeItem(`${SUGGESTIONS_STORAGE_PREFIX}:${cardId}`);
+  } catch {
+    // Ignore.
+  }
+}
+
+// Splits a streamed response into the assistant's answer text and any
+// trailing follow-up suggestions payload appended by the server.
+function splitFollowups(raw: string): {
+  text: string;
+  followups: string[] | null;
+} {
+  const idx = raw.indexOf(FOLLOWUPS_DELIMITER);
+  if (idx === -1) return { text: raw, followups: null };
+  const text = raw.slice(0, idx);
+  const tail = raw.slice(idx + FOLLOWUPS_DELIMITER.length);
+  try {
+    const parsed: unknown = JSON.parse(tail);
+    if (
+      parsed &&
+      typeof parsed === "object" &&
+      Array.isArray((parsed as { questions?: unknown }).questions)
+    ) {
+      const questions = (parsed as { questions: unknown[] }).questions
+        .filter((q): q is string => typeof q === "string")
+        .map((q) => q.trim())
+        .filter((q) => q.length > 0)
+        .slice(0, 3);
+      return { text, followups: questions };
+    }
+  } catch {
+    // Tail is not yet valid JSON (still streaming) — treat as no followups.
+  }
+  return { text, followups: null };
+}
 
 function loadHistory(cardId: string): ChatMessage[] {
   if (typeof window === "undefined") return [];
@@ -101,11 +169,13 @@ function saveWidth(width: number) {
 export function AskAITab({
   contextText,
   cardId,
-  cardType,
   isExpanded,
   onExpandedChange,
 }: AskAITabProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [suggestions, setSuggestions] = useState<string[]>([
+    ...DEFAULT_SUGGESTIONS,
+  ]);
   const [input, setInput] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -141,6 +211,7 @@ export function AskAITab({
     setError(null);
     isLoadingRef.current = true;
     setMessages(loadHistory(cardId));
+    setSuggestions(loadSuggestions(cardId));
   }, [cardId]);
 
   // Persist history whenever messages change, skipping the post-load update.
@@ -309,26 +380,33 @@ export function AskAITab({
         const decoder = new TextDecoder();
         let accumulated = "";
 
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          accumulated += decoder.decode(value, { stream: true });
+        const applyChunk = () => {
+          const { text } = splitFollowups(accumulated);
           setMessages((prev) => {
             const next = prev.slice();
             next[next.length - 1] = {
               role: "assistant",
-              content: accumulated,
+              content: text,
             };
             return next;
           });
+        };
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          accumulated += decoder.decode(value, { stream: true });
+          applyChunk();
         }
         // Flush any remaining decoder bytes.
         accumulated += decoder.decode();
-        setMessages((prev) => {
-          const next = prev.slice();
-          next[next.length - 1] = { role: "assistant", content: accumulated };
-          return next;
-        });
+        applyChunk();
+
+        const { followups } = splitFollowups(accumulated);
+        if (followups && followups.length > 0) {
+          setSuggestions(followups);
+          saveSuggestions(cardId, followups);
+        }
       } catch (err) {
         if (err instanceof DOMException && err.name === "AbortError") {
           // User aborted (e.g. cleared history or changed card); silently drop the placeholder.
@@ -356,13 +434,14 @@ export function AskAITab({
         abortRef.current = null;
       }
     },
-    [input, isStreaming, messages, contextText],
+    [input, isStreaming, messages, contextText, cardId],
   );
 
   const clearHistory = useCallback(() => {
     abortRef.current?.abort();
     setMessages([]);
     setError(null);
+    setSuggestions([...DEFAULT_SUGGESTIONS]);
     if (typeof window !== "undefined") {
       try {
         window.localStorage.removeItem(`${STORAGE_PREFIX}:${cardId}`);
@@ -370,6 +449,7 @@ export function AskAITab({
         // Ignore.
       }
     }
+    clearStoredSuggestions(cardId);
   }, [cardId]);
 
   const handleResizePointerDown = useCallback(
@@ -584,7 +664,7 @@ export function AskAITab({
               role="group"
               aria-label="Suggested prompts"
             >
-              {SUGGESTIONS[cardType].map((suggestion) => (
+              {suggestions.map((suggestion) => (
                 <button
                   key={suggestion}
                   type="button"
@@ -650,7 +730,7 @@ export function AskAITab({
               role="group"
               aria-label="Suggested prompts"
             >
-              {SUGGESTIONS[cardType].map((suggestion) => (
+              {suggestions.map((suggestion) => (
                 <button
                   key={suggestion}
                   type="button"
