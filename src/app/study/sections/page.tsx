@@ -292,7 +292,6 @@ function SectionStudyContent() {
         <AskAITab
           contextText={askAiContext}
           cardId={cardId}
-          cardType={currentCard.type}
           isExpanded={isAskAIExpanded}
           onExpandedChange={setIsAskAIExpanded}
         />
