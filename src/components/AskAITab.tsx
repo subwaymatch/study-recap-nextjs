@@ -178,6 +178,7 @@ export function AskAITab({
   ]);
   const [input, setInput] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
+  const [isFetchingFollowups, setIsFetchingFollowups] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isMobile, setIsMobile] = useState(false);
   // Offset applied during an in-progress swipe-to-close for visual drag feedback.
@@ -208,6 +209,7 @@ export function AskAITab({
   useEffect(() => {
     abortRef.current?.abort();
     setIsStreaming(false);
+    setIsFetchingFollowups(false);
     setError(null);
     isLoadingRef.current = true;
     setMessages(loadHistory(cardId));
@@ -397,10 +399,15 @@ export function AskAITab({
           if (done) break;
           accumulated += decoder.decode(value, { stream: true });
           applyChunk();
+          if (accumulated.includes(FOLLOWUPS_DELIMITER)) {
+            const { followups: partial } = splitFollowups(accumulated);
+            setIsFetchingFollowups(partial === null);
+          }
         }
         // Flush any remaining decoder bytes.
         accumulated += decoder.decode();
         applyChunk();
+        setIsFetchingFollowups(false);
 
         const { followups } = splitFollowups(accumulated);
         if (followups && followups.length > 0) {
@@ -431,6 +438,7 @@ export function AskAITab({
         }
       } finally {
         setIsStreaming(false);
+        setIsFetchingFollowups(false);
         abortRef.current = null;
       }
     },
@@ -441,6 +449,7 @@ export function AskAITab({
     abortRef.current?.abort();
     setMessages([]);
     setError(null);
+    setIsFetchingFollowups(false);
     setSuggestions([...DEFAULT_SUGGESTIONS]);
     if (typeof window !== "undefined") {
       try {
@@ -724,6 +733,22 @@ export function AskAITab({
               </div>
             );
           })}
+          {messages.length > 0 && isFetchingFollowups && (
+            <div
+              className="ask-ai-followup-loader"
+              aria-live="polite"
+              aria-label="Generating follow-up questions"
+            >
+              <span className="ask-ai-thinking-dots" aria-hidden="true">
+                <span />
+                <span />
+                <span />
+              </span>
+              <span className="ask-ai-followup-loader-text">
+                Generating follow-up questions…
+              </span>
+            </div>
+          )}
           {messages.length > 0 && !isStreaming && (
             <div
               className="ask-ai-suggestions"
