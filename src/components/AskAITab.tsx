@@ -215,6 +215,25 @@ function saveWidth(width: number) {
   }
 }
 
+// Walks up from `el` to `boundary` looking for an ancestor whose content
+// overflows horizontally under an `auto`/`scroll` overflow-x. Used to avoid
+// hijacking touch moves inside scrollable content (e.g. wide KaTeX equations)
+// as a swipe-to-close gesture.
+function isInsideHorizontalScroll(
+  el: HTMLElement | null,
+  boundary: HTMLElement,
+): boolean {
+  let node: HTMLElement | null = el;
+  while (node && node !== boundary) {
+    if (node.scrollWidth > node.clientWidth) {
+      const overflowX = window.getComputedStyle(node).overflowX;
+      if (overflowX === "auto" || overflowX === "scroll") return true;
+    }
+    node = node.parentElement;
+  }
+  return false;
+}
+
 export function AskAITab({
   contextText,
   cardId,
@@ -327,6 +346,10 @@ export function AskAITab({
       // text selection and caret moves should take precedence.
       const target = e.target as HTMLElement | null;
       if (target?.closest("textarea, input")) return;
+      // Don't hijack horizontal drags that originate inside a horizontally
+      // scrollable region (e.g. a wide KaTeX display equation); the user is
+      // scrolling its content, not trying to close the panel.
+      if (target && isInsideHorizontalScroll(target, e.currentTarget)) return;
       const t = e.touches[0];
       if (!t) return;
       touchRef.current = {
