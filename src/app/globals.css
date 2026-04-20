@@ -1084,6 +1084,19 @@ a {
   line-height: 1.5;
 }
 
+.ask-ai-followup-loader {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.25rem;
+}
+
+.ask-ai-followup-loader-text {
+  font-size: var(--font-xs);
+  color: var(--text-muted);
+  font-style: italic;
+}
+
 .ask-ai-suggestions {
   display: flex;
   flex-direction: column;
