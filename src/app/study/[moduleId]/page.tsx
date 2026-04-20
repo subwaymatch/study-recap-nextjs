@@ -44,6 +44,28 @@ export default function StudyPage() {
     setAskAIEnabled(getStoredAskAIEnabled());
   }, []);
 
+  // When the Ask AI panel opens, push a history entry so the browser's back
+  // button closes the panel instead of navigating to the previous page.
+  // On cleanup, if the pushed state is still current (panel was closed
+  // programmatically rather than via back), pop it to keep history clean.
+  useEffect(() => {
+    if (!isAskAIExpanded) return;
+
+    history.pushState({ __askAIOpen: true }, "");
+
+    function handlePopState() {
+      setIsAskAIExpanded(false);
+    }
+
+    window.addEventListener("popstate", handlePopState);
+    return () => {
+      window.removeEventListener("popstate", handlePopState);
+      if ((history.state as { __askAIOpen?: boolean } | null)?.__askAIOpen) {
+        history.go(-1);
+      }
+    };
+  }, [isAskAIExpanded]);
+
   const displayCards = useMemo(() => {
     let result = cards;
     if (!showFlashcards || !showMcqs) {
