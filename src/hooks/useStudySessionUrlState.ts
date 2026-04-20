@@ -28,7 +28,7 @@ function parseSeed(value: string | null): number | null {
   if (value === null) return null;
 
   const parsed = Number.parseInt(value, 10);
-  if (!Number.isFinite(parsed) || parsed < 0) return null;
+  if (!Number.isSafeInteger(parsed) || parsed < 0) return null;
 
   return parsed >>> 0;
 }
@@ -88,14 +88,6 @@ export function useStudySessionUrlState({
     if (!shuffleEnabled) return null;
     return parseSeed(rawSeed) ?? fallbackSeed;
   }, [fallbackSeed, rawSeed, shuffleEnabled]);
-
-  useEffect(() => {
-    if (rawIndex !== String(currentIndex)) {
-      updateQueryParams((params) => {
-        params.set("index", String(currentIndex));
-      });
-    }
-  }, [currentIndex, rawIndex, updateQueryParams]);
 
   useEffect(() => {
     if (!shuffleEnabled) {

@@ -50,7 +50,7 @@ function SectionStudyContent() {
   const [isCardListOpen, setIsCardListOpen] = useState(false);
   const [isAskAIExpanded, setIsAskAIExpanded] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [askAIEnabled, setAskAIEnabled] = useState(getStoredAskAIEnabled);
+  const [askAIEnabled, setAskAIEnabled] = useState(() => getStoredAskAIEnabled());
 
   const filteredCards = useMemo(() => {
     let result = cards;
