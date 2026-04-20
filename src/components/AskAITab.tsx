@@ -673,11 +673,12 @@ export function AskAITab({
               role="group"
               aria-label="Suggested prompts"
             >
-              {suggestions.map((suggestion) => (
+              {suggestions.map((suggestion, i) => (
                 <button
                   key={suggestion}
                   type="button"
                   className="ask-ai-suggestion-btn"
+                  style={{ animationDelay: `${i * 90}ms` }}
                   onClick={() => void sendMessage(suggestion)}
                 >
                   {suggestion}
@@ -755,11 +756,12 @@ export function AskAITab({
               role="group"
               aria-label="Suggested prompts"
             >
-              {suggestions.map((suggestion) => (
+              {suggestions.map((suggestion, i) => (
                 <button
                   key={suggestion}
                   type="button"
                   className="ask-ai-suggestion-btn"
+                  style={{ animationDelay: `${i * 90}ms` }}
                   onClick={() => void sendMessage(suggestion)}
                 >
                   {suggestion}

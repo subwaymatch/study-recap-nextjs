@@ -153,6 +153,10 @@ export async function POST(req: NextRequest) {
         }
 
         if (answerText.trim()) {
+          // Signal the client that the answer is complete and follow-up
+          // generation is starting, so it can show a loader during the gap
+          // between the answer ending and the suggestions arriving.
+          controller.enqueue(encoder.encode(FOLLOWUPS_DELIMITER));
           const followups = await fetchFollowups({
             baseUrl,
             model,
@@ -165,9 +169,7 @@ export async function POST(req: NextRequest) {
           });
           if (followups.length > 0) {
             controller.enqueue(
-              encoder.encode(
-                FOLLOWUPS_DELIMITER + JSON.stringify({ questions: followups }),
-              ),
+              encoder.encode(JSON.stringify({ questions: followups })),
             );
           }
         }
