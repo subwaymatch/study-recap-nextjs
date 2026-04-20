@@ -2,7 +2,9 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
+import rehypeKatex from "rehype-katex";
 import remarkGfm from "remark-gfm";
+import remarkMath from "remark-math";
 
 interface ChatMessage {
   role: "user" | "assistant";
@@ -717,7 +719,10 @@ export function AskAITab({
                     </span>
                   ) : m.role === "assistant" ? (
                     <div className="ask-ai-markdown">
-                      <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                      <ReactMarkdown
+                        remarkPlugins={[remarkGfm, remarkMath]}
+                        rehypePlugins={[rehypeKatex]}
+                      >
                         {m.content}
                       </ReactMarkdown>
                     </div>
