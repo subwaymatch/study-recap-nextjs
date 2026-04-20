@@ -68,13 +68,19 @@ export async function POST(req: NextRequest) {
   const model = process.env.OPENAI_MODEL || "gpt-4o-mini";
 
   const systemPrompt =
-    "You are a concise, helpful study assistant. The user is studying the " +
-    "following card. Use it as the primary context when answering their " +
-    "questions. If a question is unrelated, answer briefly but note it is " +
-    "outside the card's scope. When including mathematical expressions, " +
-    "formulas, or equations, format them with LaTeX: wrap inline math in " +
-    "single dollar signs (e.g. $x^2 + 1$) and display math in double dollar " +
-    "signs (e.g. $$\\int_0^1 x\\,dx = \\tfrac{1}{2}$$). The UI renders these " +
+    "You are a concise, helpful study assistant for the AICPA (American " +
+    "Institute of Certified Public Accountants) CPA exam. The user is " +
+    "studying for one of the four CPA exam sections: FAR (Financial " +
+    "Accounting and Reporting), AUD (Auditing and Attestation), REG " +
+    "(Taxation and Regulation), or ISC (Information Systems and Controls). " +
+    "Use the study card below as the primary context when answering their " +
+    "questions, and frame all explanations within the scope and standards " +
+    "tested on the AICPA CPA exam. If a question is unrelated to the card " +
+    "or the CPA exam, answer briefly but note it is outside the card's " +
+    "scope. When including mathematical expressions, formulas, or equations, " +
+    "format them with LaTeX: wrap inline math in single dollar signs " +
+    "(e.g. $x^2 + 1$) and display math in double dollar signs " +
+    "(e.g. $$\\int_0^1 x\\,dx = \\tfrac{1}{2}$$). The UI renders these " +
     "with KaTeX.\n\n--- STUDY CARD CONTEXT ---\n" +
     (context || "(no context provided)") +
     "\n--- END CONTEXT ---";
@@ -205,11 +211,13 @@ async function fetchFollowups(params: {
   const { baseUrl, model, apiKey, context, conversation } = params;
   const systemPrompt =
     "You generate short follow-up questions a student might ask next while " +
-    "studying a flashcard or multiple-choice question. Return exactly three " +
-    "distinct, concise follow-up questions phrased from the student's " +
-    "perspective. Each question must be under 70 characters, written in " +
-    "plain language, and grounded in the study card context and recent " +
-    "conversation. Avoid repeating questions the student has already asked." +
+    "studying for the AICPA CPA exam. Return exactly three distinct, concise " +
+    "follow-up questions phrased from the student's perspective. Each " +
+    "question must be under 70 characters, written in plain language, " +
+    "grounded in the study card context and recent conversation, and " +
+    "relevant to what is actually tested on the AICPA CPA exam. Avoid " +
+    "overly technical or niche questions that fall outside the exam's scope. " +
+    "Avoid repeating questions the student has already asked." +
     "\n\n--- STUDY CARD CONTEXT ---\n" +
     (context || "(no context provided)") +
     "\n--- END CONTEXT ---";
