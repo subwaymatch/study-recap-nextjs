@@ -50,6 +50,7 @@ export default function ModuleSelectPage() {
     if (selectedSections.size === 0) return null;
     const params = new URLSearchParams();
     params.set("sections", Array.from(selectedSections).join(","));
+    params.set("index", "0");
     if (timerEnabled) {
       params.set("timer", "true");
       params.set("interval", String(intervalSeconds));

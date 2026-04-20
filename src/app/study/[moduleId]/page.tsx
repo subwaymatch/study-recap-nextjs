@@ -17,6 +17,8 @@ import { SettingsPanel, getStoredAskAIEnabled } from "@/components/SettingsPanel
 import { StudyCardSkeleton } from "@/components/LoadingSkeleton";
 import { AlertCircleIcon, CardIcon } from "@/components/Icons";
 import { buildCardContext } from "@/lib/cardContext";
+import { shuffleWithSeed } from "@/lib/shuffle";
+import { useStudySessionUrlState } from "@/hooks/useStudySessionUrlState";
 
 export default function StudyPage() {
   const params = useParams();
@@ -33,18 +35,13 @@ export default function StudyPage() {
   const showMcqs = typesParam === null || typesParam.split(",").includes("mcq");
 
   const { cards, moduleInfo, loading, error } = useCards(moduleId);
-  const [currentIndex, setCurrentIndex] = useState(0);
   const [slideDirection, setSlideDirection] = useState<"next" | "prev">("next");
   const [isCardListOpen, setIsCardListOpen] = useState(false);
   const [isAskAIExpanded, setIsAskAIExpanded] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [askAIEnabled, setAskAIEnabled] = useState(true);
+  const [askAIEnabled, setAskAIEnabled] = useState(() => getStoredAskAIEnabled());
 
-  useEffect(() => {
-    setAskAIEnabled(getStoredAskAIEnabled());
-  }, []);
-
-  const displayCards = useMemo(() => {
+  const filteredCards = useMemo(() => {
     let result = cards;
     if (!showFlashcards || !showMcqs) {
       result = result.filter((card) => {
@@ -53,17 +50,21 @@ export default function StudyPage() {
         return true;
       });
     }
-    if (shuffleCards && result.length > 0) {
-      result = [...result];
-      for (let i = result.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [result[i], result[j]] = [result[j], result[i]];
-      }
-    }
     return result;
-  // shuffleCards intentionally excluded: shuffle is seeded once per card load
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cards, showFlashcards, showMcqs]);
+
+  const { currentIndex, setCurrentIndex, shuffleSeed } = useStudySessionUrlState({
+    cardCount: filteredCards.length,
+    shuffleEnabled: shuffleCards,
+  });
+
+  const displayCards = useMemo(() => {
+    if (!shuffleCards || shuffleSeed === null || filteredCards.length === 0) {
+      return filteredCards;
+    }
+
+    return shuffleWithSeed(filteredCards, shuffleSeed);
+  }, [filteredCards, shuffleCards, shuffleSeed]);
 
   const currentCard = displayCards[currentIndex];
   const askAiContext = useMemo(
@@ -75,12 +76,12 @@ export default function StudyPage() {
   const goNext = useCallback(() => {
     setSlideDirection("next");
     setCurrentIndex((prev) => Math.min(prev + 1, displayCards.length - 1));
-  }, [displayCards.length]);
+  }, [displayCards.length, setCurrentIndex]);
 
   const goPrev = useCallback(() => {
     setSlideDirection("prev");
     setCurrentIndex((prev) => Math.max(prev - 1, 0));
-  }, []);
+  }, [setCurrentIndex]);
 
   const { secondsRemaining, isPaused, resetTimer, togglePause } =
     useAutoAdvance({
@@ -92,7 +93,7 @@ export default function StudyPage() {
           if (prev >= displayCards.length - 1) return 0;
           return prev + 1;
         });
-      }, [displayCards.length]),
+      }, [displayCards.length, setCurrentIndex]),
     });
 
   const goHome = useCallback(() => {
