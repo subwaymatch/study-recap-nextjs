@@ -47,9 +47,7 @@ export function useStudySessionUrlState({
   const searchParams = useSearchParams();
   const rawIndex = searchParams.get("index");
   const rawSeed = searchParams.get("seed");
-  const [generatedSeed, setGeneratedSeed] = useState<number | null>(() =>
-    shuffleEnabled && parseSeed(rawSeed) === null ? generateRandomSeed() : null,
-  );
+  const [fallbackSeed] = useState(generateRandomSeed);
 
   const updateQueryParams = useCallback(
     (mutate: (params: URLSearchParams) => void) => {
@@ -88,8 +86,8 @@ export function useStudySessionUrlState({
 
   const shuffleSeed = useMemo(() => {
     if (!shuffleEnabled) return null;
-    return parseSeed(rawSeed) ?? generatedSeed;
-  }, [generatedSeed, rawSeed, shuffleEnabled]);
+    return parseSeed(rawSeed) ?? fallbackSeed;
+  }, [fallbackSeed, rawSeed, shuffleEnabled]);
 
   useEffect(() => {
     const normalizedIndex = clampIndex(parseNonNegativeInteger(rawIndex), cardCount);
@@ -103,10 +101,6 @@ export function useStudySessionUrlState({
 
   useEffect(() => {
     if (!shuffleEnabled) {
-      if (generatedSeed !== null) {
-        setGeneratedSeed(null);
-      }
-
       if (rawSeed !== null) {
         updateQueryParams((params) => {
           params.delete("seed");
@@ -118,23 +112,13 @@ export function useStudySessionUrlState({
 
     const existingSeed = parseSeed(rawSeed);
     if (existingSeed !== null) {
-      if (generatedSeed !== null) {
-        setGeneratedSeed(null);
-      }
-
       return;
     }
 
-    const nextSeed = generatedSeed ?? generateRandomSeed();
-
-    if (generatedSeed === null) {
-      setGeneratedSeed(nextSeed);
-    }
-
     updateQueryParams((params) => {
-      params.set("seed", String(nextSeed));
+      params.set("seed", String(fallbackSeed));
     });
-  }, [generatedSeed, rawSeed, shuffleEnabled, updateQueryParams]);
+  }, [fallbackSeed, rawSeed, shuffleEnabled, updateQueryParams]);
 
   return { currentIndex, setCurrentIndex, shuffleSeed };
 }
