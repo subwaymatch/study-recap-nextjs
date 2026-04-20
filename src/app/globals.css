@@ -1311,6 +1311,18 @@ a {
   font-weight: 700;
 }
 
+/* KaTeX: keep display equations from blowing past the panel width. */
+.ask-ai-markdown .katex-display {
+  margin: 0.5em 0 0.7em;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.1em 0;
+}
+
+.ask-ai-markdown .katex {
+  font-size: 1.05em;
+}
+
 @keyframes ask-ai-dot-bounce {
   0%,
   60%,

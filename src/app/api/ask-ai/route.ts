@@ -71,7 +71,11 @@ export async function POST(req: NextRequest) {
     "You are a concise, helpful study assistant. The user is studying the " +
     "following card. Use it as the primary context when answering their " +
     "questions. If a question is unrelated, answer briefly but note it is " +
-    "outside the card's scope.\n\n--- STUDY CARD CONTEXT ---\n" +
+    "outside the card's scope. When including mathematical expressions, " +
+    "formulas, or equations, format them with LaTeX: wrap inline math in " +
+    "single dollar signs (e.g. $x^2 + 1$) and display math in double dollar " +
+    "signs (e.g. $$\\int_0^1 x\\,dx = \\tfrac{1}{2}$$). The UI renders these " +
+    "with KaTeX.\n\n--- STUDY CARD CONTEXT ---\n" +
     (context || "(no context provided)") +
     "\n--- END CONTEXT ---";
 
