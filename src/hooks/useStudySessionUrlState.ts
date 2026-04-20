@@ -19,7 +19,7 @@ function parseNonNegativeInteger(value: string | null): number {
   if (value === null) return 0;
 
   const parsed = Number.parseInt(value, 10);
-  if (!Number.isFinite(parsed) || parsed < 0) return 0;
+  if (!Number.isSafeInteger(parsed) || parsed < 0) return 0;
 
   return parsed;
 }
@@ -90,14 +90,12 @@ export function useStudySessionUrlState({
   }, [fallbackSeed, rawSeed, shuffleEnabled]);
 
   useEffect(() => {
-    const normalizedIndex = clampIndex(parseNonNegativeInteger(rawIndex), cardCount);
-
-    if (rawIndex !== String(normalizedIndex)) {
+    if (rawIndex !== String(currentIndex)) {
       updateQueryParams((params) => {
-        params.set("index", String(normalizedIndex));
+        params.set("index", String(currentIndex));
       });
     }
-  }, [cardCount, rawIndex, updateQueryParams]);
+  }, [currentIndex, rawIndex, updateQueryParams]);
 
   useEffect(() => {
     if (!shuffleEnabled) {
