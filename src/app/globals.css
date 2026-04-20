@@ -1107,6 +1107,7 @@ a {
 .ask-ai-suggestion-btn {
   font-family: inherit;
   font-size: var(--font-xs);
+  letter-spacing: inherit;
   text-align: left;
   padding: 0.6em 0.85em;
   border: none;
@@ -1384,6 +1385,7 @@ a {
   resize: none;
   font-family: inherit;
   font-size: var(--font-xs);
+  letter-spacing: inherit;
   line-height: 1.45;
   padding: 0.55em 0.75em;
   border: 1px solid var(--border);
