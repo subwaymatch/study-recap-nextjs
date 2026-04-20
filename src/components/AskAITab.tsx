@@ -72,6 +72,53 @@ function clearStoredSuggestions(cardId: string) {
   }
 }
 
+// Converts the AI's LaTeX-delimited math (`\(...\)` inline, `\[...\]` display)
+// into the `$...$` / `$$...$$` form that remark-math consumes, while escaping
+// every other `$` so that dollar amounts (e.g. `$10,000`) don't get picked up
+// as inline math delimiters. This works around the fundamental conflict
+// between KaTeX's default `$...$` syntax and the heavy use of currency in the
+// CPA exam content.
+function preprocessMathDelimiters(raw: string): string {
+  const placeholders: string[] = [];
+  const take = (value: string) => {
+    const token = `\u0000MATH${placeholders.length}\u0000`;
+    placeholders.push(value);
+    return token;
+  };
+
+  // Protect fenced and inline code blocks first so the `$`-escape pass below
+  // doesn't corrupt literal dollar signs inside code.
+  let out = raw.replace(/```[\s\S]*?```/g, (m) => take(m));
+  out = out.replace(/`[^`\n]+`/g, (m) => take(m));
+
+  // Extract display math `\[ ... \]` first, then inline `\( ... \)`, replacing
+  // each with an opaque placeholder and rewriting to remark-math's `$$` / `$`
+  // delimiters.
+  out = out.replace(/\\\[([\s\S]*?)\\\]/g, (_m, body: string) =>
+    take(`$$${body}$$`),
+  );
+  out = out.replace(/\\\(([\s\S]*?)\\\)/g, (_m, body: string) =>
+    take(`$${body}$`),
+  );
+
+  // Escape `$` that looks like currency (immediately followed by a digit,
+  // optionally after whitespace) so remark-math doesn't pair it up as inline
+  // math. Leave escaped `\$` alone and leave non-currency `$...$` usage
+  // untouched so existing content that already uses plain-dollar math
+  // delimiters keeps rendering.
+  out = out.replace(/(^|[^\\])\$(?=\s*\d)/g, "$1\\$");
+
+  // Restore the math / code placeholders.
+  out = out.replace(/\u0000MATH(\d+)\u0000/g, (_m, idx: string) => {
+    const n = Number(idx);
+    return Number.isInteger(n) && n >= 0 && n < placeholders.length
+      ? placeholders[n]
+      : "";
+  });
+
+  return out;
+}
+
 // Splits a streamed response into the assistant's answer text and any
 // trailing follow-up suggestions payload appended by the server.
 function splitFollowups(raw: string): {
@@ -723,7 +770,7 @@ export function AskAITab({
                         remarkPlugins={[remarkGfm, remarkMath]}
                         rehypePlugins={[rehypeKatex]}
                       >
-                        {m.content}
+                        {preprocessMathDelimiters(m.content)}
                       </ReactMarkdown>
                     </div>
                   ) : (

@@ -77,11 +77,30 @@ export async function POST(req: NextRequest) {
     "questions, and frame all explanations within the scope and standards " +
     "tested on the AICPA CPA exam. If a question is unrelated to the card " +
     "or the CPA exam, answer briefly but note it is outside the card's " +
-    "scope. When including mathematical expressions, formulas, or equations, " +
-    "format them with LaTeX: wrap inline math in single dollar signs " +
-    "(e.g. $x^2 + 1$) and display math in double dollar signs " +
-    "(e.g. $$\\int_0^1 x\\,dx = \\tfrac{1}{2}$$). The UI renders these " +
-    "with KaTeX.\n\n--- STUDY CARD CONTEXT ---\n" +
+    "scope.\n\n" +
+    "FORMATTING RULES (follow strictly — the UI renders Markdown + KaTeX):\n" +
+    "1. For math, ONLY use these delimiters: `\\(...\\)` for inline math and " +
+    "`\\[...\\]` for display math. NEVER use `$` or `$$` as math delimiters. " +
+    "A bare `$` is always a currency symbol, never a math delimiter.\n" +
+    "2. Dollar amounts should normally be written in PLAIN MARKDOWN text, " +
+    "not inside math. Example: write `**$10,000**` or just `$10,000`, " +
+    "not `\\($10{,}000\\)`.\n" +
+    "3. If a dollar amount MUST appear inside a math expression, escape it " +
+    "as `\\$`. Example: `\\(\\text{Credit} = 20\\% \\times \\$10{,}000 = " +
+    "\\$2{,}000\\)`.\n" +
+    "4. Inside math, always use LaTeX command forms for operators and " +
+    "function names: `\\times`, `\\div`, `\\cdot`, `\\max`, `\\min`, " +
+    "`\\log`, `\\ln`, `\\sin`, `\\cos`, `\\tan`, `\\%` (never a bare `%`, " +
+    "which starts a LaTeX comment), `\\rightarrow` (or `\\to`).\n" +
+    "5. Use `\\text{...}` for any English words inside math so they don't " +
+    "render as italic variables (e.g. `\\(\\text{Max credit} = \\$10{,}000 " +
+    "\\times 20\\%\\)`).\n" +
+    "6. For numbers with thousands separators inside math, use `{,}` " +
+    "(e.g. `10{,}000`) to get correct spacing.\n" +
+    "7. Keep simple arithmetic and currency in plain text when possible. " +
+    "Only reach for math mode when you actually need math notation " +
+    "(fractions, exponents, integrals, summations, etc.).\n\n" +
+    "--- STUDY CARD CONTEXT ---\n" +
     (context || "(no context provided)") +
     "\n--- END CONTEXT ---";
 
