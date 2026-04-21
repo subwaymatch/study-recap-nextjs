@@ -263,6 +263,11 @@ export function AskAITab({
   // Tracks whether the current messages state came from a load (not a user action).
   // Prevents saving the just-loaded history back to localStorage on the first render.
   const isLoadingRef = useRef(false);
+  // When true, the user has scrolled up in the messages area and auto-scroll
+  // is suspended. Reset on a new prompt / clear / card change. Toggled by the
+  // messages scroll handler so that scrolling back to the bottom re-enables
+  // auto-scroll.
+  const userScrolledUpRef = useRef(false);
   // Active touch-gesture state; null when no gesture is in progress.
   const touchRef = useRef<{
     startX: number;
@@ -280,6 +285,7 @@ export function AskAITab({
     setIsFetchingFollowups(false);
     setError(null);
     isLoadingRef.current = true;
+    userScrolledUpRef.current = false;
     setMessages(loadHistory(cardId));
     setSuggestions(loadSuggestions(cardId));
   }, [cardId]);
@@ -293,11 +299,26 @@ export function AskAITab({
     saveHistory(cardId, messages);
   }, [messages, cardId]);
 
-  // Auto-scroll messages area to the bottom on new content.
+  // Auto-scroll messages area to the bottom on new content, unless the user
+  // has manually scrolled up. The suspension persists until a new prompt is
+  // sent or the user scrolls back to the bottom.
   useEffect(() => {
     const el = messagesRef.current;
-    if (el) el.scrollTop = el.scrollHeight;
-  }, [messages, isExpanded]);
+    if (!el) return;
+    if (userScrolledUpRef.current) return;
+    el.scrollTop = el.scrollHeight;
+  }, [messages, isExpanded, isFetchingFollowups, suggestions]);
+
+  // Watch the messages container's scroll position so we can detect when the
+  // user has scrolled away from the bottom (suspending auto-scroll) or has
+  // returned to the bottom (resuming it). Uses a small threshold to tolerate
+  // sub-pixel rounding.
+  const handleMessagesScroll = useCallback(() => {
+    const el = messagesRef.current;
+    if (!el) return;
+    const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
+    userScrolledUpRef.current = distanceFromBottom > 40;
+  }, []);
 
   // Cancel any in-flight request on unmount.
   useEffect(() => {
@@ -421,6 +442,8 @@ export function AskAITab({
       if (!trimmed || isStreaming) return;
 
       setError(null);
+      // A new prompt restores the default "follow the stream" scroll behavior.
+      userScrolledUpRef.current = false;
       const userMsg: ChatMessage = { role: "user", content: trimmed };
       const baseMessages: ChatMessage[] = [...messages, userMsg];
 
@@ -523,6 +546,7 @@ export function AskAITab({
     setError(null);
     setIsFetchingFollowups(false);
     setSuggestions([...DEFAULT_SUGGESTIONS]);
+    userScrolledUpRef.current = false;
     if (typeof window !== "undefined") {
       try {
         window.localStorage.removeItem(`${STORAGE_PREFIX}:${cardId}`);
@@ -732,7 +756,11 @@ export function AskAITab({
           </div>
         </div>
 
-        <div className="ask-ai-messages" ref={messagesRef}>
+        <div
+          className="ask-ai-messages"
+          ref={messagesRef}
+          onScroll={handleMessagesScroll}
+        >
           {messages.length === 0 && !isStreaming && (
             <div className="ask-ai-empty">
               Ask anything about the current flashcard or question. The card
