@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import type { Module } from "@/types";
+import { CardIcon, CheckSquareIcon } from "@/components/Icons";
 
 interface ModuleCardProps {
   module: Module;
@@ -47,12 +48,37 @@ export function ModuleCard({
 
   const content = (
     <>
+      <span
+        className="module-card-stripe"
+        aria-hidden="true"
+        data-section={module.section}
+      />
       <div className="module-card-body">
-        <div className="section-title">{module.section}</div>
-        <div className="module-title">{module.module} {module.module_title}</div>
-        <div className="counts">
-          <span>{module.flashcard_count} flashcards</span>
-          <span>{module.mcq_count} MCQs</span>
+        <div className="module-card-meta">
+          <span className="module-card-section" data-section={module.section}>
+            {module.section}
+          </span>
+          {module.unit && (
+            <span className="module-card-unit">
+              Unit {module.unit}
+            </span>
+          )}
+        </div>
+        <div className="module-card-title">
+          <span className="module-card-num">{module.module}</span>
+          <span>{module.module_title}</span>
+        </div>
+        <div className="module-card-counts">
+          <span className="module-card-count">
+            <CardIcon size={13} />
+            {module.flashcard_count}
+            <span className="module-card-count-label">flashcards</span>
+          </span>
+          <span className="module-card-count">
+            <CheckSquareIcon size={13} />
+            {module.mcq_count}
+            <span className="module-card-count-label">MCQs</span>
+          </span>
         </div>
       </div>
       {!disabled && (

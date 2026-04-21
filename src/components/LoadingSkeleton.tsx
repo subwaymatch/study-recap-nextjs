@@ -7,14 +7,21 @@ export function ModuleGridSkeleton() {
   return (
     <div className="module-select">
       <div className="skeleton-title skeleton-shimmer" />
+      <div className="skeleton-hero-grid">
+        {Array.from({ length: 4 }, (_, i) => (
+          <div
+            key={i}
+            className="skeleton-hero-card skeleton-shimmer"
+          />
+        ))}
+      </div>
       <div className="skeleton-options skeleton-shimmer" />
       <div className="module-grid">
         {Array.from({ length: 6 }, (_, i) => (
           <div key={i} className="skeleton-card">
-            <div className="skeleton-line skeleton-line-xs skeleton-shimmer" />
-            <div className="skeleton-line skeleton-line-xs skeleton-shimmer" style={{ width: "70%" }} />
+            <div className="skeleton-line skeleton-line-xs skeleton-shimmer" style={{ width: "40%" }} />
             <div className="skeleton-line skeleton-line-md skeleton-shimmer" />
-            <div className="skeleton-line skeleton-line-xs skeleton-shimmer" style={{ width: "50%" }} />
+            <div className="skeleton-line skeleton-line-xs skeleton-shimmer" style={{ width: "60%" }} />
           </div>
         ))}
       </div>
