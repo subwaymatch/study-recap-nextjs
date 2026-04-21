@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 import { useModules } from "@/hooks/useModules";
 import { ModuleCard } from "@/components/ModuleCard";
@@ -9,6 +9,7 @@ import { ModuleGridSkeleton } from "@/components/LoadingSkeleton";
 import { AlertCircleIcon } from "@/components/Icons";
 
 const SECTIONS = ["FAR", "AUD", "REG", "ISC"] as const;
+const STORAGE_KEY = "studyRecap_prefs";
 
 export default function ModuleSelectPage() {
   const { modules, loading, error } = useModules();
@@ -22,6 +23,46 @@ export default function ModuleSelectPage() {
   const [selectedSections, setSelectedSections] = useState<Set<string>>(
     new Set(),
   );
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return;
+      const prefs = JSON.parse(raw);
+      if (typeof prefs.timerEnabled === "boolean") setTimerEnabled(prefs.timerEnabled);
+      if (typeof prefs.intervalSeconds === "number") setIntervalSeconds(prefs.intervalSeconds);
+      if (typeof prefs.randomizeMcq === "boolean") setRandomizeMcq(prefs.randomizeMcq);
+      if (typeof prefs.shuffleCards === "boolean") setShuffleCards(prefs.shuffleCards);
+      if (typeof prefs.showFlashcards === "boolean") setShowFlashcards(prefs.showFlashcards);
+      if (typeof prefs.showMcqs === "boolean") setShowMcqs(prefs.showMcqs);
+      if (typeof prefs.hideEmpty === "boolean") setHideEmpty(prefs.hideEmpty);
+      if (Array.isArray(prefs.selectedSections)) {
+        setSelectedSections(new Set(prefs.selectedSections.filter((s: unknown) => SECTIONS.includes(s as typeof SECTIONS[number]))));
+      }
+    } catch {
+      // ignore malformed data
+    }
+  }, []);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify({
+          timerEnabled,
+          intervalSeconds,
+          randomizeMcq,
+          shuffleCards,
+          showFlashcards,
+          showMcqs,
+          hideEmpty,
+          selectedSections: Array.from(selectedSections),
+        }),
+      );
+    } catch {
+      // ignore storage errors (e.g. private browsing quota)
+    }
+  }, [timerEnabled, intervalSeconds, randomizeMcq, shuffleCards, showFlashcards, showMcqs, hideEmpty, selectedSections]);
 
   const toggleSection = (section: string) => {
     setSelectedSections((prev) => {
