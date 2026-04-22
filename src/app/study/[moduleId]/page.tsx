@@ -203,7 +203,7 @@ export default function StudyPage() {
   }
 
   return (
-    <div className="study-layout">
+    <div className="study-layout" data-section={moduleInfo?.section ?? undefined}>
       <div className="study-page">
         <CardProgressTrack currentIndex={currentIndex} totalCards={displayCards.length} />
         <div className="study-header">
@@ -215,7 +215,12 @@ export default function StudyPage() {
           <div className="study-header-center">
             {moduleInfo && (
               <span className="module-info-badge">
-                {moduleInfo.section} · {moduleInfo.module} · {moduleInfo.module_title}
+                <span className="module-info-dot" aria-hidden="true" />
+                <span className="module-info-section">{moduleInfo.section}</span>
+                <span className="module-info-sep" aria-hidden="true">·</span>
+                <span className="module-info-module">{moduleInfo.module}</span>
+                <span className="module-info-sep" aria-hidden="true">·</span>
+                <span className="module-info-title">{moduleInfo.module_title}</span>
               </span>
             )}
           </div>

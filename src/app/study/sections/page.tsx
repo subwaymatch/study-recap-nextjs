@@ -217,9 +217,10 @@ function SectionStudyContent() {
   }
 
   const currentCard = displayCards[currentIndex];
+  const primarySection = sections[0];
 
   return (
-    <div className="study-layout">
+    <div className="study-layout" data-section={primarySection}>
       <div className="study-page">
         <CardProgressTrack currentIndex={currentIndex} totalCards={displayCards.length} />
         <div className="study-header">
@@ -230,7 +231,8 @@ function SectionStudyContent() {
           </div>
           <div className="study-header-center">
             <span className="module-info-badge">
-              {sections.join(", ")}
+              <span className="module-info-dot" aria-hidden="true" />
+              <span className="module-info-section">{sections.join(" · ")}</span>
             </span>
           </div>
           <div className="study-header-right">
