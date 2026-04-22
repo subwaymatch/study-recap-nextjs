@@ -886,12 +886,13 @@ a {
 }
 
 /* Ambient section-tinted background glow behind the card —
-   layered drifting orbs create a vivid, breathing glow. */
+   layered drifting orbs create a vivid, breathing glow concentrated
+   close to the card's boundaries. */
 .study-page::before,
 .study-page::after {
   content: "";
   position: absolute;
-  inset: -25%;
+  inset: 0;
   z-index: -1;
   pointer-events: none;
   will-change: transform, opacity;
@@ -902,15 +903,15 @@ a {
     radial-gradient(
       circle at 18% 0%,
       var(--section-color) 0%,
-      transparent 45%
+      transparent 22%
     ),
     radial-gradient(
       circle at 82% 100%,
       var(--section-color) 0%,
-      transparent 50%
+      transparent 24%
     );
-  opacity: 0.55;
-  filter: blur(60px) saturate(1.4);
+  opacity: 0.5;
+  filter: blur(24px) saturate(1.4);
   animation: study-bg-drift 24s ease-in-out infinite alternate;
 }
 
@@ -919,20 +920,20 @@ a {
     radial-gradient(
       circle at 70% 18%,
       var(--section-color) 0%,
-      transparent 40%
+      transparent 20%
     ),
     radial-gradient(
       circle at 28% 82%,
       var(--section-color) 0%,
-      transparent 42%
+      transparent 22%
     ),
     radial-gradient(
       circle at 50% 50%,
       var(--section-ring) 0%,
-      transparent 55%
+      transparent 28%
     );
-  opacity: 0.7;
-  filter: blur(90px) saturate(1.3);
+  opacity: 0.65;
+  filter: blur(32px) saturate(1.3);
   mix-blend-mode: screen;
   animation:
     study-bg-drift-alt 32s ease-in-out infinite alternate,
@@ -940,13 +941,13 @@ a {
 }
 
 [data-theme="dark"] .study-page::before {
-  opacity: 0.7;
-  filter: blur(70px) saturate(1.6);
+  opacity: 0.65;
+  filter: blur(28px) saturate(1.6);
 }
 
 [data-theme="dark"] .study-page::after {
-  opacity: 0.85;
-  filter: blur(100px) saturate(1.5);
+  opacity: 0.8;
+  filter: blur(36px) saturate(1.5);
 }
 
 @keyframes study-bg-drift {
