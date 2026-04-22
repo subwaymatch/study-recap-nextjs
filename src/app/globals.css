@@ -39,6 +39,7 @@
   --section-isc: #0d9488;
   --section-isc-soft: rgba(13, 148, 136, 0.12);
   --section-isc-ring: rgba(13, 148, 136, 0.3);
+  --card-edge: rgba(0, 0, 0, 0.05);
 }
 
 [data-theme="dark"] {
@@ -47,7 +48,7 @@
   --bg-card-hover: #252525;
   --bg-correct: #1a2e1a;
   --bg-option: #1e1e1e;
-  --bg-card-surface: #2a2a2a;
+  --bg-card-surface: #0f0f0f;
   --text-primary: #f0f0f0;
   --text-secondary: #999999;
   --text-correct: #66bb6a;
@@ -76,6 +77,7 @@
   --section-isc: #2dd4bf;
   --section-isc-soft: rgba(45, 212, 191, 0.14);
   --section-isc-ring: rgba(45, 212, 191, 0.3);
+  --card-edge: rgba(255, 255, 255, 0.07);
 }
 
 * {
@@ -885,102 +887,53 @@ a {
   isolation: isolate;
 }
 
-/* Ambient section-tinted background glow behind the card —
-   layered drifting orbs create a vivid, breathing glow concentrated
-   close to the card's boundaries. */
-.study-page::before,
-.study-page::after {
+/* Ambient section-tinted halo tracing the card's perimeter.
+   A single rounded rectangle, sized to the card, blurred heavily so only
+   the glow that spills past the card's opaque surface is visible. */
+.study-page::before {
   content: "";
   position: absolute;
-  inset: 0;
+  top: clamp(3.5rem, 6vh, 4.75rem);
+  left: clamp(1.2rem, 3vw, 3rem);
+  right: clamp(1.2rem, 3vw, 3rem);
+  bottom: clamp(1.2rem, 3vw, 3rem);
+  background: var(--section-color);
+  border-radius: clamp(18px, 2.2vw, 26px);
+  filter: blur(40px) saturate(1.2);
+  opacity: 0.55;
   z-index: -1;
   pointer-events: none;
-  will-change: transform, opacity;
-}
-
-.study-page::before {
-  background:
-    radial-gradient(
-      circle at 18% 0%,
-      var(--section-color) 0%,
-      transparent 22%
-    ),
-    radial-gradient(
-      circle at 82% 100%,
-      var(--section-color) 0%,
-      transparent 24%
-    );
-  opacity: 0.5;
-  filter: blur(24px) saturate(1.4);
-  animation: study-bg-drift 24s ease-in-out infinite alternate;
-}
-
-.study-page::after {
-  background:
-    radial-gradient(
-      circle at 70% 18%,
-      var(--section-color) 0%,
-      transparent 20%
-    ),
-    radial-gradient(
-      circle at 28% 82%,
-      var(--section-color) 0%,
-      transparent 22%
-    ),
-    radial-gradient(
-      circle at 50% 50%,
-      var(--section-ring) 0%,
-      transparent 28%
-    );
-  opacity: 0.65;
-  filter: blur(32px) saturate(1.3);
-  mix-blend-mode: screen;
-  animation:
-    study-bg-drift-alt 32s ease-in-out infinite alternate,
-    study-bg-pulse 7s ease-in-out infinite;
+  will-change: opacity;
+  animation: study-bg-pulse 7s ease-in-out infinite;
 }
 
 [data-theme="dark"] .study-page::before {
-  opacity: 0.65;
-  filter: blur(28px) saturate(1.6);
-}
-
-[data-theme="dark"] .study-page::after {
-  opacity: 0.8;
-  filter: blur(36px) saturate(1.5);
-}
-
-@keyframes study-bg-drift {
-  0% {
-    transform: translate3d(0, 0, 0) scale(1);
-  }
-  100% {
-    transform: translate3d(4%, -3%, 0) scale(1.12);
-  }
-}
-
-@keyframes study-bg-drift-alt {
-  0% {
-    transform: translate3d(0, 0, 0) scale(1);
-  }
-  100% {
-    transform: translate3d(-5%, 4%, 0) scale(1.18);
-  }
+  opacity: 0.75;
+  filter: blur(44px) saturate(1.4);
 }
 
 @keyframes study-bg-pulse {
   0%,
   100% {
-    opacity: 0.55;
+    opacity: var(--study-bg-pulse-min, 0.5);
   }
   50% {
-    opacity: 0.95;
+    opacity: var(--study-bg-pulse-max, 0.8);
   }
 }
 
+.study-page {
+  --study-bg-pulse-min: 0.5;
+  --study-bg-pulse-max: 0.75;
+}
+
+[data-theme="dark"] .study-page {
+  --study-bg-pulse-min: 0.65;
+  --study-bg-pulse-max: 0.9;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .study-page::before,
-  .study-page::after {
+  .study-page::before {
     animation: none;
   }
 }
@@ -1160,6 +1113,8 @@ a {
 .card-content-inner {
   position: relative;
   background: var(--bg-card-surface);
+  border: 1px solid var(--card-edge);
+  border-bottom: none;
   border-radius: clamp(18px, 2.2vw, 26px) clamp(18px, 2.2vw, 26px) 0 0;
   padding: clamp(1.75rem, 3.2vw, 3.2rem) clamp(1.5rem, 4vw, 4rem) clamp(1.25rem, 2.4vw, 2rem);
   flex: 1;
@@ -1167,30 +1122,7 @@ a {
   flex-direction: column;
   min-height: 0;
   overflow-y: auto;
-  box-shadow:
-    0 1px 0 0 var(--border) inset,
-    0 -28px 60px -40px var(--section-ring),
-    var(--shadow-md);
-}
-
-/* Section-colored accent stripe along the top edge of the card */
-.card-content-inner::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: clamp(1.5rem, 4vw, 4rem);
-  right: clamp(1.5rem, 4vw, 4rem);
-  height: 3px;
-  border-radius: 0 0 999px 999px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    var(--section-color) 20%,
-    var(--section-color) 80%,
-    transparent
-  );
-  opacity: 0.85;
-  pointer-events: none;
+  box-shadow: var(--shadow-md);
 }
 
 .card-top-bar {
@@ -1508,13 +1440,11 @@ a {
   display: flex;
   align-items: stretch;
   background: var(--bg-card-surface);
-  border-top: 1px solid var(--border);
+  border: 1px solid var(--card-edge);
   border-radius: 0 0 clamp(18px, 2.2vw, 26px) clamp(18px, 2.2vw, 26px);
   z-index: 5;
   overflow: hidden;
-  box-shadow:
-    0 16px 30px -24px rgba(0, 0, 0, 0.2),
-    0 -1px 0 0 var(--border) inset;
+  box-shadow: 0 16px 30px -24px rgba(0, 0, 0, 0.2);
 }
 
 .nav-buttons .nav-btn {
@@ -1563,7 +1493,7 @@ a {
 }
 
 .nav-buttons .nav-btn + .nav-btn {
-  border-left: 1px solid var(--border);
+  border-left: 1px solid var(--card-edge);
 }
 
 .nav-buttons .nav-btn:hover:not(:disabled) {
@@ -1635,7 +1565,8 @@ a {
     margin: 0;
     border-radius: 0;
     background: var(--bg-card);
-    border-top: 1px solid var(--border);
+    border: none;
+    border-top: 1px solid var(--card-edge);
     padding-bottom: env(safe-area-inset-bottom);
   }
 
@@ -1662,11 +1593,6 @@ a {
     border-radius: 18px 18px 0 0;
     padding: clamp(1.75rem, 4vw, 2.25rem) clamp(1.2rem, 4vw, 1.8rem) calc(4.5rem + env(safe-area-inset-bottom) + clamp(1.25rem, 3vw, 1.75rem));
     padding-right: calc(clamp(1.2rem, 4vw, 1.8rem) + 0.5rem);
-  }
-
-  .card-content-inner::before {
-    left: clamp(1.2rem, 4vw, 1.8rem);
-    right: clamp(1.2rem, 4vw, 1.8rem);
   }
 
   .card-top-bar {
@@ -1890,6 +1816,10 @@ a {
   /* Clip panel content when the desktop tab is collapsed to its 44px width,
      and keep the mobile slide-out cleanly contained. */
   overflow: hidden;
+}
+
+[data-theme="dark"] .ask-ai-tab {
+  background: #070707;
 }
 
 .ask-ai-tab.collapsed {
