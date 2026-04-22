@@ -886,12 +886,12 @@ a {
 }
 
 /* Ambient section-tinted background glow behind the card —
-   two slowly drifting layers create a subtle, breathing glow. */
+   layered drifting orbs create a vivid, breathing glow. */
 .study-page::before,
 .study-page::after {
   content: "";
   position: absolute;
-  inset: -10%;
+  inset: -25%;
   z-index: -1;
   pointer-events: none;
   will-change: transform, opacity;
@@ -901,16 +901,16 @@ a {
   background:
     radial-gradient(
       circle at 18% 0%,
-      var(--section-soft) 0%,
-      transparent 42%
+      var(--section-color) 0%,
+      transparent 45%
     ),
     radial-gradient(
       circle at 82% 100%,
-      var(--section-soft) 0%,
-      transparent 48%
+      var(--section-color) 0%,
+      transparent 50%
     );
-  opacity: 0.9;
-  filter: blur(8px);
+  opacity: 0.55;
+  filter: blur(60px) saturate(1.4);
   animation: study-bg-drift 24s ease-in-out infinite alternate;
 }
 
@@ -918,19 +918,35 @@ a {
   background:
     radial-gradient(
       circle at 70% 18%,
-      var(--section-ring) 0%,
-      transparent 38%
+      var(--section-color) 0%,
+      transparent 40%
     ),
     radial-gradient(
       circle at 28% 82%,
+      var(--section-color) 0%,
+      transparent 42%
+    ),
+    radial-gradient(
+      circle at 50% 50%,
       var(--section-ring) 0%,
-      transparent 40%
+      transparent 55%
     );
-  opacity: 0.45;
-  filter: blur(28px);
+  opacity: 0.7;
+  filter: blur(90px) saturate(1.3);
+  mix-blend-mode: screen;
   animation:
     study-bg-drift-alt 32s ease-in-out infinite alternate,
-    study-bg-pulse 9s ease-in-out infinite;
+    study-bg-pulse 7s ease-in-out infinite;
+}
+
+[data-theme="dark"] .study-page::before {
+  opacity: 0.7;
+  filter: blur(70px) saturate(1.6);
+}
+
+[data-theme="dark"] .study-page::after {
+  opacity: 0.85;
+  filter: blur(100px) saturate(1.5);
 }
 
 @keyframes study-bg-drift {
@@ -938,7 +954,7 @@ a {
     transform: translate3d(0, 0, 0) scale(1);
   }
   100% {
-    transform: translate3d(2.5%, -2%, 0) scale(1.06);
+    transform: translate3d(4%, -3%, 0) scale(1.12);
   }
 }
 
@@ -947,17 +963,17 @@ a {
     transform: translate3d(0, 0, 0) scale(1);
   }
   100% {
-    transform: translate3d(-3%, 2.5%, 0) scale(1.1);
+    transform: translate3d(-5%, 4%, 0) scale(1.18);
   }
 }
 
 @keyframes study-bg-pulse {
   0%,
   100% {
-    opacity: 0.35;
+    opacity: 0.55;
   }
   50% {
-    opacity: 0.6;
+    opacity: 0.95;
   }
 }
 
