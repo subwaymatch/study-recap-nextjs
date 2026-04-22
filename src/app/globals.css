@@ -885,12 +885,19 @@ a {
   isolation: isolate;
 }
 
-/* Ambient section-tinted background glow behind the card */
-.study-page::before {
+/* Ambient section-tinted background glow behind the card —
+   two slowly drifting layers create a subtle, breathing glow. */
+.study-page::before,
+.study-page::after {
   content: "";
   position: absolute;
-  inset: 0;
+  inset: -10%;
   z-index: -1;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+
+.study-page::before {
   background:
     radial-gradient(
       circle at 18% 0%,
@@ -902,8 +909,63 @@ a {
       var(--section-soft) 0%,
       transparent 48%
     );
-  pointer-events: none;
   opacity: 0.9;
+  filter: blur(8px);
+  animation: study-bg-drift 24s ease-in-out infinite alternate;
+}
+
+.study-page::after {
+  background:
+    radial-gradient(
+      circle at 70% 18%,
+      var(--section-ring) 0%,
+      transparent 38%
+    ),
+    radial-gradient(
+      circle at 28% 82%,
+      var(--section-ring) 0%,
+      transparent 40%
+    );
+  opacity: 0.45;
+  filter: blur(28px);
+  animation:
+    study-bg-drift-alt 32s ease-in-out infinite alternate,
+    study-bg-pulse 9s ease-in-out infinite;
+}
+
+@keyframes study-bg-drift {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  100% {
+    transform: translate3d(2.5%, -2%, 0) scale(1.06);
+  }
+}
+
+@keyframes study-bg-drift-alt {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  100% {
+    transform: translate3d(-3%, 2.5%, 0) scale(1.1);
+  }
+}
+
+@keyframes study-bg-pulse {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .study-page::before,
+  .study-page::after {
+    animation: none;
+  }
 }
 
 .study-header {
@@ -925,7 +987,6 @@ a {
   gap: 0.1em;
   padding: 0.3em 0.65em;
   background: var(--bg-card);
-  border: 1px solid var(--border);
   border-radius: 999px;
   letter-spacing: -0.01em;
 }
@@ -985,7 +1046,6 @@ a {
   gap: 0.45em;
   padding: 0.32em 0.8em;
   background: var(--bg-card);
-  border: 1px solid var(--border);
   border-radius: 999px;
   font-size: 0.8rem;
   font-weight: 500;
@@ -1049,13 +1109,11 @@ a {
 .card-type-badge.flashcard {
   color: var(--section-color);
   background: var(--section-soft);
-  box-shadow: inset 0 0 0 1px var(--section-ring);
 }
 
 .card-type-badge.mcq {
   color: var(--text-correct);
   background: var(--bg-correct);
-  box-shadow: inset 0 0 0 1px var(--bg-correct);
 }
 
 /* Card Content Area */
@@ -1170,7 +1228,7 @@ a {
 }
 
 .flashcard-display .flashcard-explanation {
-  font-size: calc(var(--font-sm) * var(--card-font-scale, 1));
+  font-size: calc(var(--font-sm) * var(--card-font-scale, 1) * 0.9);
   line-height: 1.6;
   padding-top: 1.75em;
   color: var(--text-secondary);
@@ -1280,7 +1338,7 @@ a {
 }
 
 .mcq-explanation {
-  font-size: calc(var(--font-sm) * var(--card-font-scale, 1));
+  font-size: calc(var(--font-sm) * var(--card-font-scale, 1) * 0.9);
   color: var(--text-secondary);
   line-height: 1.6;
   padding: 1.4em;
@@ -1506,26 +1564,14 @@ a {
   cursor: not-allowed;
 }
 
-.nav-shortcut-key {
-  font-family: inherit;
-  font-size: 0.85em;
-  color: var(--text-muted);
-  background: transparent;
-  border: 1px solid var(--border);
-  padding: 0.15em 0.4em;
-  border-radius: 5px;
-  line-height: 1;
-  font-weight: 500;
-  transition: border-color 0.18s ease, color 0.18s ease;
-}
-
-.nav-buttons .nav-btn:hover:not(:disabled) .nav-shortcut-key {
-  border-color: var(--text-muted);
-  color: var(--text-secondary);
-}
-
 .nav-btn-svg {
-  display: none;
+  display: block;
+  color: var(--text-muted);
+  transition: color 0.18s ease, transform 0.18s ease;
+}
+
+.nav-buttons .nav-btn:hover:not(:disabled) .nav-btn-svg {
+  color: var(--text-secondary);
 }
 
 .nav-btn-text {
@@ -1587,14 +1633,6 @@ a {
 
   .nav-btn-text {
     display: none;
-  }
-
-  .nav-shortcut-key {
-    display: none;
-  }
-
-  .nav-btn-svg {
-    display: block;
   }
 
   .card-content {
