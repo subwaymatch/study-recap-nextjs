@@ -2890,6 +2890,42 @@ a {
   border-radius: 10px;
 }
 
+.skeleton-icon-btn {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+
+.skeleton-counter {
+  height: 1.5rem;
+  width: 3rem;
+  border-radius: 999px;
+}
+
+.skeleton-module-badge {
+  height: 1.4rem;
+  width: 200px;
+  max-width: 100%;
+  border-radius: 999px;
+}
+
+.skeleton-type-badge {
+  height: 1.5rem;
+  width: 80px;
+  border-radius: 999px;
+}
+
+.skeleton-nav-btn {
+  flex: 1;
+  height: clamp(3.5rem, 5.5vw, 5rem);
+  border-radius: 0;
+}
+
+.skeleton-nav-btn + .skeleton-nav-btn {
+  border-left: 1px solid var(--card-edge);
+}
+
 /* =================== Error Boundary =================== */
 .error-boundary {
   height: 100vh;

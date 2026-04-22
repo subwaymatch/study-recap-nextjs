@@ -36,24 +36,37 @@ export function StudyCardSkeleton() {
   return (
     <div className="study-page">
       <div className="study-header">
-        <div className="skeleton-line skeleton-line-xs skeleton-shimmer" style={{ width: "60px" }} />
-        <div className="skeleton-line skeleton-line-xs skeleton-shimmer" style={{ width: "200px" }} />
-        <div className="skeleton-line skeleton-line-xs skeleton-shimmer" style={{ width: "60px" }} />
+        <div className="study-header-left">
+          <div className="skeleton-icon-btn skeleton-shimmer" />
+        </div>
+        <div className="study-header-center">
+          <div className="skeleton-module-badge skeleton-shimmer" />
+        </div>
+        <div className="study-header-right">
+          <div className="skeleton-counter skeleton-shimmer" />
+          <div className="skeleton-icon-btn skeleton-shimmer" />
+          <div className="skeleton-icon-btn skeleton-shimmer" />
+        </div>
       </div>
       <div className="card-content">
-        <div className="skeleton-study-content">
-          <div className="skeleton-line skeleton-line-lg skeleton-shimmer" />
-          <div className="skeleton-line skeleton-line-lg skeleton-shimmer" style={{ width: "85%" }} />
-          <div className="skeleton-line skeleton-line-lg skeleton-shimmer" style={{ width: "60%" }} />
-          <div className="skeleton-spacer" />
-          <div className="skeleton-line skeleton-line-md skeleton-shimmer" />
-          <div className="skeleton-line skeleton-line-md skeleton-shimmer" style={{ width: "90%" }} />
+        <div className="card-content-inner">
+          <div className="card-top-bar">
+            <div className="skeleton-type-badge skeleton-shimmer" />
+          </div>
+          <div className="skeleton-study-content">
+            <div className="skeleton-line skeleton-line-lg skeleton-shimmer" />
+            <div className="skeleton-line skeleton-line-lg skeleton-shimmer" style={{ width: "85%" }} />
+            <div className="skeleton-line skeleton-line-lg skeleton-shimmer" style={{ width: "60%" }} />
+            <div className="skeleton-spacer" />
+            <div className="skeleton-line skeleton-line-md skeleton-shimmer" />
+            <div className="skeleton-line skeleton-line-md skeleton-shimmer" style={{ width: "90%" }} />
+          </div>
         </div>
       </div>
       <div className="nav-buttons">
-        <div className="skeleton-btn skeleton-shimmer" />
-        <div className="skeleton-btn skeleton-shimmer" />
-        <div className="skeleton-btn skeleton-shimmer" />
+        <div className="skeleton-nav-btn skeleton-shimmer" />
+        <div className="skeleton-nav-btn skeleton-shimmer" />
+        <div className="skeleton-nav-btn skeleton-shimmer" />
       </div>
     </div>
   );
