@@ -112,19 +112,42 @@ export function MCQDisplay({ mcq, randomize = false }: MCQDisplayProps) {
         dangerouslySetInnerHTML={{ __html: sanitizeHtml(mcq.body) }}
       />
       <div className="mcq-options">
-        {displayOrder.map((origIdx, displayIdx) => (
-          <div
-            key={origIdx}
-            className={`mcq-option${origIdx === correctOriginalIndex ? " correct" : ""}`}
-          >
-            <span className="option-label">{OPTION_LABELS[displayIdx]}.</span>
-            <span
-              dangerouslySetInnerHTML={{
-                __html: extractOptionHtml(originalOptions[origIdx]),
-              }}
-            />
-          </div>
-        ))}
+        {displayOrder.map((origIdx, displayIdx) => {
+          const isCorrect = origIdx === correctOriginalIndex;
+          return (
+            <div
+              key={origIdx}
+              className={`mcq-option${isCorrect ? " correct" : ""}`}
+            >
+              <span className="option-label" aria-hidden="true">
+                {OPTION_LABELS[displayIdx]}
+              </span>
+              <span
+                className="option-text"
+                dangerouslySetInnerHTML={{
+                  __html: extractOptionHtml(originalOptions[origIdx]),
+                }}
+              />
+              {isCorrect && (
+                <span className="option-correct-badge" aria-label="Correct answer">
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="3"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                </span>
+              )}
+            </div>
+          );
+        })}
       </div>
       {orderedExplanations.length > 0 && (
         <div className="mcq-explanation">
