@@ -925,11 +925,17 @@ a {
 .study-page {
   --study-bg-pulse-min: 0.5;
   --study-bg-pulse-max: 0.75;
+  /* Warm, section-tinted skeleton shimmer so the loading state blends with
+     the study page's ambient accent halo instead of reading as neutral gray. */
+  --skeleton-base: color-mix(in srgb, var(--section-color) 10%, var(--bg-card-surface));
+  --skeleton-shine: color-mix(in srgb, var(--section-color) 22%, var(--bg-card-surface));
 }
 
 [data-theme="dark"] .study-page {
   --study-bg-pulse-min: 0.65;
   --study-bg-pulse-max: 0.9;
+  --skeleton-base: color-mix(in srgb, var(--section-color) 14%, var(--bg-card-surface));
+  --skeleton-shine: color-mix(in srgb, var(--section-color) 28%, var(--bg-card-surface));
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1586,6 +1592,7 @@ a {
 
   .card-content-inner {
     background: var(--bg-card-surface);
+    border: none;
     border-radius: 18px 18px 0 0;
     padding: clamp(1.75rem, 4vw, 2.25rem) clamp(1.2rem, 4vw, 1.8rem) calc(4.5rem + env(safe-area-inset-bottom) + clamp(1.25rem, 3vw, 1.75rem));
     padding-right: calc(clamp(1.2rem, 4vw, 1.8rem) + 0.5rem);
