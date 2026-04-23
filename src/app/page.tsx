@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useMemo, useEffect, useRef } from "react";
-import Link from "next/link";
 import { useModules } from "@/hooks/useModules";
 import { ModuleCard } from "@/components/ModuleCard";
 import { SectionCard } from "@/components/SectionCard";
@@ -29,20 +28,18 @@ const SECTION_NAMES: Record<SectionCode, string> = {
 
 const STORAGE_KEY = "studyRecap_prefs";
 
-function buildStudyParams(opts: {
+function buildSectionStudyParams(opts: {
+  section: string;
   timerEnabled: boolean;
   intervalSeconds: number;
   randomizeMcq: boolean;
   shuffleCards: boolean;
   showFlashcards: boolean;
   showMcqs: boolean;
-  sections?: string[];
 }): URLSearchParams {
   const params = new URLSearchParams();
   params.set("index", "0");
-  if (opts.sections && opts.sections.length > 0) {
-    params.set("sections", opts.sections.join(","));
-  }
+  params.set("sections", opts.section);
   if (opts.timerEnabled) {
     params.set("timer", "true");
     params.set("interval", String(opts.intervalSeconds));
@@ -74,9 +71,6 @@ export default function ModuleSelectPage() {
   const [showFlashcards, setShowFlashcards] = useState(true);
   const [showMcqs, setShowMcqs] = useState(true);
   const [hideEmpty, setHideEmpty] = useState(true);
-  const [selectedSections, setSelectedSections] = useState<Set<string>>(
-    new Set(),
-  );
   const [searchQuery, setSearchQuery] = useState("");
   const [settingsOpen, setSettingsOpen] = useState(false);
   const searchRef = useRef<HTMLInputElement | null>(null);
@@ -93,9 +87,6 @@ export default function ModuleSelectPage() {
       if (typeof prefs.showFlashcards === "boolean") setShowFlashcards(prefs.showFlashcards);
       if (typeof prefs.showMcqs === "boolean") setShowMcqs(prefs.showMcqs);
       if (typeof prefs.hideEmpty === "boolean") setHideEmpty(prefs.hideEmpty);
-      if (Array.isArray(prefs.selectedSections)) {
-        setSelectedSections(new Set(prefs.selectedSections.filter((s: unknown) => SECTIONS.includes(s as SectionCode))));
-      }
     } catch {
       // ignore malformed data
     }
@@ -113,13 +104,12 @@ export default function ModuleSelectPage() {
           showFlashcards,
           showMcqs,
           hideEmpty,
-          selectedSections: Array.from(selectedSections),
         }),
       );
     } catch {
       // ignore storage errors (e.g. private browsing quota)
     }
-  }, [timerEnabled, intervalSeconds, randomizeMcq, shuffleCards, showFlashcards, showMcqs, hideEmpty, selectedSections]);
+  }, [timerEnabled, intervalSeconds, randomizeMcq, shuffleCards, showFlashcards, showMcqs, hideEmpty]);
 
   // Keyboard shortcut: "/" focuses the search input.
   useEffect(() => {
@@ -133,18 +123,6 @@ export default function ModuleSelectPage() {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, []);
-
-  const toggleSection = (section: string) => {
-    setSelectedSections((prev) => {
-      const next = new Set(prev);
-      if (next.has(section)) {
-        next.delete(section);
-      } else {
-        next.add(section);
-      }
-      return next;
-    });
-  };
 
   const sectionStats = useMemo(() => {
     const stats: Record<string, { modules: number; flashcards: number; mcqs: number }> = {};
@@ -178,9 +156,6 @@ export default function ModuleSelectPage() {
 
   const filteredModules = useMemo(() => {
     let result = modules;
-    if (selectedSections.size > 0) {
-      result = result.filter((m) => selectedSections.has(m.section));
-    }
     if (hideEmpty) {
       result = result.filter((m) => m.flashcard_count > 0 || m.mcq_count > 0);
     }
@@ -192,7 +167,7 @@ export default function ModuleSelectPage() {
       });
     }
     return result;
-  }, [modules, selectedSections, hideEmpty, searchQuery]);
+  }, [modules, hideEmpty, searchQuery]);
 
   // Group filtered modules by section for display.
   const groupedModules = useMemo(() => {
@@ -208,53 +183,19 @@ export default function ModuleSelectPage() {
   const sectionStudyHref = useMemo(() => {
     const map: Record<string, string> = {};
     for (const s of SECTIONS) {
-      const params = buildStudyParams({
+      const params = buildSectionStudyParams({
+        section: s,
         timerEnabled,
         intervalSeconds,
         randomizeMcq,
         shuffleCards,
         showFlashcards,
         showMcqs,
-        sections: [s],
       });
       map[s] = `/study/sections?${params.toString()}`;
     }
     return map;
   }, [timerEnabled, intervalSeconds, randomizeMcq, shuffleCards, showFlashcards, showMcqs]);
-
-  const viewAllHref = useMemo(() => {
-    if (selectedSections.size === 0) return null;
-    const params = buildStudyParams({
-      timerEnabled,
-      intervalSeconds,
-      randomizeMcq,
-      shuffleCards,
-      showFlashcards,
-      showMcqs,
-      sections: Array.from(selectedSections),
-    });
-    return `/study/sections?${params.toString()}`;
-  }, [selectedSections, timerEnabled, intervalSeconds, randomizeMcq, shuffleCards, showFlashcards, showMcqs]);
-
-  const viewAllCounts = useMemo(() => {
-    if (selectedSections.size === 0) return null;
-    const sectionModules = modules.filter((m) =>
-      selectedSections.has(m.section),
-    );
-    return {
-      flashcards: sectionModules.reduce((sum, m) => sum + m.flashcard_count, 0),
-      mcqs: sectionModules.reduce((sum, m) => sum + m.mcq_count, 0),
-    };
-  }, [modules, selectedSections]);
-
-  const activeFiltersCount =
-    selectedSections.size +
-    (searchQuery.trim() ? 1 : 0);
-
-  const clearFilters = () => {
-    setSelectedSections(new Set());
-    setSearchQuery("");
-  };
 
   if (loading) {
     return <ModuleGridSkeleton />;
@@ -311,9 +252,7 @@ export default function ModuleSelectPage() {
             moduleCount={sectionStats[code].modules}
             flashcardCount={sectionStats[code].flashcards}
             mcqCount={sectionStats[code].mcqs}
-            selected={selectedSections.has(code)}
             studyHref={sectionStats[code].modules > 0 ? sectionStudyHref[code] : null}
-            onToggle={() => toggleSection(code)}
           />
         ))}
       </section>
@@ -343,31 +282,6 @@ export default function ModuleSelectPage() {
             /
           </kbd>
         </div>
-
-        <div className="home-toolbar-actions">
-          {activeFiltersCount > 0 && (
-            <button
-              type="button"
-              className="home-chip home-chip-clear"
-              onClick={clearFilters}
-              title="Clear filters"
-            >
-              Clear filters
-              <CloseIcon size={12} />
-            </button>
-          )}
-          {viewAllHref && viewAllCounts && (
-            <Link href={viewAllHref} className="home-study-btn">
-              <span className="home-study-btn-text">
-                Study {selectedSections.size} section
-                {selectedSections.size > 1 ? "s" : ""}
-              </span>
-              <span className="home-study-btn-counts">
-                {viewAllCounts.flashcards + viewAllCounts.mcqs} cards
-              </span>
-            </Link>
-          )}
-        </div>
       </div>
 
       {filteredModules.length === 0 ? (
@@ -375,14 +289,14 @@ export default function ModuleSelectPage() {
           <span className="home-empty-icon" aria-hidden="true">
             <SearchIcon size={22} />
           </span>
-          <p>No modules match your filters.</p>
-          {activeFiltersCount > 0 && (
+          <p>No modules match your search.</p>
+          {searchQuery.trim() && (
             <button
               type="button"
               className="nav-btn"
-              onClick={clearFilters}
+              onClick={() => setSearchQuery("")}
             >
-              Clear filters
+              Clear search
             </button>
           )}
         </div>
