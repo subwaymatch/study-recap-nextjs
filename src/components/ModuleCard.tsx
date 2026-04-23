@@ -25,6 +25,7 @@ export function ModuleCard({
 }: ModuleCardProps) {
   const params = new URLSearchParams();
   params.set("index", "0");
+  params.set("section", module.section);
   if (timerEnabled) {
     params.set("timer", "true");
     params.set("interval", String(intervalSeconds));

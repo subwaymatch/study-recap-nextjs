@@ -184,7 +184,7 @@ function SectionStudyContent() {
 
   if (loading) {
     return (
-      <div className="study-layout">
+      <div className="study-layout" data-section={sections[0]}>
         <StudyCardSkeleton />
       </div>
     );
