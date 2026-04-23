@@ -33,6 +33,9 @@ export default function StudyPage() {
   const typesParam = searchParams.get("types");
   const showFlashcards = typesParam === null || typesParam.split(",").includes("flashcard");
   const showMcqs = typesParam === null || typesParam.split(",").includes("mcq");
+  // Hint from the linking page so the loading skeleton's section-tinted
+  // halo matches the final color before moduleInfo arrives from Supabase.
+  const sectionHint = searchParams.get("section") ?? undefined;
 
   const { cards, moduleInfo, loading, error } = useCards(moduleId);
   const [slideDirection, setSlideDirection] = useState<"next" | "prev">("next");
@@ -170,7 +173,7 @@ export default function StudyPage() {
 
   if (loading) {
     return (
-      <div className="study-layout">
+      <div className="study-layout" data-section={sectionHint}>
         <StudyCardSkeleton />
       </div>
     );
