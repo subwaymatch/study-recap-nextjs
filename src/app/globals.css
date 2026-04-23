@@ -1668,7 +1668,6 @@ a {
   flex-direction: row;
   flex-shrink: 0;
   background: var(--bg-card);
-  border-left: 1px solid var(--border);
   transition:
     width 0.25s ease,
     transform 0.25s ease;
@@ -1726,7 +1725,7 @@ a {
   align-items: center;
   gap: 0.9rem;
   padding: 1rem 0;
-  color: var(--accent);
+  color: var(--text-secondary);
   font-size: 0.85rem;
   font-weight: 600;
   transition:
@@ -1736,12 +1735,12 @@ a {
 }
 
 .ask-ai-tab.expanded .ask-ai-toggle {
-  border-right-color: var(--border);
+  border-right-color: var(--card-edge);
 }
 
 .ask-ai-toggle:hover {
   background: var(--bg-card-hover);
-  color: var(--accent);
+  color: var(--text-primary);
 }
 
 .ask-ai-toggle-chevron {
@@ -1769,8 +1768,7 @@ a {
   align-items: center;
   justify-content: space-between;
   gap: 0.8rem;
-  padding: 0.5rem 1rem;
-  border-bottom: 1px solid var(--border);
+  padding: 0.65rem 1rem 0.4rem;
   flex-shrink: 0;
 }
 
@@ -1780,40 +1778,36 @@ a {
   min-width: 0;
   font-size: 0.85rem;
   font-weight: 600;
-  color: var(--accent);
+  color: var(--text-primary);
 }
 
 .ask-ai-header-actions {
   display: inline-flex;
   align-items: center;
-  gap: 0;
+  gap: 0.25rem;
   flex-shrink: 0;
 }
 
 .ask-ai-clear-btn {
   background: transparent;
-  border: 1px solid var(--border);
-  border-radius: 6px 0 0 6px;
-  padding: 0.35em;
+  border: none;
+  border-radius: 6px;
+  padding: 0.4em;
   color: var(--text-secondary);
   cursor: pointer;
   transition:
     background 0.15s,
-    border-color 0.15s,
     color 0.15s;
   flex-shrink: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   line-height: 0;
-  position: relative;
 }
 
 .ask-ai-clear-btn:hover:not(:disabled) {
   background: var(--error-bg);
-  border-color: var(--error-border);
   color: var(--error-border);
-  z-index: 1;
 }
 
 .ask-ai-clear-btn:disabled {
@@ -1823,29 +1817,24 @@ a {
 
 .ask-ai-close-btn {
   background: transparent;
-  border: 1px solid var(--border);
-  border-radius: 0 6px 6px 0;
-  padding: 0.35em;
+  border: none;
+  border-radius: 6px;
+  padding: 0.4em;
   color: var(--text-secondary);
   cursor: pointer;
   transition:
     background 0.15s,
-    border-color 0.15s,
     color 0.15s;
   flex-shrink: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   line-height: 0;
-  margin-left: -1px;
-  position: relative;
 }
 
 .ask-ai-close-btn:hover {
-  background: var(--bg-card-hover);
-  border-color: var(--accent);
-  color: var(--accent);
-  z-index: 1;
+  background: var(--bg-option);
+  color: var(--text-primary);
 }
 
 .ask-ai-messages {
@@ -2170,9 +2159,8 @@ a {
 
 .ask-ai-input-area {
   display: flex;
-  gap: 0;
-  padding: 0.8rem;
-  border-top: 1px solid var(--border);
+  gap: 0.5rem;
+  padding: 0.6rem 0.8rem 0.8rem;
   flex-shrink: 0;
 }
 
@@ -2184,19 +2172,17 @@ a {
   font-size: var(--font-xs);
   letter-spacing: inherit;
   line-height: 1.45;
-  padding: 0.55em 0.75em;
-  border: 1px solid var(--border);
-  border-right: none;
-  border-radius: 6px 0 0 6px;
-  background: var(--bg-primary);
+  padding: 0.6em 0.8em;
+  border: none;
+  border-radius: 10px;
+  background: var(--bg-option);
   color: var(--text-primary);
-  position: relative;
+  transition: background 0.15s;
 }
 
 .ask-ai-input:focus {
   outline: none;
-  border-color: var(--accent);
-  z-index: 1;
+  background: var(--bg-card-hover);
 }
 
 .ask-ai-input:disabled {
@@ -2209,7 +2195,7 @@ a {
   background: var(--accent);
   color: #fff;
   border: none;
-  border-radius: 0 6px 6px 0;
+  border-radius: 10px;
   padding: 0 0.9em;
   font-size: var(--font-xs);
   font-weight: 600;
