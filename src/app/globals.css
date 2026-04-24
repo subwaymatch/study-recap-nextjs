@@ -2202,15 +2202,14 @@ a {
 
 .ask-ai-send-btn {
   position: absolute;
+  top: 4px;
   right: 4px;
   bottom: 4px;
-  background: var(--accent);
-  color: #fff;
+  background: var(--text-primary);
+  color: var(--bg-primary);
   border: none;
   border-radius: 8px;
   padding: 0 0.8em;
-  height: calc(100% - 8px);
-  max-height: 2.2em;
   font-size: var(--font-xs);
   font-weight: 600;
   cursor: pointer;
@@ -2223,11 +2222,11 @@ a {
 }
 
 .ask-ai-send-btn .ask-ai-thinking-dots span {
-  background: #fff;
+  background: var(--bg-primary);
 }
 
 .ask-ai-send-btn:hover:not(:disabled) {
-  background: var(--accent-hover);
+  background: var(--text-secondary);
 }
 
 .ask-ai-send-btn:disabled {
