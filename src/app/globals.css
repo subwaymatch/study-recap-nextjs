@@ -1474,18 +1474,19 @@ a {
   inset: 0;
   z-index: 100;
   background: var(--overlay-bg);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
   animation: overlay-fade-in 0.15s ease-out;
 }
 
 .study-settings-panel {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 101;
   background: var(--paper);
   border: 1px solid var(--hairline);
   border-radius: 0;
-  width: min(460px, 100%);
+  width: min(460px, calc(100% - 2rem));
   max-height: min(86vh, 720px);
   display: flex;
   flex-direction: column;
@@ -2303,9 +2304,6 @@ a {
   inset: 0;
   z-index: 100;
   background: var(--overlay-bg);
-  display: flex;
-  align-items: center;
-  justify-content: center;
   animation: overlay-fade-in 0.15s ease-out;
 }
 
@@ -2319,6 +2317,11 @@ a {
 }
 
 .shortcuts-panel {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 101;
   background: var(--paper);
   border: 1px solid var(--hairline);
   border-radius: 0;
@@ -2331,11 +2334,11 @@ a {
 @keyframes panel-slide-up {
   from {
     opacity: 0;
-    transform: translateY(16px) scale(0.98);
+    transform: translate(-50%, calc(-50% + 16px)) scale(0.98);
   }
   to {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: translate(-50%, -50%) scale(1);
   }
 }
 
@@ -2448,18 +2451,19 @@ a {
   inset: 0;
   z-index: 100;
   background: var(--overlay-bg);
-  display: flex;
-  align-items: center;
-  justify-content: center;
   animation: overlay-fade-in 0.15s ease-out;
-  padding: 1rem;
 }
 
 .card-list-panel {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 101;
   background: var(--paper);
   border: 1px solid var(--hairline);
   border-radius: 0;
-  width: min(520px, 100%);
+  width: min(520px, calc(100% - 2rem));
   max-height: min(80vh, 720px);
   display: flex;
   flex-direction: column;
@@ -2786,13 +2790,15 @@ a {
   inset: 0;
   z-index: 100;
   background: var(--overlay-bg);
-  display: flex;
-  align-items: center;
-  justify-content: center;
   animation: overlay-fade-in 0.15s ease-out;
 }
 
 .settings-panel {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 101;
   background: var(--paper);
   border: 1px solid var(--hairline);
   border-radius: 0;
@@ -2883,7 +2889,8 @@ a {
   color: var(--text-primary);
 }
 
-.settings-theme-btn.active {
+.settings-theme-btn.active,
+.settings-theme-btn[data-checked] {
   background: var(--ink);
   border-color: var(--ink);
   color: var(--paper);
@@ -2909,7 +2916,8 @@ a {
   flex-shrink: 0;
 }
 
-.settings-switch.on {
+.settings-switch.on,
+.settings-switch[data-checked] {
   background: var(--accent);
 }
 
@@ -2924,7 +2932,8 @@ a {
   transition: transform 0.2s;
 }
 
-.settings-switch.on .settings-switch-thumb {
+.settings-switch.on .settings-switch-thumb,
+.settings-switch[data-checked] .settings-switch-thumb {
   transform: translateX(20px);
 }
 
