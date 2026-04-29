@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef } from "react";
+import { Dialog } from "@base-ui-components/react/dialog";
 import type { StudyCard } from "@/types";
 import { stripHtml } from "@/lib/html";
 
@@ -30,14 +31,12 @@ export function CardListOverlay({
 }: CardListOverlayProps) {
   const activeItemRef = useRef<HTMLButtonElement>(null);
 
-  // When opened, scroll the currently active card into view.
   useEffect(() => {
     if (!isOpen) return;
     activeItemRef.current?.scrollIntoView({ block: "center" });
   }, [isOpen]);
 
-  // Close on Escape while open; capture-phase so we beat the study page's
-  // Escape handler (which navigates home).
+  // Capture-phase Escape handler so we beat the study page's "go home" listener.
   useEffect(() => {
     if (!isOpen) return;
     function handleKeyDown(e: KeyboardEvent) {
@@ -59,73 +58,68 @@ export function CardListOverlay({
     [onSelect, onClose],
   );
 
-  if (!isOpen) return null;
-
   return (
-    <div
-      className="card-list-overlay"
-      onClick={onClose}
-      role="dialog"
-      aria-modal="true"
-      aria-label="All cards"
+    <Dialog.Root
+      open={isOpen}
+      onOpenChange={(next) => {
+        if (!next) onClose();
+      }}
     >
-      <div
-        className="card-list-panel"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="card-list-header">
-          <h2>All Cards ({cards.length})</h2>
-          <button
-            type="button"
-            className="card-list-close"
-            onClick={onClose}
-            aria-label="Close card list"
-          >
-            <svg
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden="true"
+      <Dialog.Portal>
+        <Dialog.Backdrop className="card-list-overlay" />
+        <Dialog.Popup className="card-list-panel" aria-label="All cards">
+          <div className="card-list-header">
+            <Dialog.Title render={<h2>All Cards ({cards.length})</h2>} />
+            <Dialog.Close
+              className="card-list-close"
+              aria-label="Close card list"
             >
-              <line x1="18" y1="6" x2="6" y2="18" />
-              <line x1="6" y1="6" x2="18" y2="18" />
-            </svg>
-          </button>
-        </div>
-        <ul className="card-list-items">
-          {cards.map((card, index) => {
-            const isActive = index === currentIndex;
-            const excerpt = buildExcerpt(card) || "(empty)";
-            return (
-              <li key={card.data.card_id}>
-                <button
-                  type="button"
-                  ref={isActive ? activeItemRef : undefined}
-                  className={`card-list-item ${isActive ? "active" : ""}`}
-                  onClick={() => handleSelect(index)}
-                  aria-current={isActive ? "true" : undefined}
-                >
-                  <span className="card-list-index">{index + 1}</span>
-                  <span
-                    className={`card-list-type ${card.type}`}
-                    aria-label={
-                      card.type === "flashcard" ? "Flashcard" : "MCQ"
-                    }
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </Dialog.Close>
+          </div>
+          <ul className="card-list-items">
+            {cards.map((card, index) => {
+              const isActive = index === currentIndex;
+              const excerpt = buildExcerpt(card) || "(empty)";
+              return (
+                <li key={card.data.card_id}>
+                  <button
+                    type="button"
+                    ref={isActive ? activeItemRef : undefined}
+                    className={`card-list-item ${isActive ? "active" : ""}`}
+                    onClick={() => handleSelect(index)}
+                    aria-current={isActive ? "true" : undefined}
                   >
-                    {card.type === "flashcard" ? "FC" : "MCQ"}
-                  </span>
-                  <span className="card-list-excerpt">{excerpt}</span>
-                </button>
-              </li>
-            );
-          })}
-        </ul>
-      </div>
-    </div>
+                    <span className="card-list-index">{index + 1}</span>
+                    <span
+                      className={`card-list-type ${card.type}`}
+                      aria-label={
+                        card.type === "flashcard" ? "Flashcard" : "MCQ"
+                      }
+                    >
+                      {card.type === "flashcard" ? "FC" : "MCQ"}
+                    </span>
+                    <span className="card-list-excerpt">{excerpt}</span>
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        </Dialog.Popup>
+      </Dialog.Portal>
+    </Dialog.Root>
   );
 }

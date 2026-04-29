@@ -1,6 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { Dialog } from "@base-ui-components/react/dialog";
+import { RadioGroup } from "@base-ui-components/react/radio-group";
+import { Radio } from "@base-ui-components/react/radio";
+import { Switch } from "@base-ui-components/react/switch";
 
 type Theme = "light" | "dark" | "system";
 
@@ -79,6 +83,64 @@ interface SettingsPanelProps {
   onAskAIEnabledChange: (enabled: boolean) => void;
 }
 
+const THEME_ICONS = {
+  light: (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <circle cx="12" cy="12" r="5" />
+      <line x1="12" y1="1" x2="12" y2="3" />
+      <line x1="12" y1="21" x2="12" y2="23" />
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+      <line x1="1" y1="12" x2="3" y2="12" />
+      <line x1="21" y1="12" x2="23" y2="12" />
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+    </svg>
+  ),
+  dark: (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+    </svg>
+  ),
+  system: (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
+      <line x1="8" y1="21" x2="16" y2="21" />
+      <line x1="12" y1="17" x2="12" y2="21" />
+    </svg>
+  ),
+};
+
 export function SettingsPanel({
   isOpen,
   onClose,
@@ -108,6 +170,7 @@ export function SettingsPanel({
     return () => mql.removeEventListener("change", handler);
   }, [theme]);
 
+  // Capture-phase Escape so the study page's "go home" handler doesn't fire.
   useEffect(() => {
     if (!isOpen) return;
     function handleKeyDown(e: KeyboardEvent) {
@@ -135,19 +198,21 @@ export function SettingsPanel({
     applyTheme(getResolvedTheme(newTheme));
   }, []);
 
-  const toggleAskAI = useCallback(() => {
-    const next = !askAIEnabled;
-    onAskAIEnabledChange(next);
-    try {
-      if (next) {
-        window.localStorage.removeItem(ASK_AI_KEY);
-      } else {
-        window.localStorage.setItem(ASK_AI_KEY, "false");
+  const setAskAI = useCallback(
+    (next: boolean) => {
+      onAskAIEnabledChange(next);
+      try {
+        if (next) {
+          window.localStorage.removeItem(ASK_AI_KEY);
+        } else {
+          window.localStorage.setItem(ASK_AI_KEY, "false");
+        }
+      } catch {
+        // Ignore storage errors.
       }
-    } catch {
-      // Ignore storage errors.
-    }
-  }, [askAIEnabled, onAskAIEnabledChange]);
+    },
+    [onAskAIEnabledChange],
+  );
 
   const handleFontScaleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -175,145 +240,127 @@ export function SettingsPanel({
     }
   }, []);
 
-  if (!isOpen) return null;
-
   return (
-    <div className="settings-overlay" onClick={onClose}>
-      <div
-        className="settings-panel"
-        onClick={(e) => e.stopPropagation()}
-        role="dialog"
-        aria-label="Settings"
-      >
-        <div className="settings-header">
-          <h2>Settings</h2>
-          <button
-            className="settings-close"
-            onClick={onClose}
-            aria-label="Close settings"
-          >
-            <svg
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden="true"
+    <Dialog.Root
+      open={isOpen}
+      onOpenChange={(next) => {
+        if (!next) onClose();
+      }}
+    >
+      <Dialog.Portal>
+        <Dialog.Backdrop className="settings-overlay" />
+        <Dialog.Popup className="settings-panel" aria-label="Settings">
+          <div className="settings-header">
+            <Dialog.Title render={<h2>Settings</h2>} />
+            <Dialog.Close
+              className="settings-close"
+              aria-label="Close settings"
             >
-              <line x1="18" y1="6" x2="6" y2="18" />
-              <line x1="6" y1="6" x2="18" y2="18" />
-            </svg>
-          </button>
-        </div>
-
-        <div className="settings-body">
-          <div className="settings-section">
-            <label className="settings-label">Theme</label>
-            <div className="settings-theme-options">
-              <button
-                className={`settings-theme-btn${theme === "light" ? " active" : ""}`}
-                onClick={() => selectTheme("light")}
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
               >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                  <circle cx="12" cy="12" r="5" />
-                  <line x1="12" y1="1" x2="12" y2="3" />
-                  <line x1="12" y1="21" x2="12" y2="23" />
-                  <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
-                  <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
-                  <line x1="1" y1="12" x2="3" y2="12" />
-                  <line x1="21" y1="12" x2="23" y2="12" />
-                  <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
-                  <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
-                </svg>
-                Light
-              </button>
-              <button
-                className={`settings-theme-btn${theme === "dark" ? " active" : ""}`}
-                onClick={() => selectTheme("dark")}
-              >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                  <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-                </svg>
-                Dark
-              </button>
-              <button
-                className={`settings-theme-btn${theme === "system" ? " active" : ""}`}
-                onClick={() => selectTheme("system")}
-              >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                  <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
-                  <line x1="8" y1="21" x2="16" y2="21" />
-                  <line x1="12" y1="17" x2="12" y2="21" />
-                </svg>
-                System
-              </button>
-            </div>
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </Dialog.Close>
           </div>
 
-          <div className="settings-section">
-            <div className="settings-toggle-row">
-              <label className="settings-label" htmlFor="card-font-scale">
-                Card font size
-              </label>
-              <button
-                type="button"
-                className="settings-reset-btn"
-                onClick={resetFontScale}
-                disabled={fontScale === FONT_SCALE_DEFAULT}
-              >
-                Reset
-              </button>
-            </div>
-            <div className="settings-slider-row">
-              <span className="settings-slider-label-sm" aria-hidden="true">A</span>
-              <input
-                id="card-font-scale"
-                type="range"
-                className="settings-slider"
-                min={FONT_SCALE_MIN}
-                max={FONT_SCALE_MAX}
-                step={FONT_SCALE_STEP}
-                value={fontScale}
-                onChange={handleFontScaleChange}
-                aria-valuemin={FONT_SCALE_MIN}
-                aria-valuemax={FONT_SCALE_MAX}
-                aria-valuenow={fontScale}
-              />
-              <span className="settings-slider-label-lg" aria-hidden="true">A</span>
-              <span className="settings-slider-value">
-                {Math.round(fontScale * 100)}%
+          <div className="settings-body">
+            <div className="settings-section">
+              <span className="settings-label" id="theme-label">
+                Theme
               </span>
-            </div>
-            <p className="settings-hint">
-              Applies to flashcard and MCQ content only.
-            </p>
-          </div>
-
-          <div className="settings-section">
-            <div className="settings-toggle-row">
-              <label className="settings-label" htmlFor="ask-ai-toggle">
-                Enable Ask AI
-              </label>
-              <button
-                id="ask-ai-toggle"
-                type="button"
-                role="switch"
-                aria-checked={askAIEnabled}
-                className={`settings-switch${askAIEnabled ? " on" : ""}`}
-                onClick={toggleAskAI}
+              <RadioGroup
+                value={theme}
+                onValueChange={(v) => selectTheme(v as Theme)}
+                aria-labelledby="theme-label"
+                className="settings-theme-options"
               >
-                <span className="settings-switch-thumb" />
-              </button>
+                {(["light", "dark", "system"] as const).map((t) => (
+                  <Radio.Root
+                    key={t}
+                    value={t}
+                    className="settings-theme-btn"
+                  >
+                    {THEME_ICONS[t]}
+                    {t === "light" ? "Light" : t === "dark" ? "Dark" : "System"}
+                  </Radio.Root>
+                ))}
+              </RadioGroup>
             </div>
-            <p className="settings-hint">
-              When disabled, the Ask AI tab and button are hidden.
-            </p>
+
+            <div className="settings-section">
+              <div className="settings-toggle-row">
+                <label className="settings-label" htmlFor="card-font-scale">
+                  Card font size
+                </label>
+                <button
+                  type="button"
+                  className="settings-reset-btn"
+                  onClick={resetFontScale}
+                  disabled={fontScale === FONT_SCALE_DEFAULT}
+                >
+                  Reset
+                </button>
+              </div>
+              <div className="settings-slider-row">
+                <span className="settings-slider-label-sm" aria-hidden="true">
+                  A
+                </span>
+                <input
+                  id="card-font-scale"
+                  type="range"
+                  className="settings-slider"
+                  min={FONT_SCALE_MIN}
+                  max={FONT_SCALE_MAX}
+                  step={FONT_SCALE_STEP}
+                  value={fontScale}
+                  onChange={handleFontScaleChange}
+                  aria-valuemin={FONT_SCALE_MIN}
+                  aria-valuemax={FONT_SCALE_MAX}
+                  aria-valuenow={fontScale}
+                />
+                <span className="settings-slider-label-lg" aria-hidden="true">
+                  A
+                </span>
+                <span className="settings-slider-value">
+                  {Math.round(fontScale * 100)}%
+                </span>
+              </div>
+              <p className="settings-hint">
+                Applies to flashcard and MCQ content only.
+              </p>
+            </div>
+
+            <div className="settings-section">
+              <div className="settings-toggle-row">
+                <label className="settings-label" htmlFor="ask-ai-toggle">
+                  Enable Ask AI
+                </label>
+                <Switch.Root
+                  id="ask-ai-toggle"
+                  checked={askAIEnabled}
+                  onCheckedChange={setAskAI}
+                  className="settings-switch"
+                >
+                  <Switch.Thumb className="settings-switch-thumb" />
+                </Switch.Root>
+              </div>
+              <p className="settings-hint">
+                When disabled, the Ask AI tab and button are hidden.
+              </p>
+            </div>
           </div>
-        </div>
-      </div>
-    </div>
+        </Dialog.Popup>
+      </Dialog.Portal>
+    </Dialog.Root>
   );
 }
