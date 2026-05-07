@@ -2182,10 +2182,10 @@ a {
 
 @media (max-width: 900px), (hover: none) and (pointer: coarse) {
   .ask-ai-mobile-backdrop {
-    position: absolute;
+    position: fixed;
     inset: 0;
     z-index: 19;
-    background: transparent;
+    background: var(--overlay-bg);
   }
 
   /* On mobile, the tab slides in from the right edge. It is always mounted
