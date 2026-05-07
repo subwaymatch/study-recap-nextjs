@@ -1621,10 +1621,6 @@ a {
   overflow: hidden;
 }
 
-.ask-ai-mobile-backdrop {
-  display: none;
-}
-
 [data-theme="dark"] .ask-ai-tab {
   background: #070707;
 }
