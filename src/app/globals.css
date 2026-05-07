@@ -2177,6 +2177,13 @@ a {
 }
 
 @media (max-width: 900px), (hover: none) and (pointer: coarse) {
+  .ask-ai-mobile-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 19;
+    background: var(--overlay-bg);
+  }
+
   /* On mobile, the tab slides in from the right edge. It is always mounted
      so that both the open and close transitions animate smoothly. */
   .ask-ai-tab {
