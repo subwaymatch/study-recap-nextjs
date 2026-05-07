@@ -655,19 +655,27 @@ export function AskAITab({
   }
 
   return (
-    <aside
-      className={`ask-ai-tab ${isExpanded ? "expanded" : "collapsed"}`}
-      aria-label="Ask AI panel"
-      // On mobile, the collapsed aside slides off-screen. Mark it inert so its
-      // (visually hidden) toggle button isn't reachable by keyboard or AT.
-      // On desktop the toggle stays focusable so users can expand via keyboard.
-      inert={isMobile && !isExpanded}
-      onTouchStart={handleTouchStart}
-      onTouchMove={handleTouchMove}
-      onTouchEnd={handleTouchEnd}
-      onTouchCancel={handleTouchCancel}
-      style={asideStyle}
-    >
+    <>
+      {isMobile && isExpanded && (
+        <div
+          className="ask-ai-mobile-backdrop"
+          onClick={() => onExpandedChange(false)}
+          aria-hidden="true"
+        />
+      )}
+      <aside
+        className={`ask-ai-tab ${isExpanded ? "expanded" : "collapsed"}`}
+        aria-label="Ask AI panel"
+        // On mobile, the collapsed aside slides off-screen. Mark it inert so its
+        // (visually hidden) toggle button isn't reachable by keyboard or AT.
+        // On desktop the toggle stays focusable so users can expand via keyboard.
+        inert={isMobile && !isExpanded}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        onTouchCancel={handleTouchCancel}
+        style={asideStyle}
+      >
       {!isMobile && isExpanded && (
         <div
           className={`ask-ai-resize-handle${isResizing ? " resizing" : ""}`}
@@ -922,6 +930,7 @@ export function AskAITab({
           </button>
         </div>
       </div>
-    </aside>
+      </aside>
+    </>
   );
 }

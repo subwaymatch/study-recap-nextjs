@@ -1621,6 +1621,10 @@ a {
   overflow: hidden;
 }
 
+.ask-ai-mobile-backdrop {
+  display: none;
+}
+
 [data-theme="dark"] .ask-ai-tab {
   background: #070707;
 }
@@ -2177,6 +2181,13 @@ a {
 }
 
 @media (max-width: 900px), (hover: none) and (pointer: coarse) {
+  .ask-ai-mobile-backdrop {
+    position: absolute;
+    inset: 0;
+    z-index: 19;
+    background: transparent;
+  }
+
   /* On mobile, the tab slides in from the right edge. It is always mounted
      so that both the open and close transitions animate smoothly. */
   .ask-ai-tab {
